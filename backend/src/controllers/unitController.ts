@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import joi from "joi";
+import UnitModel from "../models/unitModel";
+import { Status, StatusType } from "../utils/statusTypes";
 
 export async function createUnit(request: Request, 
-                                 response: Response): Promise<void>{
-
+                                 response: Response): Promise<void> {
     const schema = joi.object({
         desc: joi.string().alphanum().min(1).max(20).required()
     });
@@ -16,13 +17,23 @@ export async function createUnit(request: Request,
                 error: error.details[0].message
             });
         }
-
-        // process the request by loading data into database
         
-        response.status(201).json({
-            message: 'Unit created succesfully',
-            data: value
-        });
+        const dbResponse : Status<StatusType, number | undefined> = await UnitModel.create(request.body.desc);
+        
+        switch (dbResponse.status) {
+            case StatusType.Success:
+                response.status(201).json({
+                    message: 'Unit created succesfully', 
+                    id: dbResponse.value 
+                });
+                break;
+            case StatusType.Failure:
+                response.status(500).json({
+                    error: 'Internal Server Error',
+                    message: dbResponse.message
+                });
+        }
+        
     } catch (err) {
         console.log(err);
         response.status(500).json({

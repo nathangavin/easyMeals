@@ -14,6 +14,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getUnit = exports.createUnit = void 0;
 const joi_1 = __importDefault(require("joi"));
+const unitModel_1 = __importDefault(require("../models/unitModel"));
+const statusTypes_1 = require("../utils/statusTypes");
 function createUnit(request, response) {
     return __awaiter(this, void 0, void 0, function* () {
         const schema = joi_1.default.object({
@@ -27,11 +29,20 @@ function createUnit(request, response) {
                     error: error.details[0].message
                 });
             }
-            // process the request by loading data into database
-            response.status(201).json({
-                message: 'Unit created succesfully',
-                data: value
-            });
+            const dbResponse = yield unitModel_1.default.create(request.body.desc);
+            switch (dbResponse.status) {
+                case statusTypes_1.StatusType.Success:
+                    response.status(201).json({
+                        message: 'Unit created succesfully',
+                        id: dbResponse.value
+                    });
+                    break;
+                case statusTypes_1.StatusType.Failure:
+                    response.status(500).json({
+                        error: 'Internal Server Error',
+                        message: dbResponse.message
+                    });
+            }
         }
         catch (err) {
             console.log(err);
@@ -45,9 +56,7 @@ exports.createUnit = createUnit;
 function getUnit(request, response) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            console.log('get response');
             const id = request.params.unitId;
-            console.log(id);
             // get object from db
             const data = { id };
             response.status(200).json({
