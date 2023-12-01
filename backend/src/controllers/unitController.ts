@@ -32,6 +32,11 @@ export async function createUnit(request: Request,
                     error: 'Internal Server Error',
                     message: dbResponse.message
                 });
+                break;
+            case StatusType.Empty:
+                response.status(404).json({
+                    message: 'No results'
+                });
         }
         
     } catch (err) {
@@ -45,12 +50,35 @@ export async function createUnit(request: Request,
 export async function getUnit(request: Request,
                                 response: Response): Promise<void> {
     try {
-        const id = request.params.unitId;
-        // get object from db
-        const data = { id };
-        response.status(200).json({
-            data: data
-        })
+        const id = +request.params.unitId;
+        if (isNaN(id)) {
+            response.status(400).json({
+                error: 'Invalid Id Format'
+            });
+        } else {
+            // get object from db
+            const dbResponse : Status<StatusType, object | undefined>
+                = await UnitModel.get(id);
+
+            switch (dbResponse.status) {
+                case StatusType.Success: 
+                    response.status(200).json({
+                        data: dbResponse.value
+                    });
+                    break;
+                case StatusType.Failure:
+                    response.status(500).json({
+                        error: 'Internal Server Error',
+                        message: dbResponse.message
+                    });
+                    break;
+                case StatusType.Empty:
+                    response.status(404).json({
+                        message: `record ${id} not found`
+                    });
+                    break;
+            }
+        }
     } catch (err) {
         console.log(err);
         response.status(500).json({

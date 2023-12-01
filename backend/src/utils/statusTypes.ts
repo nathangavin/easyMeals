@@ -1,6 +1,7 @@
 export enum StatusType {
     Success = 'success',
     Failure = 'failure',
+    Empty = 'empty'
 }
 
 export type Status<T extends StatusType, U = undefined> = 
@@ -8,9 +9,12 @@ export type Status<T extends StatusType, U = undefined> =
             ? {
                 status: T;
                 value: U;
-            } : {
-                status: T;
-                message: string
-            };
+            } : T extends StatusType.Empty 
+                ? {
+                    status: T
+                } : {
+                    status: T;
+                    message: string
+                };
 
 
