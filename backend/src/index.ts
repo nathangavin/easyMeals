@@ -4,6 +4,7 @@ import morgan from "morgan";
 
 import unitRoutes from './routes/unitRoutes';
 
+// create express server
 const app = express();
 
 app.use(helmet());
