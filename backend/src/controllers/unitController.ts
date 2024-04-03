@@ -19,7 +19,7 @@ export async function createUnit(request: Request,
         }
         
         const dbResponse : Status<StatusType, number | undefined> = await UnitModel.create(request.body.desc);
-        
+        console.log(dbResponse);
         switch (dbResponse.status) {
             case StatusType.Success:
                 response.status(201).json({

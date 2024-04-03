@@ -11,7 +11,7 @@ class UnitModel {
 
         const connection = await connectDatabase();
         try {
-            const query = `INSERT INTO Unit (description) VALUES ("${description}");`;
+            const query = `INSERT INTO Units (description) VALUES ("${description}");`;
             const [result] = await connection.execute<ResultSetHeader>(query);
             return {
                 status: StatusType.Success,
@@ -32,12 +32,12 @@ class UnitModel {
 
         const connection = await connectDatabase();
         try {
-            const query = `SELECT * FROM Unit WHERE ID = ${id}`;
+            const query = `SELECT * FROM Units WHERE ID = ${id}`;
             const [result] = await connection.execute(query);
             if (result instanceof Array) {
                 return result.length > 0 ? {
                         status: StatusType.Success,
-                        value: result
+                        value: result[0]
                     } : {
                         status: StatusType.Empty,
                     };
