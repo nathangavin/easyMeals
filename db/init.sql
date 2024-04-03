@@ -1,3 +1,4 @@
+CREATE DATABASE IF NOT EXISTS easyMeals;
 USE easyMeals;
 
 CREATE TABLE IF NOT EXISTS Units (
@@ -47,9 +48,8 @@ CREATE TABLE IF NOT EXISTS IngredientQuantities (
 
 CREATE TABLE IF NOT EXISTS Instructions (
     ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    description VARCHAR(256) NOT NULL,
-
-)
+    description VARCHAR(256) NOT NULL
+);
 
 CREATE TABLE IF NOT EXISTS InstructionIngredientQuantities (
     quantityID INT NOT NULL,
