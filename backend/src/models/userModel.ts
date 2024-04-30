@@ -1,20 +1,30 @@
 import { ResultSetHeader } from 'mysql2';
-import { connectDatabase } from '../utils/databaseConnection';
+import bcrypt from 'bcrypt';
+import { connectDatabase, generateCreateSQLStatement } from '../utils/databaseConnection';
 import { StatusType, Status } from '../utils/statusTypes';
 
 class UserModel {
     
     private static genericErrorMessage = 'Unknown User Model Error';
 
-    static async create(description: string): 
+    static async create(firstname: string, lastname: string, email: string, password: string): 
                 Promise<Status<StatusType, number | undefined>> {
 
         const connection = await connectDatabase();
         const createdTime = Date.now();
         const modifiedTime = createdTime;
+        
+        const salt = await bcrypt.genSalt(10);
+        const columnData = [
+            ['createdTime', createdTime],
+            ['modifiedTime', modifiedTime],
+            ['firstname', firstname],
+            ['lastname', lastname],
+            ['email', email],
+            ['passwordHash', await bcrypt.hash(password, salt)]
+        ];
         try {
-            const query = `INSERT INTO Units (description,createdTime,modifiedTime) 
-                            VALUES ("${description}", ${createdTime}, ${modifiedTime});`;
+            const query = generateCreateSQLStatement('Users', columnData);
             const [result] = await connection.execute<ResultSetHeader>(query);
             return {
                 status: StatusType.Success,

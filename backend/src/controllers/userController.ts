@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import joi from "joi";
+
 import UserModel from "../models/userModel";
 import { Status, StatusType } from "../utils/statusTypes";
 
@@ -8,7 +9,8 @@ export async function createUser(request: Request,
     const schema = joi.object({
         firstname: joi.string().alphanum().min(1).max(20).required(),
         lastname: joi.string().alphanum().min(1).max(20).required(),
-        email: joi.string().alphanum().min(1).max(100).required()
+        email: joi.string().alphanum().min(1).max(100).required(),
+        password: joi.string().alphanum().min(16).max(256).required()
     });
 
     try {
@@ -20,12 +22,16 @@ export async function createUser(request: Request,
             });
         }
         
-        const dbResponse : Status<StatusType, number | undefined> = await UserModel.create(request.body.desc);
+        const dbResponse : Status<StatusType, number | undefined> = 
+                                await UserModel.create(request.body.firstname,
+                                                       request.body.lastname,
+                                                       request.body.email,
+                                                       request.body.password);
         console.log(dbResponse);
         switch (dbResponse.status) {
             case StatusType.Success:
                 response.status(201).json({
-                    message: 'Unit created succesfully', 
+                    message: 'User created succesfully', 
                     id: dbResponse.value 
                 });
                 break;
@@ -52,6 +58,7 @@ export async function createUser(request: Request,
 export async function getUser(request: Request,
                                 response: Response): Promise<void> {
     try {
+        // convert string to number with + unary operator
         const id = +request.params.unitId;
         if (isNaN(id)) {
             response.status(400).json({
@@ -87,5 +94,24 @@ export async function getUser(request: Request,
             error: 'Internal Server Error'
         });
     }
+}
+
+export async function login(request: Request,
+                           response: Response): Promise<void> {
+    
+    const schema = joi.object({
+        email: joi.string().alphanum().min(1).max(100).required(),
+        password: joi.string().alphanum().min(16).max(256).required()
+    });
+
+    try {
+        
+    } catch (err) {
+        console.log(err);
+        response.status(500).json({
+            error: 'Internal Server Error'
+        });
+    }
+
 }
 
