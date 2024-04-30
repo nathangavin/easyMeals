@@ -10,8 +10,11 @@ class UnitModel {
                 Promise<Status<StatusType, number | undefined>> {
 
         const connection = await connectDatabase();
+        const createdTime = Date.now();
+        const modifiedTime = createdTime;
         try {
-            const query = `INSERT INTO Units (description) VALUES ("${description}");`;
+            const query = `INSERT INTO Units (description,createdTime,modifiedTime) 
+                        VALUES ("${description}",${createdTime}, ${modifiedTime});`;
             const [result] = await connection.execute<ResultSetHeader>(query);
             return {
                 status: StatusType.Success,
