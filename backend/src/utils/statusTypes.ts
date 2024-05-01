@@ -1,7 +1,8 @@
 export enum StatusType {
     Success = 'success',
     Failure = 'failure',
-    Empty = 'empty'
+    Empty = 'empty',
+    Missing = 'missing'
 }
 
 export type Status<T extends StatusType, U = undefined> = 
