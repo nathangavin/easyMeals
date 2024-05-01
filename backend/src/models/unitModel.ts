@@ -1,5 +1,5 @@
 import { ResultSetHeader } from 'mysql2';
-import { connectDatabase } from '../utils/databaseConnection';
+import { connectDatabase, generateCreateSQLStatement } from '../utils/databaseConnection';
 import { StatusType, Status } from '../utils/statusTypes';
 
 class UnitModel {
@@ -12,9 +12,13 @@ class UnitModel {
         const connection = await connectDatabase();
         const createdTime = Date.now();
         const modifiedTime = createdTime;
+        const columnData = [
+            ['createdTime', createdTime],
+            ['modifiedTime', modifiedTime],
+            ['description', description]
+        ];
         try {
-            const query = `INSERT INTO Units (description,createdTime,modifiedTime) 
-                        VALUES ("${description}",${createdTime}, ${modifiedTime});`;
+            const query = generateCreateSQLStatement('Units', columnData);
             const [result] = await connection.execute<ResultSetHeader>(query);
             return {
                 status: StatusType.Success,

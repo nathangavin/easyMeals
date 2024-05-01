@@ -1,5 +1,5 @@
 import { ResultSetHeader } from 'mysql2';
-import { connectDatabase } from '../utils/databaseConnection';
+import { connectDatabase, generateCreateSQLStatement } from '../utils/databaseConnection';
 import { StatusType, Status } from '../utils/statusTypes';
 
 class PantryModel {
@@ -12,9 +12,13 @@ class PantryModel {
         const connection = await connectDatabase();
         const createdTime = Date.now();
         const modifiedTime = createdTime;
+        const columnData = [
+            ['createdTime', createdTime],
+            ['modifiedTime', modifiedTime],
+            ['name', name]
+        ];
         try {
-            const query = `INSERT INTO Pantries (name,createdTime,modifiedTime) 
-                        VALUES ("${name}",${createdTime}, ${modifiedTime});`;
+            const query = generateCreateSQLStatement('Pantries', columnData);
             const [result] = await connection.execute<ResultSetHeader>(query);
             return {
                 status: StatusType.Success,
