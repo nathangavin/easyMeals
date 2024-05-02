@@ -22,7 +22,12 @@ CREATE TABLE IF NOT EXISTS Users (
     firstname VARCHAR(20) NOT NULL,
     lastname VARCHAR(20) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
-    passwordHash VARCHAR(256) UNIQUE
+    passwordHash VARCHAR(256) UNIQUE,
+    loginTokenID INT
+
+    CONSTRAINT user_login
+    FOREIGN KEY(loginTokenID)
+    REFERENCES Tokens(ID)
 );
 
 CREATE TABLE IF NOT EXISTS Recipes (
@@ -117,13 +122,8 @@ CREATE TABLE IF NOT EXISTS UserRecipes (
     rating INT NOT NULL CHECK (rating >= 1 AND rating <= 10)
 );
 
-CREATE TABLE IF NOT EXISTS LoginToken (
-    token VARCHAR(100) NOT NULL PRIMARY KEY,
-    expiryTime BIGINT NOT NULL,
-    userID INT NOT NULL 
-
-    CONSTRAINT l_user
-    FOREIGN KEY(userID)
-    REFERENCES USERS(ID)
-    ON DELETE CASCADE
+CREATE TABLE IF NOT EXISTS Tokens (
+    ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    token VARCHAR(100) NOT NULL,
+    expiryTime BIGINT NOT NULL
 );
