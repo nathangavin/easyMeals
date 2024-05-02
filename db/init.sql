@@ -116,3 +116,14 @@ CREATE TABLE IF NOT EXISTS UserRecipes (
     recipeID INT NOT NULL,
     rating INT NOT NULL CHECK (rating >= 1 AND rating <= 10)
 );
+
+CREATE TABLE IF NOT EXISTS LoginToken (
+    token VARCHAR(100) NOT NULL PRIMARY KEY,
+    expiryTime BIGINT NOT NULL,
+    userID INT NOT NULL 
+
+    CONSTRAINT l_user
+    FOREIGN KEY(userID)
+    REFERENCES USERS(ID)
+    ON DELETE CASCADE
+);
