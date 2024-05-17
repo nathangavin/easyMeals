@@ -2,7 +2,15 @@ import { ResultSetHeader } from 'mysql2';
 import { connectDatabase, generateCreateSQLStatement } from '../../utils/databaseConnection';
 import { StatusType, Status } from '../../utils/statusTypes';
 
-class Token {
+export interface Token {
+    ID: number,
+    createdTime: number,
+    modifiedTime: number,
+    token: string,
+    expiryTime: number
+};
+
+class TokenModel {
     
     private static genericErrorMessage = 'Unknown Error';
 
@@ -28,7 +36,7 @@ class Token {
         } catch (error) {
             return {
                 status: StatusType.Failure,
-                message: Token.errorMessage(error) 
+                message: TokenModel.errorMessage(error) 
             };
         } finally {
             await connection.end();
@@ -36,7 +44,7 @@ class Token {
     }
 
     static async get(id: number): 
-            Promise<Status<StatusType, object | undefined>> {
+            Promise<Status<StatusType, Token | undefined>> {
 
         const connection = await connectDatabase();
         try {
@@ -45,7 +53,7 @@ class Token {
             if (result instanceof Array) {
                 return result.length > 0 ? {
                         status: StatusType.Success,
-                        value: result[0]
+                        value: result[0] as Token
                     } : {
                         status: StatusType.Empty,
                     };
@@ -57,7 +65,7 @@ class Token {
         } catch (error) {
             return {
                 status: StatusType.Failure,
-                message: Token.errorMessage(error)
+                message: TokenModel.errorMessage(error)
             }
         } finally {
             await connection.end();
@@ -65,10 +73,10 @@ class Token {
     }
 
     private static errorMessage(error: any): string {
-        return error instanceof Error ? error.message : Token.genericErrorMessage;
+        return error instanceof Error ? error.message : TokenModel.genericErrorMessage;
     }
 } 
 
-export default Token; 
+export default TokenModel; 
 
 
