@@ -2,6 +2,13 @@ import { ResultSetHeader } from 'mysql2';
 import { connectDatabase, generateCreateSQLStatement } from '../utils/databaseConnection';
 import { StatusType, Status } from '../utils/statusTypes';
 
+export interface Unit {
+    ID: number,
+    createdTime: number,
+    modifiedTime: number,
+    description: string
+};
+
 class UnitModel {
     
     private static genericErrorMessage = 'Unknown Error';
@@ -39,8 +46,9 @@ class UnitModel {
 
         const connection = await connectDatabase();
         try {
-            const query = `SELECT * FROM Units WHERE ID = ${id}`;
+            const query = `SELECT ID, createdTime, modifiedTime, description FROM Units WHERE ID = ${id}`;
             const [result] = await connection.execute(query);
+
             if (result instanceof Array) {
                 return result.length > 0 ? {
                         status: StatusType.Success,
