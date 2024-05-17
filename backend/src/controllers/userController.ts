@@ -3,6 +3,7 @@ import joi from "joi";
 
 import UserModel from "../models/userModel";
 import { Status, StatusType } from "../utils/statusTypes";
+import { generateToken } from "../utils/tokens";
 
 export async function createUser(request: Request, 
                                  response: Response): Promise<void> {
@@ -105,13 +106,44 @@ export async function login(request: Request,
     });
 
     try {
+        const { error, value } = schema.validate(request.body);
+        if (error) {
+            response.status(400).json({
+                error: error.details[0].message
+            });
+        }
+
+        const userDbResponse : Status<StatusType, string | undefined> 
+                = await UserModel.login(request.body.email, request.body.password);
         
+        switch (userDbResponse.status) {
+            case StatusType.Empty:
+                response.status(400).json({
+                    error: 'User does not exist'
+                });
+                break;
+            case StatusType.Missing:
+                response.status(401).json({
+                    error: 'Incorrect Password'
+                });
+                break;
+            case StatusType.Success:
+                response.status(200).json({
+                    token: userDbResponse.value
+                });
+                break;
+            default:
+                response.status(500).json({
+                    error: 'Internal Server Error'
+                });
+                break;
+        }
+        return;
     } catch (err) {
         console.log(err);
         response.status(500).json({
             error: 'Internal Server Error'
         });
     }
-
 }
 
