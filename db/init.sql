@@ -15,6 +15,21 @@ CREATE TABLE IF NOT EXISTS Pantries (
     name VARCHAR(20) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS Tokens (
+    ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    createdTime BIGINT NOT NULL,
+    modifiedTime BIGINT NOT NULL,
+    token VARCHAR(100) NOT NULL,
+    expiryTime BIGINT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Recipes (
+    ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    createdTime BIGINT NOT NULL,
+    modifiedTime BIGINT NOT NULL,
+    name VARCHAR(100) NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS Users (
     ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     createdTime BIGINT NOT NULL,
@@ -23,18 +38,11 @@ CREATE TABLE IF NOT EXISTS Users (
     lastname VARCHAR(20) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     passwordHash VARCHAR(256) UNIQUE,
-    loginTokenID INT
+    loginTokenID INT,
 
     CONSTRAINT user_login
     FOREIGN KEY(loginTokenID)
     REFERENCES Tokens(ID)
-);
-
-CREATE TABLE IF NOT EXISTS Recipes (
-    ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    createdTime BIGINT NOT NULL,
-    modifiedTime BIGINT NOT NULL,
-    name VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Ingredients (
@@ -104,7 +112,7 @@ CREATE TABLE IF NOT EXISTS UserPantries (
 
     CONSTRAINT u_user
     FOREIGN KEY(userID)
-    REFERENCES User(ID)
+    REFERENCES Users(ID)
     ON DELETE CASCADE,
 
     CONSTRAINT u_pantry
@@ -119,13 +127,9 @@ CREATE TABLE IF NOT EXISTS UserRecipes (
     modifiedTime BIGINT NOT NULL,
     userID INT NOT NULL,
     recipeID INT NOT NULL,
-    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 10)
-);
+    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 10),
 
-CREATE TABLE IF NOT EXISTS Tokens (
-    ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    createdTime BIGINT NOT NULL,
-    modifiedTime BIGINT NOT NULL,
-    token VARCHAR(100) NOT NULL,
-    expiryTime BIGINT NOT NULL
+    CONSTRAINT ur_user
+    FOREIGN KEY(userID)
+    REFERENCES Users(ID)
 );
