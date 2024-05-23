@@ -1,9 +1,10 @@
 import { ResultSetHeader } from 'mysql2';
 import bcrypt from 'bcrypt';
-import { connectDatabase, generateCreateSQLStatement } from '../utils/databaseConnection';
+import { connectDatabase, generateCreateSQLStatement, generateUpdateSQLStatement } from '../utils/databaseConnection';
 import { StatusType, Status } from '../utils/statusTypes';
 import TokenModel, { Token } from './tokens/TokenModel';
 import { generateToken } from '../utils/tokens';
+import { todo } from 'node:test';
 
 export interface User {
     ID: number,
@@ -147,7 +148,7 @@ class UserModel {
                     switch (tokenStatus.status) {
                         case StatusType.Success: 
                             // update user to store tokenID
-                            
+                            todo();
                             return {
                                 status: StatusType.Success,
                                 value: token
@@ -194,19 +195,40 @@ class UserModel {
 
             const userStatus = await this.get(id);
 
-            if (userStatus.status != StatusType.Success) {
+            if (userStatus.status == StatusType.Success && userStatus.value) {
+                // do a diff between retrieved user and provided user
+                // user is provided user
+                // userStatus.value is retrieved user
+                // result should be retrieved user with values overridden by provided user
+
+                // remove protected fields from provided user
+                // object.assign(a,b) result takes a and overrides values with b
+                let copiedUser = Object.assign(userStatus.value, {
+                    modifiedTime: Date.now(),
+                    firstname: user.firstname,
+                    lastname: user.lastname,
+                });
+
+                // make update call to db
+
+                const columnData = [
+                    ['modifiedTime', copiedUser.modifiedTime],
+                    ['firstname', copiedUser.firstname],
+                    ['lastname', copiedUser.lastname]
+                ];
+
+                const query = generateUpdateSQLStatement('Users', id, columnData);
+                const [result] = await connection.execute<ResultSetHeader>(query);
+                return {
+                    status: StatusType.Success,
+                    value: 'updated'
+                };
+            } else {
                 return {
                     status: StatusType.Missing,
                     message: 'User does not exist'
                 };
             }
-
-            if (userStatus.value) {
-                // do a diff between retrieved user and provided user
-                // ignore changes to protected fields
-                // make update call to db
-            }
-
         } catch (error) {
             return {
                 status: StatusType.Failure,
