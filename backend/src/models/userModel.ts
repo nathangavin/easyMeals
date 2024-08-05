@@ -147,17 +147,20 @@ class UserModel {
                     
                     switch (tokenStatus.status) {
                         case StatusType.Success: 
-                            // update user to store tokenID
-                            todo();
-                            return {
-                                status: StatusType.Success,
-                                value: token
-                            };
+                            if (tokenStatus.value) {
+                                this.update_token(userStatus.value.ID, tokenStatus.value);
+                                return {
+                                    status: StatusType.Success,
+                                    value: token
+                                };
+                            }
                         case StatusType.Failure:
-                            return {
-                                status: StatusType.Failure,
-                                message: tokenStatus.message
-                            };
+                            if (tokenStatus.status == StatusType.Failure && tokenStatus.message) {
+                                return {
+                                    status: StatusType.Failure,
+                                    message: tokenStatus.message
+                                };
+                            }
                         default:
                             return {
                                 status: StatusType.Failure,
@@ -234,6 +237,41 @@ class UserModel {
                 status: StatusType.Failure,
                 message: this.errorMessage(error)
             };
+        } finally {
+            await connection.end();
+        }
+    }
+
+    static async update_token(id: number, tokenId: number) : Promise<Status<StatusType, string | undefined>> {
+        const connection = await connectDatabase();
+
+        try {
+            const userStatus = await this.get(id);
+            
+            if (userStatus.status == StatusType.Success && userStatus.value) {
+
+                const columnData = [
+                    ['modifiedTime', Date.now()],
+                    ['loginTokenID', tokenId]
+                ];
+
+                const query = generateUpdateSQLStatement('Users', id, columnData);
+                const [result] = await connection.execute<ResultSetHeader>(query);
+                return {
+                    status: StatusType.Success,
+                    value: 'updated token'
+                };
+            } else {
+                return {
+                    status: StatusType.Missing,
+                    message: 'User does not exist'
+                };
+            }
+        } catch (error) {
+            return {
+                status: StatusType.Failure,
+                message: this.errorMessage(error)
+            }
         } finally {
             await connection.end();
         }
