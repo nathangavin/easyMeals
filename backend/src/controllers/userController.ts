@@ -3,7 +3,7 @@ import joi from "joi";
 
 import UserModel from "../models/userModel";
 import { Status, StatusType } from "../utils/statusTypes";
-import { generateToken } from "../utils/tokens";
+import { todo } from "node:test";
 
 export async function createUser(request: Request, 
                                  response: Response): Promise<void> {
@@ -60,7 +60,7 @@ export async function getUser(request: Request,
                                 response: Response): Promise<void> {
     try {
         // convert string to number with + unary operator
-        const id = +request.params.unitId;
+        const id = +request.params.userId;
         if (isNaN(id)) {
             response.status(400).json({
                 error: 'Invalid Id Format'
@@ -144,6 +144,19 @@ export async function login(request: Request,
         response.status(500).json({
             error: 'Internal Server Error'
         });
+    }
+}
+
+export async function logout(request: Request,
+                            response: Response): Promise<void> {
+    
+    const id = +request.params.userId;
+    if (isNaN(id)) {
+        response.status(400).json({
+            error: 'Invalid Id Format'
+        });
+    } else {
+        todo();
     }
 }
 
