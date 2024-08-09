@@ -24,7 +24,7 @@ export async function createSession(request: Request,
 
         const userLoginResponse = 
                 await UserModel.login(request.body.email, request.body.password);
-        
+
         switch (userLoginResponse.status) {
             case StatusType.Failure:
                 response.status(400).json({
@@ -47,9 +47,11 @@ export async function createSession(request: Request,
                         await SessionModel.get(userLoginResponse.value);
                     switch (sessionDbResponse.status) {
                         case StatusType.Success:
-                            response.status(200).json({
-                                session: sessionDbResponse.value
-                            });
+                            if (sessionDbResponse.value) {
+                                response.status(200).json({
+                                    session: sessionDbResponse.value.token
+                                });
+                            }
                             return;
                         case StatusType.Empty:
                             response.status(400).json({

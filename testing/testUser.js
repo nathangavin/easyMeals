@@ -24,12 +24,6 @@ export async function testGetUser(id) {
     return await get(userRoute + id);
 }
 
-export async function testLoginUser(email, password) {
-    return await post(userRoute + 'login', {
-        email: email,
-        password: password
-    });
-}
 
 function isUser(data) {
     if (data &&
@@ -62,9 +56,3 @@ export function handleTestGetUser(res) {
                     res.data.user);
 }
 
-export function handleTestLoginUser(res) {
-    console.assert(res.status == 200,
-                    "User login: incorrect status: %s", res.status);
-    console.assert(res.data.token,
-                    "User login: token value is missing: %o", res.data.token);
-}
