@@ -32,7 +32,8 @@ export async function testLoginUser(email, password) {
 }
 
 function isUser(data) {
-    if (data.ID && 
+    if (data &&
+        data.ID && 
         data.createdTime &&
         data.modifiedTime &&
         data.firstname &&
