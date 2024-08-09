@@ -1,7 +1,8 @@
 {
     "scripts": {
         "build": "tsc",
-        "start": "node build/index.js"
+        "start": "node build/index.js",
+        "test": "node build/index.js --test"
     },
     "devDependencies": {
         "@types/node": "^20.10.0",

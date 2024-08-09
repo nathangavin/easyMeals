@@ -52,7 +52,7 @@ export function generateUpdateSQLStatement(tablename: string, id: number, column
         }
     }
 
-    statement += `${where};`;
+    statement += ` ${where};`;
 
     return statement;
 }

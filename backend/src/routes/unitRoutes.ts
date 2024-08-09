@@ -9,6 +9,3 @@ unitRoutes.get('/:unitId', getUnit);
 
 
 export default unitRoutes;
-
-
-

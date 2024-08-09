@@ -4,6 +4,9 @@ import morgan from "morgan";
 
 import unitRoutes from './routes/unitRoutes';
 import pantryRoutes from './routes/pantryRoutes';
+import userRoutes from './routes/userRoutes';
+
+console.log(process.argv[2] == "--test");
 
 // create express server
 const app = express();
@@ -14,6 +17,7 @@ app.use(express.json());
 
 app.use('/api/units', unitRoutes);
 app.use('/api/pantries', pantryRoutes);
+app.use('/api/users', userRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

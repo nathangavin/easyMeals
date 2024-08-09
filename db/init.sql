@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS Users (
     firstname VARCHAR(20) NOT NULL,
     lastname VARCHAR(20) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
-    passwordHash VARCHAR(256) UNIQUE,
+    passwordHash VARCHAR(60) UNIQUE,
     loginTokenID INT,
 
     CONSTRAINT user_login

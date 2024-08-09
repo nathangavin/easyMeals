@@ -101,7 +101,7 @@ export async function login(request: Request,
                            response: Response): Promise<void> {
     
     const schema = joi.object({
-        email: joi.string().alphanum().min(1).max(100).required(),
+        email: joi.string().email().required(),
         password: joi.string().alphanum().min(16).max(256).required()
     });
 

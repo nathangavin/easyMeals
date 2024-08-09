@@ -137,8 +137,8 @@ class UserModel {
             
             // check if password matches 
             if (userStatus.value) {
-                const passwordCompareResult = await bcrypt.compare(password, userStatus.value.passwordHash);
-                
+                let passwordCompareResult = await bcrypt.compare(password, userStatus.value.passwordHash);
+
                 // if yes, generate token and return token
                 if (passwordCompareResult) {
                     const token = generateToken();
@@ -148,11 +148,32 @@ class UserModel {
                     switch (tokenStatus.status) {
                         case StatusType.Success: 
                             if (tokenStatus.value) {
-                                this.update_token(userStatus.value.ID, tokenStatus.value);
-                                return {
-                                    status: StatusType.Success,
-                                    value: token
-                                };
+                                const userTStatus = await this.updateToken(userStatus.value.ID, tokenStatus.value);
+                                switch (userTStatus.status) {
+                                    case StatusType.Success:
+                                        return {
+                                            status: StatusType.Success,
+                                            value: token
+                                        };
+                                    case StatusType.Failure:
+                                        if (userTStatus.status == StatusType.Failure &&
+                                           userTStatus.message) {
+                                            return {
+                                                status: StatusType.Failure,
+                                                message: userTStatus.message
+                                            };
+                                        }
+                                    case StatusType.Missing:
+                                        return {
+                                            status: StatusType.Failure,
+                                            message: 'Unknown User Token Error'
+                                        };
+                                    default:
+                                        return {
+                                            status: StatusType.Failure,
+                                            message: 'Unknown User Error'
+                                        };
+                                }
                             }
                         case StatusType.Failure:
                             if (tokenStatus.status == StatusType.Failure && tokenStatus.message) {
@@ -165,7 +186,7 @@ class UserModel {
                             return {
                                 status: StatusType.Failure,
                                 message: 'Unknown User Error'
-                            }
+                            };
                     }
                     
                 } else {
@@ -242,7 +263,7 @@ class UserModel {
         }
     }
 
-    static async update_token(id: number, tokenId: number) : Promise<Status<StatusType, string | undefined>> {
+    static async updateToken(id: number, tokenId: number) : Promise<Status<StatusType, string | undefined>> {
         const connection = await connectDatabase();
 
         try {

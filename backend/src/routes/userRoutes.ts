@@ -6,7 +6,7 @@ const userRoutes = Router();
 
 userRoutes.post('/', createUser);
 userRoutes.get('/:userId', getUser);
-userRoutes.post('/login/:userId', login);
+userRoutes.post('/login', login);
 userRoutes.post('/logout/:userId', logout);
 
 export default userRoutes;
