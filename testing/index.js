@@ -9,6 +9,7 @@ import {
 main();
 
 async function main() {
+    console.log('Starting User Login Test');
     const res = await testCreateUser();
     handleTestCreateUser(res);
     const res2 = await testGetUser(res.id);
@@ -17,4 +18,5 @@ async function main() {
     handleTestLoginUser(res3);
     const res4 = await testGetUser(res.id);
     handleTestGetUser(res4);
+    console.log('Ending User Login Test');
 }

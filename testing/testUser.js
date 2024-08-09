@@ -3,7 +3,7 @@ import { LOCALHOST, get, post } from './utils.js';
 const userRoute = LOCALHOST + "users/";
 
 export async function testCreateUser() {
-    const testEmail = 'test' + Math.floor(Math.random()*100) + "@test.com";
+    const testEmail = 'test' + Math.floor(Math.random()*100000) + "@test.com";
     const password = 'TestPassword1616';
 
     const userResponse = await post(userRoute, {
@@ -48,7 +48,7 @@ export function handleTestCreateUser(res) {
     console.assert(res.response.status == 201, 
                     "User create: incorrect status: %s", 
                     res.response.status);
-    console.assert(res.response.data.message == 'User created Successfully',
+    console.assert(res.response.data.message == 'User created successfully',
                     "User create: incorrect message: '%s'",
                     res.response.data.message);
 }
@@ -56,9 +56,9 @@ export function handleTestCreateUser(res) {
 export function handleTestGetUser(res) {
     console.assert(res.status == 200,
                     "User get: incorrect status: %s", res.status);
-    console.assert(isUser(res.data),
+    console.assert(isUser(res.data.user),
                     "User get: returned data is incorrect format: %o",
-                    res.data);
+                    res.data.user);
 }
 
 export function handleTestLoginUser(res) {
