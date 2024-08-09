@@ -1,8 +1,8 @@
 import { ResultSetHeader } from 'mysql2';
-import { connectDatabase, generateCreateSQLStatement } from '../../utils/databaseConnection';
-import { StatusType, Status } from '../../utils/statusTypes';
+import { connectDatabase, generateCreateSQLStatement } from '../utils/databaseConnection';
+import { StatusType, Status } from '../utils/statusTypes';
 
-export interface Token {
+export interface Session {
     ID: number,
     createdTime: number,
     modifiedTime: number,
@@ -10,11 +10,11 @@ export interface Token {
     expiryTime: number
 };
 
-class TokenModel {
+class SessionModel {
     
     private static genericErrorMessage = 'Unknown Error';
 
-    static async create(token: string, expiryTime: number): 
+    static async create(expiryTime: number): 
                 Promise<Status<StatusType, number | undefined>> {
         
         const connection = await connectDatabase();
@@ -23,11 +23,11 @@ class TokenModel {
         const columnData = [
             ['createdTime', createdTime],
             ['modifiedTime', modifiedTime],
-            ['token', token],
+            ['token', SessionModel.generateSessionToken()],
             ['expiryTime', expiryTime],
         ];
         try {
-            const query = generateCreateSQLStatement('Tokens', columnData);
+            const query = generateCreateSQLStatement('Sessions', columnData);
             const [result] = await connection.execute<ResultSetHeader>(query);
             return {
                 status: StatusType.Success,
@@ -36,7 +36,7 @@ class TokenModel {
         } catch (error) {
             return {
                 status: StatusType.Failure,
-                message: TokenModel.errorMessage(error) 
+                message: SessionModel.errorMessage(error) 
             };
         } finally {
             await connection.end();
@@ -44,16 +44,16 @@ class TokenModel {
     }
 
     static async get(id: number): 
-            Promise<Status<StatusType, Token | undefined>> {
+            Promise<Status<StatusType, Session | undefined>> {
 
         const connection = await connectDatabase();
         try {
-            const query = `SELECT * FROM Tokens WHERE ID = ${id}`;
+            const query = `SELECT * FROM Sessions WHERE ID = ${id}`;
             const [result] = await connection.execute(query);
             if (result instanceof Array) {
                 return result.length > 0 ? {
                         status: StatusType.Success,
-                        value: result[0] as Token
+                        value: result[0] as Session 
                     } : {
                         status: StatusType.Empty,
                     };
@@ -65,7 +65,7 @@ class TokenModel {
         } catch (error) {
             return {
                 status: StatusType.Failure,
-                message: TokenModel.errorMessage(error)
+                message: SessionModel.errorMessage(error)
             }
         } finally {
             await connection.end();
@@ -73,10 +73,22 @@ class TokenModel {
     }
 
     private static errorMessage(error: any): string {
-        return error instanceof Error ? error.message : TokenModel.genericErrorMessage;
+        return error instanceof Error ? error.message : SessionModel.genericErrorMessage;
+    }
+
+    private static generateSessionToken(): string {
+        const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+
+        let token = '';
+        let tokenLength = 100;
+        for (let i = 0; i < tokenLength; i++) {
+            token += chars[Math.floor(Math.random() * chars.length)];
+        }
+
+        return token;
     }
 } 
 
-export default TokenModel; 
+export default SessionModel; 
 
 

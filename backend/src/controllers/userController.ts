@@ -3,7 +3,6 @@ import joi from "joi";
 
 import UserModel from "../models/userModel";
 import { Status, StatusType } from "../utils/statusTypes";
-import { todo } from "node:test";
 
 export async function createUser(request: Request, 
                                  response: Response): Promise<void> {
@@ -32,7 +31,7 @@ export async function createUser(request: Request,
         switch (dbResponse.status) {
             case StatusType.Success:
                 response.status(201).json({
-                    message: 'User created succesfully', 
+                    message: 'User created successfully', 
                     id: dbResponse.value 
                 });
                 break;
@@ -73,8 +72,8 @@ export async function getUser(request: Request,
             switch (dbResponse.status) {
                 case StatusType.Success: 
                     response.status(200).json({
-                        data: dbResponse.value
-                    });
+                    user: dbResponse.value
+                });
                     break;
                 case StatusType.Failure:
                     response.status(500).json({
@@ -94,69 +93,6 @@ export async function getUser(request: Request,
         response.status(500).json({
             error: 'Internal Server Error'
         });
-    }
-}
-
-export async function login(request: Request,
-                           response: Response): Promise<void> {
-    
-    const schema = joi.object({
-        email: joi.string().email().required(),
-        password: joi.string().alphanum().min(16).max(256).required()
-    });
-
-    try {
-        const { error, value } = schema.validate(request.body);
-        if (error) {
-            response.status(400).json({
-                error: error.details[0].message
-            });
-        }
-
-        const userDbResponse : Status<StatusType, string | undefined> 
-                = await UserModel.login(request.body.email, request.body.password);
-        
-        switch (userDbResponse.status) {
-            case StatusType.Empty:
-                response.status(400).json({
-                    error: 'User does not exist'
-                });
-                break;
-            case StatusType.Missing:
-                response.status(401).json({
-                    error: 'Incorrect Password'
-                });
-                break;
-            case StatusType.Success:
-                response.status(200).json({
-                    token: userDbResponse.value
-                });
-                break;
-            default:
-                response.status(500).json({
-                    error: 'Internal Server Error'
-                });
-                break;
-        }
-        return;
-    } catch (err) {
-        console.log(err);
-        response.status(500).json({
-            error: 'Internal Server Error'
-        });
-    }
-}
-
-export async function logout(request: Request,
-                            response: Response): Promise<void> {
-    
-    const id = +request.params.userId;
-    if (isNaN(id)) {
-        response.status(400).json({
-            error: 'Invalid Id Format'
-        });
-    } else {
-        todo();
     }
 }
 

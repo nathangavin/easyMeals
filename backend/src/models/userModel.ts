@@ -1,10 +1,8 @@
 import { ResultSetHeader } from 'mysql2';
 import bcrypt from 'bcrypt';
-import { connectDatabase, generateCreateSQLStatement, generateUpdateSQLStatement } from '../utils/databaseConnection';
+import { connectDatabase, generateColumnData, generateCreateSQLStatement, generateUpdateSQLStatement } from '../utils/databaseConnection';
 import { StatusType, Status } from '../utils/statusTypes';
-import TokenModel, { Token } from './tokens/TokenModel';
-import { generateToken } from '../utils/tokens';
-import { todo } from 'node:test';
+import SessionModel from './sessionModel';
 
 export interface User {
     ID: number,
@@ -14,7 +12,7 @@ export interface User {
     lastname: string,
     email: string,
     passwordHash: string,
-    loginTokenID: number
+    loginSessionID: number
 };
 
 class UserModel {
@@ -122,7 +120,7 @@ class UserModel {
      * Success - login successful, token returned 
      * Failure - error
      */
-    static async login(email: string, password: string) : Promise<Status<StatusType, string | undefined>> {
+    static async login(email: string, password: string) : Promise<Status<StatusType, number | undefined>> {
         const connection = await connectDatabase();
 
         try {
@@ -137,63 +135,59 @@ class UserModel {
             
             // check if password matches 
             if (userStatus.value) {
-                let passwordCompareResult = await bcrypt.compare(password, userStatus.value.passwordHash);
+                let passwordCompareResult = 
+                        await bcrypt.compare(password, userStatus.value.passwordHash);
 
+                if (!passwordCompareResult) {
+                    return {
+                        status: StatusType.Missing,
+                        message: 'Password Incorrect'
+                    };
+                }
                 // if yes, generate token and return token
-                if (passwordCompareResult) {
-                    const token = generateToken();
-                    const expiryTime = Date.now() + 900;
-                    const tokenStatus = await TokenModel.create(token, expiryTime);
-                    
-                    switch (tokenStatus.status) {
-                        case StatusType.Success: 
-                            if (tokenStatus.value) {
-                                const userTStatus = await this.updateToken(userStatus.value.ID, tokenStatus.value);
-                                switch (userTStatus.status) {
-                                    case StatusType.Success:
-                                        return {
-                                            status: StatusType.Success,
-                                            value: token
-                                        };
-                                    case StatusType.Failure:
-                                        if (userTStatus.status == StatusType.Failure &&
-                                           userTStatus.message) {
-                                            return {
-                                                status: StatusType.Failure,
-                                                message: userTStatus.message
-                                            };
-                                        }
-                                    case StatusType.Missing:
-                                        return {
-                                            status: StatusType.Failure,
-                                            message: 'Unknown User Token Error'
-                                        };
-                                    default:
-                                        return {
-                                            status: StatusType.Failure,
-                                            message: 'Unknown User Error'
-                                        };
-                                }
-                            }
+                const expiryTime = Date.now() + 900; // 15 minutes
+                const sessionStatus = await SessionModel.create(expiryTime);
+                
+                if (sessionStatus.status == StatusType.Failure) {
+                    return {
+                        status: StatusType.Failure,
+                        message: sessionStatus.message
+                    };
+                }
+
+                if (sessionStatus.status != StatusType.Success) {
+                    return {
+                        status: StatusType.Failure,
+                        message: 'Unknown User Error'
+                    };
+                }
+
+                if (sessionStatus.value) {
+                    let user = userStatus.value;
+                    user.loginSessionID = sessionStatus.value;
+                    const userTStatus = await this.update(userStatus.value.ID, user);
+                    switch (userTStatus.status) {
+                        case StatusType.Success:
+                            return {
+                                status: StatusType.Success,
+                                value: sessionStatus.value
+                            };
                         case StatusType.Failure:
-                            if (tokenStatus.status == StatusType.Failure && tokenStatus.message) {
-                                return {
-                                    status: StatusType.Failure,
-                                    message: tokenStatus.message
-                                };
-                            }
+                            return {
+                                status: StatusType.Failure,
+                                message: userTStatus.message
+                            };
+                        case StatusType.Missing:
+                            return {
+                                status: StatusType.Failure,
+                                message: userTStatus.message
+                            };
                         default:
                             return {
                                 status: StatusType.Failure,
                                 message: 'Unknown User Error'
                             };
                     }
-                    
-                } else {
-                    return {
-                        status: StatusType.Missing,
-                        message: 'Password Incorrect'
-                    };
                 }
             }
         } catch (error) {
@@ -216,7 +210,6 @@ class UserModel {
         try {
             
             // get user
-
             const userStatus = await this.get(id);
 
             if (userStatus.status == StatusType.Success && userStatus.value) {
@@ -224,28 +217,23 @@ class UserModel {
                 // user is provided user
                 // userStatus.value is retrieved user
                 // result should be retrieved user with values overridden by provided user
+                const copiedUser = Object.assign(userStatus.value, user, {
+                    modifiedTime: Date.now()
+                });
+
+                const keys : Array<keyof User> = Object.keys(copiedUser) as Array<keyof User>;
+                const columnData = generateColumnData(copiedUser, keys);
+                console.log(columnData);
 
                 // remove protected fields from provided user
                 // object.assign(a,b) result takes a and overrides values with b
-                let copiedUser = Object.assign(userStatus.value, {
-                    modifiedTime: Date.now(),
-                    firstname: user.firstname,
-                    lastname: user.lastname,
-                });
-
                 // make update call to db
-
-                const columnData = [
-                    ['modifiedTime', copiedUser.modifiedTime],
-                    ['firstname', copiedUser.firstname],
-                    ['lastname', copiedUser.lastname]
-                ];
 
                 const query = generateUpdateSQLStatement('Users', id, columnData);
                 const [result] = await connection.execute<ResultSetHeader>(query);
                 return {
                     status: StatusType.Success,
-                    value: 'updated'
+                    value: 'updated user'
                 };
             } else {
                 return {
@@ -258,41 +246,6 @@ class UserModel {
                 status: StatusType.Failure,
                 message: this.errorMessage(error)
             };
-        } finally {
-            await connection.end();
-        }
-    }
-
-    static async updateToken(id: number, tokenId: number) : Promise<Status<StatusType, string | undefined>> {
-        const connection = await connectDatabase();
-
-        try {
-            const userStatus = await this.get(id);
-            
-            if (userStatus.status == StatusType.Success && userStatus.value) {
-
-                const columnData = [
-                    ['modifiedTime', Date.now()],
-                    ['loginTokenID', tokenId]
-                ];
-
-                const query = generateUpdateSQLStatement('Users', id, columnData);
-                const [result] = await connection.execute<ResultSetHeader>(query);
-                return {
-                    status: StatusType.Success,
-                    value: 'updated token'
-                };
-            } else {
-                return {
-                    status: StatusType.Missing,
-                    message: 'User does not exist'
-                };
-            }
-        } catch (error) {
-            return {
-                status: StatusType.Failure,
-                message: this.errorMessage(error)
-            }
         } finally {
             await connection.end();
         }

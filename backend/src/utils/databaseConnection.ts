@@ -1,3 +1,4 @@
+import { extend } from 'joi';
 import mysql, { Connection } from 'mysql2/promise';
 
 export async function connectDatabase(): Promise<Connection> {
@@ -55,4 +56,14 @@ export function generateUpdateSQLStatement(tablename: string, id: number, column
     statement += ` ${where};`;
 
     return statement;
+}
+
+export function generateColumnData<RecordType>(record: RecordType, keys: Array<keyof RecordType>) : (String | number)[][] {
+    let returnable : (String | number)[][] = [];
+    for (const key of keys) {
+        const keyString = key as string;
+        const value = record[key] as (string | number);
+            returnable.push([keyString, value]);
+    }
+    return returnable;
 }

@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS Pantries (
     name VARCHAR(20) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS Tokens (
+CREATE TABLE IF NOT EXISTS Sessions (
     ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     createdTime BIGINT NOT NULL,
     modifiedTime BIGINT NOT NULL,
@@ -39,11 +39,11 @@ CREATE TABLE IF NOT EXISTS Users (
     lastname VARCHAR(20) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     passwordHash VARCHAR(60) UNIQUE,
-    loginTokenID INT,
+    loginSessionID INT,
 
     CONSTRAINT user_login
-    FOREIGN KEY(loginTokenID)
-    REFERENCES Tokens(ID)
+    FOREIGN KEY(loginSessionID)
+    REFERENCES Sessions(ID)
 );
 
 CREATE TABLE IF NOT EXISTS Ingredients (
