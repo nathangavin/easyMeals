@@ -12,23 +12,58 @@ export async function testCreateUser() {
         email: testEmail,
         password: password
     });
-    console.log(userResponse);
     return {
         id: userResponse.data.id,
         email: testEmail,
-        password: password
+        password: password,
+        response: userResponse
     };
 }
 
 export async function testGetUser(id) {
-    const userResponse = await get(userRoute + id);
-    console.log(userResponse);
+    return await get(userRoute + id);
 }
 
 export async function testLoginUser(email, password) {
-    const loginResponse = await post(userRoute + 'login', {
+    return await post(userRoute + 'login', {
         email: email,
         password: password
     });
-    console.log(loginResponse);
+}
+
+function isUser(data) {
+    if (data.ID && 
+        data.createdTime &&
+        data.modifiedTime &&
+        data.firstname &&
+        data.lastname &&
+        data.email &&
+        data.passwordHash) {
+            return true;
+    }
+    return false;
+}
+
+export function handleTestCreateUser(res) {
+    console.assert(res.response.status == 201, 
+                    "User create: incorrect status: %s", 
+                    res.response.status);
+    console.assert(res.response.data.message == 'User created Successfully',
+                    "User create: incorrect message: '%s'",
+                    res.response.data.message);
+}
+
+export function handleTestGetUser(res) {
+    console.assert(res.status == 200,
+                    "User get: incorrect status: %s", res.status);
+    console.assert(isUser(res.data),
+                    "User get: returned data is incorrect format: %o",
+                    res.data);
+}
+
+export function handleTestLoginUser(res) {
+    console.assert(res.status == 200,
+                    "User login: incorrect status: %s", res.status);
+    console.assert(res.data.token,
+                    "User login: token value is missing: %o", res.data.token);
 }
