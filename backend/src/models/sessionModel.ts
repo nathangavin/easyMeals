@@ -7,14 +7,15 @@ export interface Session {
     createdTime: number,
     modifiedTime: number,
     token: string,
-    expiryTime: number
+    expiryTime: number,
+    UserID: number
 };
 
 class SessionModel {
     
     private static genericErrorMessage = 'Unknown Error';
 
-    static async create(expiryTime: number): 
+    static async create(userID: number, expiryTime: number): 
                 Promise<Status<StatusType, number | undefined>> {
         
         const connection = await connectDatabase();
@@ -25,6 +26,7 @@ class SessionModel {
             ['modifiedTime', modifiedTime],
             ['token', SessionModel.generateSessionToken()],
             ['expiryTime', expiryTime],
+            ['UserID', userID]
         ];
         try {
             const query = generateCreateSQLStatement('Sessions', columnData);
@@ -72,12 +74,49 @@ class SessionModel {
         }
     }
 
+    static async getByToken(sessionToken: string): 
+        Promise<Status<StatusType, Session | undefined>> {
+            
+        const connection = await connectDatabase();
+        try {
+            const query = `SELECT * FROM Sessions WHERE token = '${sessionToken}'`;
+            console.log(query);
+            const [result] = await connection.execute(query);
+            console.log(result);
+            if (result instanceof Array) {
+                return result.length > 0 ? {
+                        status: StatusType.Success,
+                        value: result[0] as Session 
+                    } : {
+                        status: StatusType.Empty,
+                    };
+            } else {
+                return {
+                    status: StatusType.Empty
+                };
+            }
+        } catch (error) {
+            return {
+                status: StatusType.Failure,
+                message: SessionModel.errorMessage(error)
+            }
+        } finally {
+            await connection.end();
+        }
+    }
+
     static async delete(sessionToken: string):
-            Promise<Status<StatusType, number | undefined>> {
+            Promise<Status<StatusType, string | undefined>> {
     
         const connection = await connectDatabase();
         try {
             const query = `DELETE FROM Sessions WHERE token = '${sessionToken}';`;
+            const [result] = await connection.execute(query);
+            console.log(result);
+            return {
+                status: StatusType.Success,
+                value: "Record deleted" 
+            }
 
         } catch (error) {
             return {

@@ -3,6 +3,7 @@ import { LOCALHOST, deleteRequest, getRequest, postRequest } from './utils.js';
 const sessionRoute = LOCALHOST + "sessions/";
 
 export async function testCreateSession(email, password) {
+    console.log('testing Create Session');
     return await postRequest(sessionRoute, {
         email: email,
         password: password
@@ -10,10 +11,13 @@ export async function testCreateSession(email, password) {
 }
 
 export async function testGetSession(id) {
+    console.log('testing Get Session');
     return await getRequest(sessionRoute + id);
 }
 
 export async function testDeleteSession(session) {
+    console.log('testing Delete Session');
+    console.log(session);
     return await deleteRequest(sessionRoute + session);
 }
 

@@ -145,48 +145,25 @@ class UserModel {
                 }
                 // if yes, generate token and return token
                 const expiryTime = Date.now() + 900; // 15 minutes
-                const sessionStatus = await SessionModel.create(expiryTime);
-                
-                if (sessionStatus.status == StatusType.Failure) {
-                    return {
-                        status: StatusType.Failure,
-                        message: sessionStatus.message
-                    };
-                }
+                const sessionStatus = 
+                    await SessionModel.create(userStatus.value.ID, expiryTime);
 
-                if (sessionStatus.status != StatusType.Success) {
-                    return {
-                        status: StatusType.Failure,
-                        message: 'Unknown User Error'
-                    };
-                }
-
-                if (sessionStatus.value) {
-                    let user = userStatus.value;
-                    user.loginSessionID = sessionStatus.value;
-                    const userTStatus = await this.update(userStatus.value.ID, user);
-                    switch (userTStatus.status) {
-                        case StatusType.Success:
-                            return {
-                                status: StatusType.Success,
-                                value: sessionStatus.value
-                            };
-                        case StatusType.Failure:
-                            return {
-                                status: StatusType.Failure,
-                                message: userTStatus.message
-                            };
-                        case StatusType.Missing:
-                            return {
-                                status: StatusType.Failure,
-                                message: userTStatus.message
-                            };
-                        default:
-                            return {
-                                status: StatusType.Failure,
-                                message: 'Unknown User Error'
-                            };
-                    }
+                switch (sessionStatus.status) {
+                    case StatusType.Failure:
+                        return {
+                            status: StatusType.Failure,
+                            message: sessionStatus.message
+                        };
+                    case StatusType.Success:
+                        return {
+                            status: StatusType.Success,
+                            value: sessionStatus.value
+                        };
+                    default:
+                        return {
+                            status: StatusType.Failure,
+                            message: 'Unknown User Error'
+                        };
                 }
             }
         } catch (error) {
@@ -222,7 +199,6 @@ class UserModel {
 
                 const keys : Array<keyof User> = Object.keys(copiedUser) as Array<keyof User>;
                 const columnData = generateColumnData(copiedUser, keys);
-                console.log(columnData);
 
                 // remove protected fields from provided user
                 // object.assign(a,b) result takes a and overrides values with b

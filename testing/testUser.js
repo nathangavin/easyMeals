@@ -3,6 +3,7 @@ import { LOCALHOST, getRequest, postRequest } from './utils.js';
 const userRoute = LOCALHOST + "users/";
 
 export async function testCreateUser() {
+    console.log("testing Create User");
     const testEmail = 'test' + Math.floor(Math.random()*100000) + "@test.com";
     const password = 'TestPassword1616';
 
@@ -21,6 +22,7 @@ export async function testCreateUser() {
 }
 
 export async function testGetUser(id) {
+    console.log("testing Get User");
     return await getRequest(userRoute + id);
 }
 

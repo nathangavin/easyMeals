@@ -4,7 +4,6 @@ import joi from "joi";
 import SessionModel from "../models/sessionModel";
 import { Status, StatusType } from "../utils/statusTypes";
 import UserModel from "../models/userModel";
-import { Pool } from "mysql2/typings/mysql/lib/Pool";
 
 export async function createSession(request: Request,
                            response: Response): Promise<void> {
@@ -85,33 +84,66 @@ export async function getSession(request: Request,
 
     try {
         // convert string to number with + unary operator
-        const id = +request.params.sessionId;
-        if (isNaN(id)) {
-            response.status(400).json({
-                error: 'Invalid Id Format'
-            });
-        } else {
-            // get object from db
-            const dbResponse : Status<StatusType, object | undefined>
-                = await SessionModel.get(id);
-
-            switch (dbResponse.status) {
-                case StatusType.Success: 
-                    response.status(200).json({
-                    session: dbResponse.value
+        console.log(request.params);
+        if (request.params.sessionID.length > 70) {
+            console.log('long');
+            const session = request.params.sessionID;
+            console.log(session.length);
+            if (session.length != 100) {
+                response.status(400).json({
+                    error: 'Invalid Session length'
                 });
-                    break;
-                case StatusType.Failure:
-                    response.status(500).json({
-                        error: 'Internal Server Error',
-                        message: dbResponse.message
+            } else {
+                const dbResponse = await SessionModel.getByToken(session);
+                console.log(dbResponse);
+                switch (dbResponse.status) {
+                    case StatusType.Success: 
+                        response.status(200).json({
+                        session: dbResponse.value
                     });
-                    break;
-                case StatusType.Empty:
-                    response.status(404).json({
-                        message: `record ${id} not found`
+                        break;
+                    case StatusType.Failure:
+                        response.status(500).json({
+                            error: 'Internal Server Error',
+                            message: dbResponse.message
+                        });
+                        break;
+                    case StatusType.Empty:
+                        response.status(404).json({
+                            message: `record ${session} not found`
+                        });
+                        break;
+                }
+            }
+        } else {
+            console.log('long');
+            const id = +request.params.sessionID;
+            if (isNaN(id)) {
+                response.status(400).json({
+                    error: 'Invalid Id Format'
+                });
+            } else {
+                // get object from db
+                const dbResponse = await SessionModel.get(id);
+
+                switch (dbResponse.status) {
+                    case StatusType.Success: 
+                        response.status(200).json({
+                        session: dbResponse.value
                     });
-                    break;
+                        break;
+                    case StatusType.Failure:
+                        response.status(500).json({
+                            error: 'Internal Server Error',
+                            message: dbResponse.message
+                        });
+                        break;
+                    case StatusType.Empty:
+                        response.status(404).json({
+                            message: `record ${id} not found`
+                        });
+                        break;
+                }
             }
         }
     } catch (err) {
