@@ -11,8 +11,7 @@ export interface User {
     firstname: string,
     lastname: string,
     email: string,
-    passwordHash: string,
-    loginSessionID: number
+    passwordHash: string
 };
 
 class UserModel {

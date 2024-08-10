@@ -80,6 +80,48 @@ export async function createSession(request: Request,
     }
 }
 
+export async function getSession(request: Request,
+                                response: Response): Promise<void> {
+
+    try {
+        // convert string to number with + unary operator
+        const id = +request.params.sessionId;
+        if (isNaN(id)) {
+            response.status(400).json({
+                error: 'Invalid Id Format'
+            });
+        } else {
+            // get object from db
+            const dbResponse : Status<StatusType, object | undefined>
+                = await SessionModel.get(id);
+
+            switch (dbResponse.status) {
+                case StatusType.Success: 
+                    response.status(200).json({
+                    session: dbResponse.value
+                });
+                    break;
+                case StatusType.Failure:
+                    response.status(500).json({
+                        error: 'Internal Server Error',
+                        message: dbResponse.message
+                    });
+                    break;
+                case StatusType.Empty:
+                    response.status(404).json({
+                        message: `record ${id} not found`
+                    });
+                    break;
+            }
+        }
+    } catch (err) {
+        console.log(err);
+        response.status(500).json({
+            error: 'Internal Server Error'
+        });
+    }
+}
+
 export async function logout(request: Request,
                             response: Response): Promise<void> {
     

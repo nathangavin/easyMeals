@@ -72,6 +72,24 @@ class SessionModel {
         }
     }
 
+    static async delete(sessionToken: string):
+            Promise<Status<StatusType, number | undefined>> {
+    
+        const connection = await connectDatabase();
+        try {
+            const query = `DELETE FROM Sessions WHERE token = '${sessionToken}';`;
+
+        } catch (error) {
+            return {
+                status: StatusType.Failure,
+                message: SessionModel.errorMessage(error)
+            };
+        } finally {
+            await connection.end();
+        }
+
+    }
+
     private static errorMessage(error: any): string {
         return error instanceof Error ? error.message : SessionModel.genericErrorMessage;
     }

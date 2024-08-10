@@ -20,7 +20,12 @@ CREATE TABLE IF NOT EXISTS Sessions (
     createdTime BIGINT NOT NULL,
     modifiedTime BIGINT NOT NULL,
     token VARCHAR(100) NOT NULL,
-    expiryTime BIGINT NOT NULL
+    expiryTime BIGINT NOT NULL,
+    UserID INT,
+
+    CONSTRAINT session_user
+    FOREIGN KEY(UserID)
+    REFERENCES Users(ID)
 );
 
 CREATE TABLE IF NOT EXISTS Recipes (
@@ -38,12 +43,7 @@ CREATE TABLE IF NOT EXISTS Users (
     firstname VARCHAR(20) NOT NULL,
     lastname VARCHAR(20) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
-    passwordHash VARCHAR(60) UNIQUE,
-    loginSessionID INT,
-
-    CONSTRAINT user_login
-    FOREIGN KEY(loginSessionID)
-    REFERENCES Sessions(ID)
+    passwordHash VARCHAR(60) UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS Ingredients (
