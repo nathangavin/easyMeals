@@ -1,4 +1,4 @@
-import { LOCALHOST, get, post } from './utils.js';
+import { LOCALHOST, getRequest, postRequest } from './utils.js';
 
 const userRoute = LOCALHOST + "users/";
 
@@ -6,7 +6,7 @@ export async function testCreateUser() {
     const testEmail = 'test' + Math.floor(Math.random()*100000) + "@test.com";
     const password = 'TestPassword1616';
 
-    const userResponse = await post(userRoute, {
+    const userResponse = await postRequest(userRoute, {
         firstname: 'test1',
         lastname: 'test2',
         email: testEmail,
@@ -21,7 +21,7 @@ export async function testCreateUser() {
 }
 
 export async function testGetUser(id) {
-    return await get(userRoute + id);
+    return await getRequest(userRoute + id);
 }
 
 
