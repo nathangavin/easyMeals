@@ -17,7 +17,6 @@ export async function testGetSession(id) {
 
 export async function testDeleteSession(session) {
     console.log('testing Delete Session');
-    console.log(session);
     return await deleteRequest(sessionRoute + session);
 }
 
@@ -36,7 +35,6 @@ export function handleTestGetSession(res) {
 }
 
 export async function handleTestDeleteSession(res) {
-    console.assert(false, "Session Delete: incorrect status %s", res.status);
-    console.assert(false, "Session Delete: TODO missing data");
+    console.assert(res.status == 204, "Session Delete: incorrect status %s", res.status);
 }
 

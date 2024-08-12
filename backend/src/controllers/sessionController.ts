@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import joi from "joi";
 
-import SessionModel from "../models/sessionModel";
+import SessionModel, { TOKEN_LENGTH } from "../models/sessionModel";
 import { Status, StatusType } from "../utils/statusTypes";
 import UserModel from "../models/userModel";
 
@@ -84,11 +84,8 @@ export async function getSession(request: Request,
 
     try {
         // convert string to number with + unary operator
-        console.log(request.params);
         if (request.params.sessionID.length > 70) {
-            console.log('long');
             const session = request.params.sessionID;
-            console.log(session.length);
             if (session.length != 100) {
                 response.status(400).json({
                     error: 'Invalid Session length'
@@ -116,7 +113,6 @@ export async function getSession(request: Request,
                 }
             }
         } else {
-            console.log('long');
             const id = +request.params.sessionID;
             if (isNaN(id)) {
                 response.status(400).json({
@@ -156,5 +152,44 @@ export async function getSession(request: Request,
 
 export async function logout(request: Request,
                             response: Response): Promise<void> {
-    
+    try {
+        // convert string to number with + unary operator
+        if (request.params.sessionToken.length != TOKEN_LENGTH) {
+            response.status(400).json({
+                error: 'Invalid Session length'
+            });
+        } else {
+            const session = request.params.sessionToken;
+            console.log(session);
+            const dbResponse = await SessionModel.delete(session);
+            console.log(dbResponse);
+            switch (dbResponse.status) {
+                case StatusType.Success: 
+                    console.log('aaa');
+                    response.status(204).json();
+                    return;
+                case StatusType.Failure:
+                    response.status(500).json({
+                        error: 'Internal Server Error',
+                        message: dbResponse.message
+                    });
+                    return;
+                case StatusType.Empty:
+                    response.status(404).json({
+                        message: `record ${session} not found`
+                    });
+                    return;
+                default:
+                    response.status(500).json({
+                        error: 'Internal Server Error'
+                    });
+                    return;
+            }
+        }
+    } catch (err) {
+        console.log(err);
+        response.status(500).json({
+            error: 'Internal Server Error'
+        });
+    }
 }

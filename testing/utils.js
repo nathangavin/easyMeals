@@ -35,9 +35,7 @@ export async function deleteRequest(url) {
         method: 'DELETE'
     });
 
-    const content = await rawResponse.json();
     return {
         status: rawResponse.status,
-        data: content
     };
 }

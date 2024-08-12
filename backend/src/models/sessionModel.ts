@@ -2,6 +2,8 @@ import { ResultSetHeader } from 'mysql2';
 import { connectDatabase, generateCreateSQLStatement } from '../utils/databaseConnection';
 import { StatusType, Status } from '../utils/statusTypes';
 
+export const TOKEN_LENGTH = 100;
+
 export interface Session {
     ID: number,
     createdTime: number,
@@ -111,13 +113,13 @@ class SessionModel {
         const connection = await connectDatabase();
         try {
             const query = `DELETE FROM Sessions WHERE token = '${sessionToken}';`;
+            console.log(query);
             const [result] = await connection.execute(query);
             console.log(result);
             return {
                 status: StatusType.Success,
                 value: "Record deleted" 
             }
-
         } catch (error) {
             return {
                 status: StatusType.Failure,
@@ -137,7 +139,7 @@ class SessionModel {
         const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
         let token = '';
-        let tokenLength = 100;
+        let tokenLength = TOKEN_LENGTH;
         for (let i = 0; i < tokenLength; i++) {
             token += chars[Math.floor(Math.random() * chars.length)];
         }
