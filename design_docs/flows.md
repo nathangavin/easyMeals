@@ -8,6 +8,8 @@
 * person is forced to login
 * login session token is created in DB and linked to User
 * session token is returned and stored in cookie
+* person edits User
+* user update request is authenticated against session
 * person logs out
 * log out request is authenticated
 * session token is deleted from DB
