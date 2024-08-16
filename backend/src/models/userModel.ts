@@ -18,7 +18,7 @@ class UserModel {
     
     private static genericErrorMessage = 'Unknown User Model Error';
 
-    static async create(firstname: string, lastname: string, email: string, password: string): 
+    static async create(newUser: User, password: string): 
                 Promise<Status<StatusType, number | undefined>> {
 
         const connection = await connectDatabase();
@@ -29,9 +29,9 @@ class UserModel {
         const columnData = [
             ['createdTime', createdTime],
             ['modifiedTime', modifiedTime],
-            ['firstname', firstname],
-            ['lastname', lastname],
-            ['email', email],
+            ['firstname', newUser.firstname],
+            ['lastname', newUser.lastname],
+            ['email', newUser.email],
             ['passwordHash', await bcrypt.hash(password, salt)]
         ];
         try {
@@ -197,7 +197,8 @@ class UserModel {
                     modifiedTime: Date.now()
                 });
 
-                const keys : Array<keyof User> = Object.keys(copiedUser) as Array<keyof User>;
+                const keys : Array<keyof User> = 
+                    Object.keys(copiedUser) as Array<keyof User>;
                 const columnData = generateColumnData(copiedUser, keys);
 
                 // remove protected fields from provided user

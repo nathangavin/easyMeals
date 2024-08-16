@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import joi from "joi";
 
-import UserModel from "../models/userModel";
+import UserModel, { User } from "../models/userModel";
 import { Status, StatusType } from "../utils/statusTypes";
 import SessionModel, { TOKEN_LENGTH } from "../models/sessionModel";
 import { todo } from "node:test";
@@ -23,11 +23,15 @@ export async function createUser(request: Request,
                 error: error.details[0].message
             });
         }
+
+        const newUser = {
+            firstname: request.body.firstname,
+            lastname: request.body.lastname,
+            email: request.body.email
+        } as User;
         
         const dbResponse : Status<StatusType, number | undefined> = 
-                                await UserModel.create(request.body.firstname,
-                                                       request.body.lastname,
-                                                       request.body.email,
+                                await UserModel.create(newUser, 
                                                        request.body.password);
         console.log(dbResponse);
         switch (dbResponse.status) {
@@ -98,7 +102,14 @@ export async function getUser(request: Request,
     }
 }
 
-export async function updateUser(request: Request, response: Response): Promise<void> {
+export async function updateUser(request: Request, 
+                                 response: Response): Promise<void> {
+
+    const schema = joi.object({
+        firstname: joi.string().alphanum().min(1).max(20),
+        lastname: joi.string().alphanum().min(1).max(20),
+    });
+
     try {
         const providedAuth = request.header('Authorization');
         if (!providedAuth) {
@@ -125,13 +136,12 @@ export async function updateUser(request: Request, response: Response): Promise<
         const id = +request.params.userId;
         if (isNaN(id)) {
             response.status(400).json({
-                error: 'Invalid Id Format'
+                error: 'Invalid ID Format'
             });
             return;
         } 
 
         // determine if session token allows for user to be edited
-
         const sessionDbResponse = await SessionModel.getByToken(session);
 
         if (sessionDbResponse.status != StatusType.Success) {
@@ -148,8 +158,20 @@ export async function updateUser(request: Request, response: Response): Promise<
             return;
         }
 
+        const { error, value } = schema.validate(request.body);
+        if (error) {
+            response.status(400).json({
+                error: error.details[0].message
+            });
+        }
+        
+        const updatedUser = {
+            firstname: request.body.firstname ?? null,
+            lastname: request.body.lastname ?? null
+        } as User;
 
         // request has been authenticated for this provided user
+        const dbResponse = await UserModel.update(id, updatedUser);
         todo();
 
         // get object from db
