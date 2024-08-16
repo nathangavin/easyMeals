@@ -82,9 +82,7 @@ class SessionModel {
         const connection = await connectDatabase();
         try {
             const query = `SELECT * FROM Sessions WHERE token = '${sessionToken}'`;
-            console.log(query);
             const [result] = await connection.execute(query);
-            console.log(result);
             if (result instanceof Array) {
                 return result.length > 0 ? {
                         status: StatusType.Success,
@@ -113,9 +111,7 @@ class SessionModel {
         const connection = await connectDatabase();
         try {
             const query = `DELETE FROM Sessions WHERE token = '${sessionToken}';`;
-            console.log(query);
             const [result] = await connection.execute(query);
-            console.log(result);
             return {
                 status: StatusType.Success,
                 value: "Record deleted" 

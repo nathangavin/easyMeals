@@ -160,12 +160,10 @@ export async function logout(request: Request,
             });
         } else {
             const session = request.params.sessionToken;
-            console.log(session);
             const dbResponse = await SessionModel.delete(session);
             console.log(dbResponse);
             switch (dbResponse.status) {
                 case StatusType.Success: 
-                    console.log('aaa');
                     response.status(204).json();
                     return;
                 case StatusType.Failure:
