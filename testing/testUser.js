@@ -26,6 +26,13 @@ export async function testGetUser(id) {
     return await getRequest(userRoute + id);
 }
 
+export async function testUpdateUser(id, sessionToken) {
+    console.log("testing Update User");
+    return await postRequest(userRoute + id, {
+        firstname: 'testnamechanged'
+    }, sessionToken);
+
+}
 
 function isUser(data) {
     if (data &&
@@ -56,5 +63,10 @@ export function handleTestGetUser(res) {
     console.assert(isUser(res.data.user),
                     "User get: returned data is incorrect format: %o",
                     res.data.user);
+}
+
+export function handleTestUpdateUser(res) {
+    console.log(res);
+    console.assert(false, "Update test not implemented");
 }
 

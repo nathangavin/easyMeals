@@ -1,14 +1,17 @@
 export const LOCALHOST = "http://localhost:3000/api/";
 
-export async function postRequest(url, body) {
+export async function postRequest(url, body, token) {
+    let headers = {
+        'Content-type': 'application/json',
+        'Accept': 'application/json'
+    };
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
     const rawResponse = await fetch(url, {
         method: 'POST',
         body: JSON.stringify(body),
-        headers: {
-            'Content-type': 'application/json',
-            "Accept": 'application/json'
-
-        }
+        headers: headers
     });
 
     const content = await rawResponse.json();
