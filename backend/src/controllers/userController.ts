@@ -146,7 +146,7 @@ export async function updateUser(request: Request,
 
         if (sessionDbResponse.status != StatusType.Success) {
             response.status(401).json({
-                message: 'invalid session token'
+                message: 'Unauthorized'
             });
             return;
         }
@@ -172,29 +172,22 @@ export async function updateUser(request: Request,
 
         // request has been authenticated for this provided user
         const dbResponse = await UserModel.update(id, updatedUser);
-        todo();
-
-        // get object from db
-        const dbResponse : Status<StatusType, object | undefined>
-            = await UserModel.get(id);
 
         switch (dbResponse.status) {
             case StatusType.Success: 
-                response.status(200).json({
-                user: dbResponse.value
-            });
-                break;
+                response.status(204).json();
+                return;
             case StatusType.Failure:
                 response.status(500).json({
                     error: 'Internal Server Error',
                     message: dbResponse.message
                 });
-                break;
-            case StatusType.Empty:
+                return;
+            case StatusType.Missing:
                 response.status(404).json({
                     message: `record ${id} not found`
                 });
-                break;
+                return;
         }
     } catch (err) {
         console.log(err);
