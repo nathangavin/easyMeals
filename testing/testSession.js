@@ -4,7 +4,7 @@ const sessionRoute = LOCALHOST + "sessions/";
 
 export async function testCreateSession(email, password) {
     console.log('testing Create Session');
-   return await postRequest(sessionRoute, {
+    return await postRequest(sessionRoute, {
         email: email,
         password: password
     });

@@ -47,3 +47,4 @@ export async function deleteRequest(url) {
         status: rawResponse.status,
     };
 }
+

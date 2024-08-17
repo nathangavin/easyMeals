@@ -1,4 +1,5 @@
 import { LOCALHOST, getRequest, postRequest } from './utils.js';
+import { testCreateSession } from './testSession.js';
 
 const userRoute = LOCALHOST + "users/";
 
@@ -32,6 +33,19 @@ export async function testUpdateUser(id, sessionToken) {
         firstname: 'testnamechanged'
     }, sessionToken);
 
+}
+
+export async function setupTestUser() {
+    console.log("setting up test User");
+    const resUser = await testCreateUser();
+    const resSession = await testCreateSession(resUser.email, resUser.password);
+
+    return {
+        id: resUser.id,
+        email: resUser.email,
+        password: resUser.password,
+        session: resSession.data.session
+    }
 }
 
 function isUser(data) {

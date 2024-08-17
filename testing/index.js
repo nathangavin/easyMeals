@@ -1,16 +1,23 @@
-import { handleTestCreateSession, 
-        handleTestDeleteSession, 
-        handleTestGetSession, 
-        testCreateSession, 
-        testDeleteSession, 
-        testGetSession } from './testSession.js';
+import { 
+    handleTestCreateRecipe, 
+    handleTestCreateUserRecipe, 
+    testCreateRecipe, 
+    testCreateUserRecipe } from './testRecipe.js';
+import { 
+    handleTestCreateSession, 
+    handleTestDeleteSession, 
+    handleTestGetSession, 
+    testCreateSession, 
+    testDeleteSession, 
+    testGetSession } from './testSession.js';
 import { 
     testGetUser, 
     testCreateUser, 
     testUpdateUser,
     handleTestCreateUser,
     handleTestGetUser,
-    handleTestUpdateUser} from './testUser.js';
+    handleTestUpdateUser,
+    setupTestUser} from './testUser.js';
 
 main();
 
@@ -54,7 +61,6 @@ async function userLoginTest() {
 
 async function recipeCreateTest() {
     /*
-    *
     *=======================
     * person logs in
     * session token is created in DB, linked to User
@@ -63,9 +69,21 @@ async function recipeCreateTest() {
     * Recipe is created in DB, draft flag set to true
     * User is linked to new Recipe
     */
+    /*
+    CREATE TABLE IF NOT EXISTS Recipes (
+    ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    createdTime BIGINT NOT NULL,
+    modifiedTime BIGINT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    draftFlag BOOLEAN
+    */
 
     console.log("Starting Recipe Create Test");
-
+    const resCreateRecipe = await testCreateRecipe();
+    handleTestCreateRecipe(resCreateRecipe);
+    const resSetupUser = await setupTestUser();
+    const resCreateRecipeByUser = await testCreateUserRecipe();
+    handleTestCreateUserRecipe(resCreateRecipeByUser);
     console.log("Ending Recipe Create Test");
 }
 
