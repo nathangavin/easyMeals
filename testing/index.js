@@ -12,7 +12,17 @@ import {
     handleTestGetUser,
     handleTestUpdateUser} from './testUser.js';
 
+main();
+
 async function main() {
+    printBreaker();
+    await userLoginTest();
+    printBreaker();
+    await recipeCreateTest();
+    printBreaker();
+}
+
+async function userLoginTest() {
     /*
     * =======================
     * person creates new account
@@ -42,4 +52,23 @@ async function main() {
     console.log('Ending User Login Test');
 }
 
-main();
+async function recipeCreateTest() {
+    /*
+    *
+    *=======================
+    * person logs in
+    * session token is created in DB, linked to User
+    * session token is returned and stored in cookie
+    * person creates new recipe
+    * Recipe is created in DB, draft flag set to true
+    * User is linked to new Recipe
+    */
+
+    console.log("Starting Recipe Create Test");
+
+    console.log("Ending Recipe Create Test");
+}
+
+function printBreaker() {
+    console.log('================================');
+}
