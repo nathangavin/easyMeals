@@ -66,7 +66,10 @@ export function handleTestGetUser(res) {
 }
 
 export function handleTestUpdateUser(res) {
-    console.log(res);
-    console.assert(false, "Update test not implemented");
+    console.assert(res.status == 204,
+                    "User update: incorrect status: %s", res.status);
+    console.assert(res.data == null, 
+                    "User update: incorrect message: '%s'",
+                    res.data?.message);
 }
 

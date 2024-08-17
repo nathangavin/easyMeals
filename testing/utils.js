@@ -2,8 +2,8 @@ export const LOCALHOST = "http://localhost:3000/api/";
 
 export async function postRequest(url, body, token) {
     let headers = {
-        'Content-type': 'application/json',
-        'Accept': 'application/json'
+        "Content-type": 'application/json',
+        "Accept": 'application/json'
     };
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
@@ -14,11 +14,16 @@ export async function postRequest(url, body, token) {
         headers: headers
     });
 
-    const content = await rawResponse.json();
-    
+    let content = null;
+    try {
+        content = await rawResponse.json();
+    } catch (error) {
+        content = null;
+    }
+
     return {
         status: rawResponse.status,
-        data: content
+        data: content 
     };
 }
 
