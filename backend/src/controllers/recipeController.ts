@@ -18,8 +18,7 @@ export async function createRecipe(request: Request,
             });
         }
         
-        const dbResponse : Status<StatusType, number | undefined> = 
-                                    await RecipeModel.create(request.body.desc);
+        const dbResponse = await RecipeModel.create(request.body.name);
         console.log(dbResponse);
         switch (dbResponse.status) {
             case StatusType.Success:
@@ -27,17 +26,19 @@ export async function createRecipe(request: Request,
                     message: 'Recipe created succesfully', 
                     id: dbResponse.value 
                 });
-                break;
+                return;
             case StatusType.Failure:
                 response.status(500).json({
                     error: 'Internal Server Error',
                     message: dbResponse.message
                 });
-                break;
-            case StatusType.Empty:
-                response.status(404).json({
-                    message: 'No results'
+                return;
+            default:
+                response.status(500).json({
+                    error: 'Internal Server Error',
+                    message: 'Unknown error' 
                 });
+                return;
         }
         
     } catch (err) {
@@ -51,15 +52,14 @@ export async function createRecipe(request: Request,
 export async function getRecipe(request: Request,
                                 response: Response): Promise<void> {
     try {
-        const id = +request.params.pantryId;
+        const id = +request.params.recipeId;
         if (isNaN(id)) {
             response.status(400).json({
                 error: 'Invalid Id Format'
             });
         } else {
             // get object from db
-            const dbResponse : Status<StatusType, object | undefined>
-                = await RecipeModel.get(id);
+            const dbResponse = await RecipeModel.get(id);
 
             switch (dbResponse.status) {
                 case StatusType.Success: 

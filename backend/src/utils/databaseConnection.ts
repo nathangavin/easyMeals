@@ -11,7 +11,7 @@ export async function connectDatabase(): Promise<Connection> {
 }
 
 
-export function generateCreateSQLStatement(tableName: string, columnNameValuePairs: (String | number)[][]): string {
+export function generateCreateSQLStatement(tableName: string, columnNameValuePairs: (String | number | boolean)[][]): string {
     let statement = `INSERT INTO ${tableName} `;
     let columnNames = "(";
     let columnValues = "(";
@@ -37,7 +37,10 @@ export function generateCreateSQLStatement(tableName: string, columnNameValuePai
     return statement;
 }
 
-export function generateUpdateSQLStatement(tablename: string, id: number, columnNameValuePairs: (String | number)[][]): string {
+export function generateUpdateSQLStatement(
+                tablename: string, 
+                id: number, 
+                columnNameValuePairs: (String | number | boolean)[][]): string {
     let statement = `UPDATE ${tablename} SET `;
     let where = `WHERE ID=${id}`;
 
@@ -58,11 +61,13 @@ export function generateUpdateSQLStatement(tablename: string, id: number, column
     return statement;
 }
 
-export function generateColumnData<RecordType>(record: RecordType, keys: Array<keyof RecordType>) : (String | number)[][] {
-    let returnable : (String | number)[][] = [];
+export function generateColumnData<RecordType>(
+                    record: RecordType, 
+                    keys: Array<keyof RecordType>) : (String | number | boolean)[][] {
+    let returnable : (String | number | boolean)[][] = [];
     for (const key of keys) {
         const keyString = key as string;
-        const value = record[key] as (string | number);
+        const value = record[key] as (string | number | boolean);
             returnable.push([keyString, value]);
     }
     return returnable;

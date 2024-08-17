@@ -2,6 +2,14 @@ import { ResultSetHeader } from 'mysql2';
 import { connectDatabase, generateCreateSQLStatement } from '../utils/databaseConnection';
 import { StatusType, Status } from '../utils/statusTypes';
 
+export interface Recipe {
+    ID: number,
+    createdTime: number,
+    modifiedTime: number,
+    name: string,
+    draftFlag: boolean
+}
+
 class RecipeModel {
     
     private static genericErrorMessage = 'Unknown Error';
@@ -15,7 +23,8 @@ class RecipeModel {
         const columnData = [
             ['createdTime', createdTime],
             ['modifiedTime', modifiedTime],
-            ['name', name]
+            ['name', name],
+            ['draftFlag', true]
         ];
         try {
             const query = generateCreateSQLStatement('Recipes', columnData);
@@ -35,7 +44,7 @@ class RecipeModel {
     }
 
     static async get(id: number): 
-            Promise<Status<StatusType, object | undefined>> {
+            Promise<Status<StatusType, Recipe | undefined>> {
 
         const connection = await connectDatabase();
         try {
@@ -44,7 +53,7 @@ class RecipeModel {
             if (result instanceof Array) {
                 return result.length > 0 ? {
                         status: StatusType.Success,
-                        value: result[0]
+                        value: result[0] as Recipe
                     } : {
                         status: StatusType.Empty,
                     };
