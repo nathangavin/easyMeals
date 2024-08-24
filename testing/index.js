@@ -1,11 +1,9 @@
 import { 
     handleTestCreateRecipe, 
-    handleTestCreateUserRecipe, 
     handleTestDeleteRecipe, 
     handleTestGetRecipe, 
     handleTestUpdateRecipe, 
     testCreateRecipe, 
-    testCreateUserRecipe, 
     testDeleteRecipe, 
     testGetRecipe, 
     testUpdateRecipe} from './testRecipe.js';
@@ -27,8 +25,10 @@ import {
 import { 
     handleTestDeleteUserRecipe,
     handleTestGetUserRecipe, 
+    handleTestCreateUserRecipe,
     testDeleteUserRecipe, 
-    testGetUserRecipe } from './testUserRecipe.js';
+    testGetUserRecipe,
+    testCreateUserRecipe } from './testUserRecipe.js';
 
 main()
 
