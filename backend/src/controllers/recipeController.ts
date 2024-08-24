@@ -23,7 +23,7 @@ export async function createRecipe(request: Request,
         switch (dbResponse.status) {
             case StatusType.Success:
                 response.status(201).json({
-                    message: 'Recipe created succesfully', 
+                    message: 'Recipe created successfully', 
                     id: dbResponse.value 
                 });
                 return;
