@@ -132,5 +132,9 @@ CREATE TABLE IF NOT EXISTS UserRecipes (
 
     CONSTRAINT ur_user
     FOREIGN KEY(userID)
-    REFERENCES Users(ID)
+    REFERENCES Users(ID),
+
+    CONSTRAINT u_recipe
+    FOREIGN KEY(recipeID)
+    REFERENCES Recipes(ID)
 );
