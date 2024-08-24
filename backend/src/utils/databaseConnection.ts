@@ -20,6 +20,8 @@ export function generateCreateSQLStatement(tableName: string, columnNameValuePai
         columnNames += columnNameValuePairs[i][0];
         if (typeof columnNameValuePairs[i][1] == 'number') {
             columnValues += columnNameValuePairs[i][1];
+        } else if (typeof columnNameValuePairs[i][1] == 'boolean') {
+            columnValues += columnNameValuePairs[i][1] ? 'TRUE' : 'FALSE';
         } else {
             columnValues += '"' + columnNameValuePairs[i][1] + '"';
         }
