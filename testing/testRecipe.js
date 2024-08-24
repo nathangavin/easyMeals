@@ -16,6 +16,7 @@ export async function testCreateRecipe() {
 
 export async function testCreateUserRecipe() {
     console.log('testing Create Recipe by User');
+    const testName = "recipe" + (Math.round(Math.random() * 10000));
 }
 
 export async function testGetRecipe() {
