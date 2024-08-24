@@ -14,13 +14,16 @@ export async function testCreateRecipe() {
     };
 }
 
-export async function testCreateUserRecipe() {
-    console.log('testing Create Recipe by User');
-    const testName = "recipe" + (Math.round(Math.random() * 10000));
+export async function testGetRecipe(id) {
+    console.log('testing Get Recipe');
 }
 
-export async function testGetRecipe() {
-    console.log('testing Get Recipe');
+export async function testUpdateRecipe(id) {
+    console.log('testing Update Recipe');
+}
+
+export async function testDeleteRecipe(id) {
+    console.log('testing Delete Recipe');
 }
 
 export function handleTestCreateRecipe(res) {
@@ -31,10 +34,14 @@ export function handleTestCreateRecipe(res) {
                     res.response.data.message);
 }
 
-export function handleTestCreateUserRecipe(res) {
-    console.assert(false, "Recipe create by user: not finished");
-}
-
 export function handleTestGetRecipe(res) {
     console.assert(false, "Recipe get: not finished");
+}
+
+export function handleTestUpdateRecipe(res) {
+    console.assert(false, "Recipe update: not finished");
+}
+
+export function handleTestDeleteRecipe(res) {
+    console.assert(false, "Recipe delete: not finished");
 }

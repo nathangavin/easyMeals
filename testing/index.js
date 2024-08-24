@@ -1,8 +1,14 @@
 import { 
     handleTestCreateRecipe, 
     handleTestCreateUserRecipe, 
+    handleTestDeleteRecipe, 
+    handleTestGetRecipe, 
+    handleTestUpdateRecipe, 
     testCreateRecipe, 
-    testCreateUserRecipe } from './testRecipe.js';
+    testCreateUserRecipe, 
+    testDeleteRecipe, 
+    testGetRecipe, 
+    testUpdateRecipe} from './testRecipe.js';
 import { 
     handleTestCreateSession, 
     handleTestDeleteSession, 
@@ -18,14 +24,21 @@ import {
     handleTestGetUser,
     handleTestUpdateUser,
     setupTestUser} from './testUser.js';
+import { 
+    handleTestDeleteUserRecipe,
+    handleTestGetUserRecipe, 
+    testDeleteUserRecipe, 
+    testGetUserRecipe } from './testUserRecipe.js';
 
-main();
+main()
 
 async function main() {
     printBreaker();
     await userLoginTest();
     printBreaker();
     await recipeCreateTest();
+    printBreaker();
+    await userRecipeCreateTest();
     printBreaker();
 }
 
@@ -69,22 +82,37 @@ async function recipeCreateTest() {
     * Recipe is created in DB, draft flag set to true
     * User is linked to new Recipe
     */
-    /*
-    CREATE TABLE IF NOT EXISTS Recipes (
-    ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    createdTime BIGINT NOT NULL,
-    modifiedTime BIGINT NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    draftFlag BOOLEAN
-    */
 
     console.log("Starting Recipe Create Test");
     const resCreateRecipe = await testCreateRecipe();
     handleTestCreateRecipe(resCreateRecipe);
-    const resSetupUser = await setupTestUser();
-    const resCreateRecipeByUser = await testCreateUserRecipe();
-    handleTestCreateUserRecipe(resCreateRecipeByUser);
+    const resGetRecipe = await testGetRecipe();
+    handleTestGetRecipe(resGetRecipe);
+    const resUpdateRecipe = await testUpdateRecipe();
+    handleTestUpdateRecipe(resUpdateRecipe);
+    const resDeleteRecipe = await testDeleteRecipe();
+    handleTestDeleteRecipe(resDeleteRecipe);
     console.log("Ending Recipe Create Test");
+
+}
+
+async function userRecipeCreateTest() {
+    /*
+    * ==================
+    * person logs in.
+    * user creates userRecipe.
+    * userRecipe is linked to user and recipe.
+    */
+        
+    console.log("Starting UserRecipe Create Test");
+    const resSetupUser = await setupTestUser();
+    const resCreateUserRecipe = await testCreateUserRecipe();
+    handleTestCreateUserRecipe(resCreateUserRecipe);
+    const resGetUserRecipe = await testGetUserRecipe();
+    handleTestGetUserRecipe(resGetUserRecipe);
+    const resDeleteUserRecipe = await testDeleteUserRecipe();
+    handleTestDeleteUserRecipe(resDeleteUserRecipe);
+    console.log("Ending UserRecipe Create Test");
 }
 
 function printBreaker() {
