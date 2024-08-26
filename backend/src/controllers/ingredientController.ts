@@ -5,7 +5,6 @@ import { Status, StatusType } from "../utils/statusTypes";
 import { INTERNAL_SERVER_ERROR_MSG, 
         INVALID_PARAM_MSG, 
         RECORD_CREATED_SUCCESSFULLY_MSG, 
-        RECORD_MISSING_MSG, 
         UNREACHABLE_CODE_MSG, 
         UNREACHABLE_CODE_UNKNOWN_STATUS_MSG } from "../utils/messages";
 
@@ -71,8 +70,7 @@ export async function getIngredient(request: Request,
             return;
         } 
 
-        const dbResponse : Status<StatusType, object | undefined>
-            = await IngredientModel.get(id);
+        const dbResponse = await IngredientModel.get(id);
 
         switch (dbResponse.status) {
             case StatusType.Success: 
