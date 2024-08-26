@@ -1,6 +1,10 @@
 import { ResultSetHeader } from 'mysql2';
-import { connectDatabase, generateCreateSQLStatement } from '../utils/databaseConnection';
+import { connectDatabase, 
+        generateCreateSQLStatement, 
+        generateGetSQLStatement } from '../utils/databaseConnection';
 import { StatusType, Status } from '../utils/statusTypes';
+import { RECORD_MISSING_MSG, 
+    UNKNOWN_MODEL_ERROR_MSG } from '../utils/messages';
 
 export interface Recipe {
     ID: number,
@@ -12,7 +16,7 @@ export interface Recipe {
 
 class RecipeModel {
     
-    private static genericErrorMessage = 'Unknown Error';
+    private static genericErrorMessage = UNKNOWN_MODEL_ERROR_MSG('Recipe');
 
     static async create(name: string): 
                 Promise<Status<StatusType, number | undefined>> {
@@ -48,18 +52,20 @@ class RecipeModel {
 
         const connection = await connectDatabase();
         try {
-            const query = `SELECT * FROM Recipes WHERE ID = ${id}`;
+            const query = generateGetSQLStatement('Recipes', id);
             const [result] = await connection.execute(query);
             if (result instanceof Array) {
                 return result.length > 0 ? {
                         status: StatusType.Success,
                         value: result[0] as Recipe
                     } : {
-                        status: StatusType.Empty,
+                        status: StatusType.Missing,
+                        message: RECORD_MISSING_MSG('Recipe', id.toString())
                     };
             } else {
                 return {
-                    status: StatusType.Empty
+                    status: StatusType.Missing,
+                    message: RECORD_MISSING_MSG('Recipe', id.toString())
                 };
             }
         } catch (error) {

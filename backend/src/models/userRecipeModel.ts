@@ -1,17 +1,11 @@
 import { ResultSetHeader } from 'mysql2';
-import { connectDatabase, generateCreateSQLStatement } from '../utils/databaseConnection';
+import { connectDatabase, 
+        generateCreateSQLStatement, 
+        generateGetSQLStatement } from '../utils/databaseConnection';
 import { StatusType, Status } from '../utils/statusTypes';
-import UserModel from './userModel';
-import RecipeModel from './recipeModel';
+import { RECORD_MISSING_MSG, 
+        UNKNOWN_MODEL_ERROR_MSG } from '../utils/messages';
 
-/*
-    ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    createdTime BIGINT NOT NULL,
-    modifiedTime BIGINT NOT NULL,
-    userID INT NOT NULL,
-    recipeID INT NOT NULL,
-    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 10),
-        */
 export interface UserRecipe {
     ID: number,
     createdTime: number,
@@ -23,7 +17,7 @@ export interface UserRecipe {
 
 class UserRecipeModel {
     
-    private static genericErrorMessage = 'Unknown Error';
+    private static genericErrorMessage = UNKNOWN_MODEL_ERROR_MSG('UserRecipe');
 
     static async create(userID: number, 
                         recipeID: number, 
@@ -42,7 +36,7 @@ class UserRecipeModel {
             ['rating', rating]
         ];
         try {
-            const query = generateCreateSQLStatement('UserRecipe', columnData);
+            const query = generateCreateSQLStatement('UserRecipes', columnData);
             const [result] = await connection.execute<ResultSetHeader>(query);
             return {
                 status: StatusType.Success,
@@ -63,18 +57,20 @@ class UserRecipeModel {
 
         const connection = await connectDatabase();
         try {
-            const query = `SELECT * FROM UserRecipes WHERE ID = ${id};`;
+            const query = generateGetSQLStatement('UserRecipes', id);
             const [result] = await connection.execute(query);
             if (result instanceof Array) {
                 return result.length > 0 ? {
                         status: StatusType.Success,
                         value: result[0] as UserRecipe
                     } : {
-                        status: StatusType.Empty,
+                        status: StatusType.Missing,
+                        message: RECORD_MISSING_MSG('UserRecipe' ,id.toString())
                     };
             } else {
                 return {
-                    status: StatusType.Empty
+                    status: StatusType.Missing,
+                    message: RECORD_MISSING_MSG('UserRecipe' ,id.toString())
                 };
             }
         } catch (error) {

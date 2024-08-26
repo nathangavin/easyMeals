@@ -1,6 +1,11 @@
 import { ResultSetHeader } from 'mysql2';
-import { connectDatabase, generateCreateSQLStatement } from '../utils/databaseConnection';
+import { connectDatabase, 
+        generateCreateSQLStatement, 
+        generateGetSQLStatement } from '../utils/databaseConnection';
 import { StatusType, Status } from '../utils/statusTypes';
+import { RECORD_DELETED_MSG, 
+        RECORD_MISSING_MSG,
+        UNKNOWN_MODEL_ERROR_MSG } from '../utils/messages';
 
 export const TOKEN_LENGTH = 100;
 
@@ -15,7 +20,7 @@ export interface Session {
 
 class SessionModel {
     
-    private static genericErrorMessage = 'Unknown Error';
+    private static genericErrorMessage = UNKNOWN_MODEL_ERROR_MSG('Session');
 
     static async create(userID: number, expiryTime: number): 
                 Promise<Status<StatusType, number | undefined>> {
@@ -52,18 +57,20 @@ class SessionModel {
 
         const connection = await connectDatabase();
         try {
-            const query = `SELECT * FROM Sessions WHERE ID = ${id}`;
+            const query = generateGetSQLStatement('Sessions', id);
             const [result] = await connection.execute(query);
             if (result instanceof Array) {
                 return result.length > 0 ? {
                         status: StatusType.Success,
                         value: result[0] as Session 
                     } : {
-                        status: StatusType.Empty,
+                        status: StatusType.Missing,
+                        message: RECORD_MISSING_MSG('Session', id.toString())
                     };
             } else {
                 return {
-                    status: StatusType.Empty
+                    status: StatusType.Missing,
+                    message: RECORD_MISSING_MSG('Session', id.toString())
                 };
             }
         } catch (error) {
@@ -88,11 +95,13 @@ class SessionModel {
                         status: StatusType.Success,
                         value: result[0] as Session 
                     } : {
-                        status: StatusType.Empty,
+                        status: StatusType.Missing,
+                        message: RECORD_MISSING_MSG('Session by token', sessionToken)
                     };
             } else {
                 return {
-                    status: StatusType.Empty
+                    status: StatusType.Missing,
+                    message: RECORD_MISSING_MSG('Session by token', sessionToken)
                 };
             }
         } catch (error) {
@@ -110,11 +119,16 @@ class SessionModel {
     
         const connection = await connectDatabase();
         try {
+
+            const sessionStatus = await this.getByToken(sessionToken);
+
+            if (sessionStatus.status != StatusType.Success) return sessionStatus;
+
             const query = `DELETE FROM Sessions WHERE token = '${sessionToken}';`;
-            const [result] = await connection.execute(query);
+            const [_result] = await connection.execute(query);
             return {
                 status: StatusType.Success,
-                value: "Record deleted" 
+                value: RECORD_DELETED_MSG('Session by token', sessionToken)
             }
         } catch (error) {
             return {
