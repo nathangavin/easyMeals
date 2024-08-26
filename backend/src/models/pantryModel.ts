@@ -1,10 +1,18 @@
 import { ResultSetHeader } from 'mysql2';
-import { connectDatabase, generateCreateSQLStatement } from '../utils/databaseConnection';
+import { connectDatabase, generateCreateSQLStatement, generateGetSQLStatement } from '../utils/databaseConnection';
 import { StatusType, Status } from '../utils/statusTypes';
+import { RECORD_MISSING_MSG, UNKNOWN_MODEL_ERROR_MSG } from '../utils/messages';
+
+export interface Pantry {
+    ID: number,
+    createdTime: number,
+    modifiedTime: number,
+    name: string,
+};
 
 class PantryModel {
     
-    private static genericErrorMessage = 'Unknown Error';
+    private static genericErrorMessage = UNKNOWN_MODEL_ERROR_MSG('Pantry');
 
     static async create(name: string): 
                 Promise<Status<StatusType, number | undefined>> {
@@ -35,22 +43,24 @@ class PantryModel {
     }
 
     static async get(id: number): 
-            Promise<Status<StatusType, object | undefined>> {
+            Promise<Status<StatusType, Pantry | undefined>> {
 
         const connection = await connectDatabase();
         try {
-            const query = `SELECT * FROM Pantries WHERE ID = ${id}`;
+            const query = generateGetSQLStatement('Pantries', id);
             const [result] = await connection.execute(query);
             if (result instanceof Array) {
                 return result.length > 0 ? {
                         status: StatusType.Success,
-                        value: result[0]
+                        value: result[0] as Pantry
                     } : {
-                        status: StatusType.Empty,
+                        status: StatusType.Missing,
+                        message: RECORD_MISSING_MSG('Pantry', id.toString())
                     };
             } else {
                 return {
-                    status: StatusType.Empty
+                    status: StatusType.Missing,
+                    message: RECORD_MISSING_MSG('Pantry', id.toString())
                 };
             }
         } catch (error) {

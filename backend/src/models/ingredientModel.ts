@@ -1,23 +1,24 @@
 import { ResultSetHeader } from 'mysql2';
-import { connectDatabase, generateCreateSQLStatement } from '../utils/databaseConnection';
+import { connectDatabase, generateCreateSQLStatement, generateGetSQLStatement } from '../utils/databaseConnection';
 import { StatusType, Status } from '../utils/statusTypes';
 import UnitModel from './unitModel';
+import { RECORD_MISSING_MSG, UNKNOWN_MODEL_ERROR_MSG } from '../utils/messages';
+
+export interface Ingredient {
+    ID: number,
+    createdTime: number,
+    modifiedTime: number,
+    name: string,
+    unitID: number
+};
 
 class IngredientModel {
     
-    private static genericErrorMessage = 'Unknown Error';
+    private static genericErrorMessage = UNKNOWN_MODEL_ERROR_MSG('Ingredient');
 
     static async create(name: string, unitID: number): 
                 Promise<Status<StatusType, number | undefined>> {
         
-        const unit = await UnitModel.get(unitID);
-        if (unit.status == StatusType.Empty) {
-            return {
-                status: StatusType.Missing,
-                message: 'UnitID does not exist'
-            };
-        }
-
         const connection = await connectDatabase();
         const createdTime = Date.now();
         const modifiedTime = createdTime;
@@ -45,22 +46,24 @@ class IngredientModel {
     }
 
     static async get(id: number): 
-            Promise<Status<StatusType, object | undefined>> {
+            Promise<Status<StatusType, Ingredient | undefined>> {
 
         const connection = await connectDatabase();
         try {
-            const query = `SELECT * FROM Ingredients WHERE ID = ${id}`;
+            const query = generateGetSQLStatement('Ingredients', id);
             const [result] = await connection.execute(query);
             if (result instanceof Array) {
                 return result.length > 0 ? {
                         status: StatusType.Success,
-                        value: result[0]
+                        value: result[0] as Ingredient
                     } : {
-                        status: StatusType.Empty,
+                        status: StatusType.Missing,
+                        message: RECORD_MISSING_MSG('Ingredient', id.toString())
                     };
             } else {
                 return {
-                    status: StatusType.Empty
+                    status: StatusType.Missing,
+                    message: RECORD_MISSING_MSG('Ingredient', id.toString())
                 };
             }
         } catch (error) {
