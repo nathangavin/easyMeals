@@ -63,6 +63,10 @@ export function generateUpdateSQLStatement(
     return statement;
 }
 
+export function generateGetSQLStatement(tablename: string, id: number) {
+    return `SELECT * FROM ${tablename} WHERE ID = ${id};`;
+}
+
 export function generateColumnData<RecordType>(
                     record: RecordType, 
                     keys: Array<keyof RecordType>) : (String | number | boolean)[][] {
