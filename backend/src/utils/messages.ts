@@ -1,3 +1,5 @@
+import { StatusType } from "./statusTypes";
+
 export const INTERNAL_SERVER_ERROR_MSG = 'Internal Server Error';
 export const UNKNOWN_ERROR_MSG = 'Unknown Error';
 export const AUTH_TOKEN_MISSING_MSG = 'Authentication token not provided';
@@ -24,3 +26,6 @@ export const RECORD_UPDATED_MSG = (tableName: string, identifier: string) =>
 
 export const RECORD_DELETED_MSG = (tableName: string, identifier: string) => 
     `Deleted ${tableName}: ${identifier}`;
+
+export const UNREACHABLE_CODE_UNKNOWN_STATUS_MSG = (tableName: string, functionName: string, status?: StatusType) =>
+    `${UNREACHABLE_CODE_MSG} - ${tableName} ${functionName} - ${status ?? 'Unknown Status'}`;
