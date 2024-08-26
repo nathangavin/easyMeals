@@ -6,7 +6,8 @@ import { StatusType } from "../utils/statusTypes";
 import UserModel from "../models/userModel";
 import { INTERNAL_SERVER_ERROR_MSG, 
         INVALID_PARAM_MSG, 
-        UNREACHABLE_CODE_MSG } from "../utils/messages";
+        UNREACHABLE_CODE_MSG, 
+        UNREACHABLE_CODE_UNKNOWN_STATUS_MSG} from "../utils/messages";
 
 export async function createSession(request: Request,
                            response: Response): Promise<void> {
@@ -39,13 +40,19 @@ export async function createSession(request: Request,
                         error: userLoginResponse.message
                     });
                     return;
+                default:
+                    response.status(500).json({
+                        error: INTERNAL_SERVER_ERROR_MSG,
+                        message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('Session', 'Login')
+                    });
+                    return;
             }
         }
         if (!userLoginResponse.value) {
             // should be unreachable, so if code reaches here
             response.status(500).json({
                 error: INTERNAL_SERVER_ERROR_MSG,
-                message: `${UNREACHABLE_CODE_MSG} - user login response`
+                message: `${UNREACHABLE_CODE_MSG} - Session Create - user login response`
             });
             return;
         }
@@ -69,6 +76,12 @@ export async function createSession(request: Request,
                 response.status(404).json({
                     message: sessionDbResponse.message
                 });
+            default:
+                response.status(500).json({
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('Session', 'CreateGet')
+                });
+                return;
         }
     } catch (err) {
         console.log(err);
@@ -123,6 +136,12 @@ export async function getSession(request: Request,
                     message: dbResponse.message
                 });
                 return;
+            default:
+                response.status(500).json({
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('Session', 'Get')
+                });
+                return;
         }
     } catch (err) {
         console.log(err);
@@ -158,6 +177,12 @@ export async function logout(request: Request,
             case StatusType.Missing:
                 response.status(404).json({
                     message: dbResponse.message
+                });
+                return;
+            default:
+                response.status(500).json({
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('Session', 'Logout')
                 });
                 return;
         }

@@ -2,6 +2,12 @@ import { Request, Response } from "express";
 import joi from "joi";
 import IngredientModel from "../models/ingredientModel";
 import { Status, StatusType } from "../utils/statusTypes";
+import { INTERNAL_SERVER_ERROR_MSG, 
+        INVALID_PARAM_MSG, 
+        RECORD_CREATED_SUCCESSFULLY_MSG, 
+        RECORD_MISSING_MSG, 
+        UNREACHABLE_CODE_MSG, 
+        UNREACHABLE_CODE_UNKNOWN_STATUS_MSG } from "../utils/messages";
 
 export async function createIngredient(request: Request, 
                                  response: Response): Promise<void> {
@@ -25,37 +31,31 @@ export async function createIngredient(request: Request,
         switch (dbResponse.status) {
             case StatusType.Success:
                 response.status(201).json({
-                    message: 'Ingredient created succesfully', 
+                    message: RECORD_CREATED_SUCCESSFULLY_MSG('Ingredient'),
                     id: dbResponse.value 
                 });
-                break;
+                return;
             case StatusType.Failure:
                 response.status(500).json({
-                    error: 'Internal Server Error',
+                    error: INTERNAL_SERVER_ERROR_MSG,
                     message: dbResponse.message
                 });
-                break;
-            case StatusType.Empty:
-                response.status(404).json({
-                    message: 'No results'
-                });
-                break;
-            case StatusType.Missing:
-                response.status(400).json({
-                    error: 'Bad Request',
-                    message: dbResponse.message
-                });
-                break;
+                return;
             default:
                 response.status(500).json({
-                    error: 'Internal Server Error'
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('Ingredient', 
+                                                                 'Create', 
+                                                                 dbResponse.status)
                 });
+                return;
         }
         
     } catch (err) {
         console.log(err);
         response.status(500).json({
-            error: 'Internal Server Error'
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
         });
     }
 }
@@ -66,40 +66,43 @@ export async function getIngredient(request: Request,
         const id = +request.params.ingredientId;
         if (isNaN(id)) {
             response.status(400).json({
-                error: 'Invalid Id Format'
+                error: INVALID_PARAM_MSG('ID')
             });
-        } else {
-            // get object from db
-            const dbResponse : Status<StatusType, object | undefined>
-                = await IngredientModel.get(id);
+            return;
+        } 
 
-            switch (dbResponse.status) {
-                case StatusType.Success: 
-                    response.status(200).json({
-                        data: dbResponse.value
-                    });
-                    break;
-                case StatusType.Failure:
-                    response.status(500).json({
-                        error: 'Internal Server Error',
-                        message: dbResponse.message
-                    });
-                    break;
-                case StatusType.Empty:
-                    response.status(404).json({
-                        message: `record ${id} not found`
-                    });
-                    break;
-                default: 
-                    response.status(500).json({
-                        error: 'Internal Server Error'
-                    });
-            }
+        const dbResponse : Status<StatusType, object | undefined>
+            = await IngredientModel.get(id);
+
+        switch (dbResponse.status) {
+            case StatusType.Success: 
+                response.status(200).json({
+                    data: dbResponse.value
+                });
+                return;
+            case StatusType.Failure:
+                response.status(500).json({
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: dbResponse.message
+                });
+                return;
+            case StatusType.Missing:
+                response.status(404).json({
+                    message: RECORD_MISSING_MSG('Ingredient', id.toString())
+                });
+                return;
+            default: 
+                response.status(500).json({
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: `${UNREACHABLE_CODE_MSG} - Ingredient Get - Unknown Status`
+                });
+                return;
         }
     } catch (err) {
         console.log(err);
         response.status(500).json({
-            error: 'Internal Server Error'
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
         });
     }
 }

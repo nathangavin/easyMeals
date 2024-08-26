@@ -6,7 +6,7 @@ import { INTERNAL_SERVER_ERROR_MSG,
         INVALID_PARAM_MSG, 
         RECORD_CREATED_SUCCESSFULLY_MSG, 
         RECORD_MISSING_MSG, 
-        UNREACHABLE_CODE_MSG } from "../utils/messages";
+        UNREACHABLE_CODE_UNKNOWN_STATUS_MSG} from "../utils/messages";
 
 export async function createRecipe(request: Request, 
                                  response: Response): Promise<void> {
@@ -41,7 +41,9 @@ export async function createRecipe(request: Request,
             default:
                 response.status(500).json({
                     error: INTERNAL_SERVER_ERROR_MSG,
-                    message: `${UNREACHABLE_CODE_MSG} - Recipe Create - Status: ${dbResponse.status}`
+                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('Recipe', 
+                                                                 'Create', 
+                                                                 dbResponse.status)
                 });
                 return;
         }

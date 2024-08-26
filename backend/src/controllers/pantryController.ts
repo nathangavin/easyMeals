@@ -1,7 +1,12 @@
 import { Request, Response } from "express";
 import joi from "joi";
 import PantryModel from "../models/pantryModel";
-import { Status, StatusType } from "../utils/statusTypes";
+import { StatusType } from "../utils/statusTypes";
+import { INTERNAL_SERVER_ERROR_MSG, 
+        INVALID_PARAM_MSG, 
+        RECORD_CREATED_SUCCESSFULLY_MSG, 
+        RECORD_MISSING_MSG, 
+        UNREACHABLE_CODE_UNKNOWN_STATUS_MSG } from "../utils/messages";
 
 export async function createPantry(request: Request, 
                                  response: Response): Promise<void> {
@@ -11,39 +16,44 @@ export async function createPantry(request: Request,
 
     try {
         // use the defined schema to validate the payload
-        const { error, value } = schema.validate(request.body);
+        const { error } = schema.validate(request.body);
         if (error) {
             response.status(400).json({
                 error: error.details[0].message
             });
+            return;
         }
         
-        const dbResponse : Status<StatusType, number | undefined> = 
-                                    await PantryModel.create(request.body.desc);
+        const dbResponse = await PantryModel.create(request.body.desc);
         console.log(dbResponse);
         switch (dbResponse.status) {
             case StatusType.Success:
                 response.status(201).json({
-                    message: 'Pantry created succesfully', 
+                    message: RECORD_CREATED_SUCCESSFULLY_MSG('Pantry'),
                     id: dbResponse.value 
                 });
-                break;
+                return;
             case StatusType.Failure:
                 response.status(500).json({
-                    error: 'Internal Server Error',
+                    error: INTERNAL_SERVER_ERROR_MSG,
                     message: dbResponse.message
                 });
-                break;
-            case StatusType.Empty:
-                response.status(404).json({
-                    message: 'No results'
+                return;
+            default:
+                response.status(500).json({
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('Pantry', 
+                                                                 'CREATE', 
+                                                                 dbResponse.status)
                 });
+                return;
         }
         
     } catch (err) {
         console.log(err);
         response.status(500).json({
-            error: 'Internal Server Error'
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
         });
     }
 }
@@ -54,36 +64,42 @@ export async function getPantry(request: Request,
         const id = +request.params.pantryId;
         if (isNaN(id)) {
             response.status(400).json({
-                error: 'Invalid Id Format'
+                error: INVALID_PARAM_MSG('ID')
             });
+            return;
         } else {
             // get object from db
-            const dbResponse : Status<StatusType, object | undefined>
-                = await PantryModel.get(id);
+            const dbResponse = await PantryModel.get(id);
 
             switch (dbResponse.status) {
                 case StatusType.Success: 
                     response.status(200).json({
                         data: dbResponse.value
                     });
-                    break;
+                    return;
                 case StatusType.Failure:
                     response.status(500).json({
-                        error: 'Internal Server Error',
+                        error: INTERNAL_SERVER_ERROR_MSG,
                         message: dbResponse.message
                     });
-                    break;
-                case StatusType.Empty:
+                    return;
+                case StatusType.Missing:
                     response.status(404).json({
-                        message: `record ${id} not found`
+                        message: RECORD_MISSING_MSG('Pantry', id.toString())
                     });
-                    break;
+                    return;
+                default:
+                    response.status(500).json({
+                        message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('Pantry', 'GET')
+                    });
+                    return;
             }
         }
     } catch (err) {
         console.log(err);
         response.status(500).json({
-            error: 'Internal Server Error'
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
         });
     }
 }

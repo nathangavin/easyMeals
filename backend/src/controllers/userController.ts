@@ -10,7 +10,7 @@ import { AUTH_TOKEN_MALFORMED_MSG,
         INTERNAL_SERVER_ERROR_MSG, 
         INVALID_PARAM_MSG, 
         RECORD_CREATED_SUCCESSFULLY_MSG, 
-        UNKNOWN_ERROR_MSG } from "../utils/messages";
+        UNREACHABLE_CODE_UNKNOWN_STATUS_MSG} from "../utils/messages";
 
 export async function createUser(request: Request, 
                                  response: Response): Promise<void> {
@@ -54,7 +54,9 @@ export async function createUser(request: Request,
             default:
                 response.status(500).json({
                     error: INTERNAL_SERVER_ERROR_MSG,
-                    message: UNKNOWN_ERROR_MSG 
+                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('User', 
+                                                                 'Create', 
+                                                                 dbResponse.status)
                 });
                 return;
         }
@@ -102,7 +104,7 @@ export async function getUser(request: Request,
             default:
                 response.status(500).json({
                     error: INTERNAL_SERVER_ERROR_MSG, 
-                    message: UNKNOWN_ERROR_MSG
+                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('User', 'Get')
                 });
                 return;
         }
@@ -201,11 +203,17 @@ export async function updateUser(request: Request,
                     message: dbResponse.message
                 });
                 return;
+            default:
+                response.status(500).json({
+                error: INTERNAL_SERVER_ERROR_MSG,
+                message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('User','Update')
+            })
         }
     } catch (err) {
         console.log(err);
         response.status(500).json({
-            error: INTERNAL_SERVER_ERROR_MSG
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
         });
     }
 }

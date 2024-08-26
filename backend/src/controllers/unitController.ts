@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import joi from "joi";
 import UnitModel from "../models/unitModel";
-import { Status, StatusType } from "../utils/statusTypes";
+import { StatusType } from "../utils/statusTypes";
+import { INTERNAL_SERVER_ERROR_MSG, INVALID_PARAM_MSG, RECORD_CREATED_SUCCESSFULLY_MSG, RECORD_MISSING_MSG, UNREACHABLE_CODE_UNKNOWN_STATUS_MSG } from "../utils/messages";
 
 export async function createUnit(request: Request, 
                                  response: Response): Promise<void> {
@@ -11,38 +12,41 @@ export async function createUnit(request: Request,
 
     try {
         // use the defined schema to validate the payload
-        const { error, value } = schema.validate(request.body);
+        const { error } = schema.validate(request.body);
         if (error) {
             response.status(400).json({
                 error: error.details[0].message
             });
         }
         
-        const dbResponse : Status<StatusType, number | undefined> = await UnitModel.create(request.body.desc);
+        const dbResponse = await UnitModel.create(request.body.desc);
         console.log(dbResponse);
         switch (dbResponse.status) {
             case StatusType.Success:
                 response.status(201).json({
-                    message: 'Unit created succesfully', 
+                    message: RECORD_CREATED_SUCCESSFULLY_MSG('Unit'), 
                     id: dbResponse.value 
                 });
                 break;
             case StatusType.Failure:
                 response.status(500).json({
-                    error: 'Internal Server Error',
+                    error: INTERNAL_SERVER_ERROR_MSG,
                     message: dbResponse.message
                 });
                 break;
-            case StatusType.Empty:
-                response.status(404).json({
-                    message: 'No results'
+            default:
+                response.status(500).json({
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('Unit', 'Create', dbResponse.status)
                 });
+                return;
         }
         
     } catch (err) {
         console.log(err);
         response.status(500).json({
-            error: 'Internal Server Error'
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
         });
     }
 }
@@ -53,36 +57,42 @@ export async function getUnit(request: Request,
         const id = +request.params.unitId;
         if (isNaN(id)) {
             response.status(400).json({
-                error: 'Invalid Id Format'
+                error: INVALID_PARAM_MSG('ID')
             });
-        } else {
-            // get object from db
-            const dbResponse : Status<StatusType, object | undefined>
-                = await UnitModel.get(id);
+            return;
+        } 
+        // get object from db
+        const dbResponse = await UnitModel.get(id);
 
-            switch (dbResponse.status) {
-                case StatusType.Success: 
-                    response.status(200).json({
-                        data: dbResponse.value
-                    });
-                    break;
-                case StatusType.Failure:
-                    response.status(500).json({
-                        error: 'Internal Server Error',
-                        message: dbResponse.message
-                    });
-                    break;
-                case StatusType.Empty:
-                    response.status(404).json({
-                        message: `record ${id} not found`
-                    });
-                    break;
-            }
+        switch (dbResponse.status) {
+            case StatusType.Success: 
+                response.status(200).json({
+                    data: dbResponse.value
+                });
+                return;
+            case StatusType.Failure:
+                response.status(500).json({
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: dbResponse.message
+                });
+                return;
+            case StatusType.Missing:
+                response.status(404).json({
+                    message: RECORD_MISSING_MSG('Unit', id.toString())
+                });
+                return;
+            default:
+                response.status(500).json({
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('Unit', 'Get')
+                });
+                return;
         }
     } catch (err) {
         console.log(err);
         response.status(500).json({
-            error: 'Internal Server Error'
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
         });
     }
 }

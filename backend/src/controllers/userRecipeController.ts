@@ -8,7 +8,7 @@ import { INTERNAL_SERVER_ERROR_MSG,
         INVALID_PARAM_MSG, 
         RECORD_CREATED_SUCCESSFULLY_MSG, 
         RECORD_MISSING_MSG, 
-        UNREACHABLE_CODE_MSG } from "../utils/messages";
+        UNREACHABLE_CODE_UNKNOWN_STATUS_MSG} from "../utils/messages";
 
 export async function createUserRecipe(request: Request, 
                                  response: Response): Promise<void> {
@@ -81,7 +81,9 @@ export async function createUserRecipe(request: Request,
             default:
                 response.status(500).json({
                     error: INTERNAL_SERVER_ERROR_MSG,
-                    message: `${UNREACHABLE_CODE_MSG} - UserRecipe Create - Status: ${dbResponse.status}` 
+                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('UserRecipe', 
+                                                                 'Create', 
+                                                                 dbResponse.status)
                 });
                 return;
         }
@@ -112,20 +114,26 @@ export async function getUserRecipe(request: Request,
         switch (dbResponse.status) {
             case StatusType.Success: 
                 response.status(200).json({
-                user: dbResponse.value
-            });
-                break;
+                    user: dbResponse.value
+                });
+                return;
             case StatusType.Failure:
                 response.status(500).json({
                     error: INTERNAL_SERVER_ERROR_MSG,
                     message: dbResponse.message
                 });
-                break;
+                return;
             case StatusType.Missing:
                 response.status(404).json({
                     message: RECORD_MISSING_MSG('UserRecipe', id.toString())
                 });
-                break;
+                return;
+            default: 
+                response.status(500).json({
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('UserRecipe', 'Get')
+                });
+                return;
         }
     } catch (err) {
         response.status(500).json({
