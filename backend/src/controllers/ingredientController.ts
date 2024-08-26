@@ -66,7 +66,7 @@ export async function getIngredient(request: Request,
         const id = +request.params.ingredientId;
         if (isNaN(id)) {
             response.status(400).json({
-                error: INVALID_PARAM_MSG('ID')
+                message: INVALID_PARAM_MSG('ID')
             });
             return;
         } 
@@ -88,7 +88,7 @@ export async function getIngredient(request: Request,
                 return;
             case StatusType.Missing:
                 response.status(404).json({
-                    message: RECORD_MISSING_MSG('Ingredient', id.toString())
+                    message: dbResponse.message
                 });
                 return;
             default: 

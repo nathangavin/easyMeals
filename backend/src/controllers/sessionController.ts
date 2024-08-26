@@ -32,12 +32,12 @@ export async function createSession(request: Request,
             switch (userLoginResponse.status) {
                 case StatusType.Failure:
                     response.status(400).json({
-                        error: userLoginResponse.message
+                        message: userLoginResponse.message
                     });
                     return;
                 case StatusType.Missing: 
                     response.status(401).json({
-                        error: userLoginResponse.message
+                        message: userLoginResponse.message
                     });
                     return;
                 default:

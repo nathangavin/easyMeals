@@ -83,7 +83,7 @@ export async function getRecipe(request: Request,
                 return;
             case StatusType.Missing:
                 response.status(404).json({
-                    message: RECORD_MISSING_MSG('Recipe', id.toString()) 
+                    message: dbResponse.message
                 });
                 return;
         }

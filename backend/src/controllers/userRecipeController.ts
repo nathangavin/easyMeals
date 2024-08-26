@@ -104,7 +104,7 @@ export async function getUserRecipe(request: Request,
         const id = +request.params.userRecipeId;
         if (isNaN(id)) {
             response.status(400).json({
-                error: INVALID_PARAM_MSG('ID')
+                message: INVALID_PARAM_MSG('ID')
             });
             return;
         } 

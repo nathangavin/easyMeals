@@ -85,7 +85,7 @@ export async function getPantry(request: Request,
                     return;
                 case StatusType.Missing:
                     response.status(404).json({
-                        message: RECORD_MISSING_MSG('Pantry', id.toString())
+                        message: dbResponse.message
                     });
                     return;
                 default:
