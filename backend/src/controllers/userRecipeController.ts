@@ -1,10 +1,14 @@
 import { Request, Response } from "express";
 import joi from "joi";
-import IngredientModel from "../models/ingredientModel";
-import { Status, StatusType } from "../utils/statusTypes";
+import { StatusType } from "../utils/statusTypes";
 import UserRecipeModel from "../models/userRecipeModel";
 import UserModel from "../models/userModel";
 import RecipeModel from "../models/recipeModel";
+import { INTERNAL_SERVER_ERROR_MSG, 
+        INVALID_PARAM_MSG, 
+        RECORD_CREATED_SUCCESSFULLY_MSG, 
+        RECORD_MISSING_MSG, 
+        UNREACHABLE_CODE_MSG } from "../utils/messages";
 
 export async function createUserRecipe(request: Request, 
                                  response: Response): Promise<void> {
@@ -17,39 +21,42 @@ export async function createUserRecipe(request: Request,
 
     try {
         // use the defined schema to validate the payload
-        const { error, value } = schema.validate(request.body);
+        const { error } = schema.validate(request.body);
         if (error) {
             response.status(400).json({
                 error: error.details[0].message
             });
+            return;
         }
 
         // check if user exists
-        const userRequest = await UserModel.get(request.body.userID);
-        switch (userRequest.status) {
-            case StatusType.Empty:
+        const userdDbResponse = await UserModel.get(request.body.userID);
+        switch (userdDbResponse.status) {
+            case StatusType.Missing:
                 response.status(400).json({
-                    message: `User record ${request.body.userID} not found`
+                    message: RECORD_MISSING_MSG('User', request.body.userID)
                 });
                 return;
             case StatusType.Failure:
                 response.status(500).json({
-                    message: 'Internal Server Error'
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: userdDbResponse.message
                 });
                 return;
         }
 
         // check if recipe exists
-        const recipeRequest = await RecipeModel.get(request.body.recipeID);
-        switch (recipeRequest.status) {
-            case StatusType.Empty:
+        const recipeDbResponse = await RecipeModel.get(request.body.recipeID);
+        switch (recipeDbResponse.status) {
+            case StatusType.Missing:
                 response.status(400).json({
-                    message: `Recipe record ${request.body.recipeID} not found`
+                    message: RECORD_MISSING_MSG('Recipe', request.body.recipeID)
                 });
                 return;
             case StatusType.Failure:
                 response.status(500).json({
-                    message: 'Internal Server Error' 
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: recipeDbResponse.message
                 });
                 return;
         }
@@ -61,20 +68,20 @@ export async function createUserRecipe(request: Request,
         switch (dbResponse.status) {
             case StatusType.Success:
                 response.status(201).json({
-                    message: 'UserRecipe created successfully', 
+                    message: RECORD_CREATED_SUCCESSFULLY_MSG('UserRecipe'), 
                     id: dbResponse.value 
                 });
                 return;
             case StatusType.Failure:
                 response.status(500).json({
-                    error: 'Internal Server Error',
+                    error: INTERNAL_SERVER_ERROR_MSG,
                     message: dbResponse.message
                 });
                 return;
             default:
                 response.status(500).json({
-                    error: 'Internal Server Error',
-                    message: 'Unknown error' 
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: `${UNREACHABLE_CODE_MSG} - UserRecipe Create - Status: ${dbResponse.status}` 
                 });
                 return;
         }
@@ -82,7 +89,8 @@ export async function createUserRecipe(request: Request,
     } catch (err) {
         console.log(err);
         response.status(500).json({
-            error: 'Internal Server Error'
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
         });
     }
 }
@@ -94,34 +102,34 @@ export async function getUserRecipe(request: Request,
         const id = +request.params.userRecipeId;
         if (isNaN(id)) {
             response.status(400).json({
-                error: 'Invalid Id Format'
+                error: INVALID_PARAM_MSG('ID')
             });
-        } else {
-            // get object from db
-            const dbResponse = await UserRecipeModel.get(id);
+            return;
+        } 
+        // get object from db
+        const dbResponse = await UserRecipeModel.get(id);
 
-            switch (dbResponse.status) {
-                case StatusType.Success: 
-                    response.status(200).json({
-                    user: dbResponse.value
+        switch (dbResponse.status) {
+            case StatusType.Success: 
+                response.status(200).json({
+                user: dbResponse.value
+            });
+                break;
+            case StatusType.Failure:
+                response.status(500).json({
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: dbResponse.message
                 });
-                    break;
-                case StatusType.Failure:
-                    response.status(500).json({
-                        error: 'Internal Server Error',
-                        message: dbResponse.message
-                    });
-                    break;
-                case StatusType.Empty:
-                    response.status(404).json({
-                        message: `record ${id} not found`
-                    });
-                    break;
-            }
+                break;
+            case StatusType.Missing:
+                response.status(404).json({
+                    message: RECORD_MISSING_MSG('UserRecipe', id.toString())
+                });
+                break;
         }
     } catch (err) {
         response.status(500).json({
-            error: 'Internal Server Error',
+            error: INTERNAL_SERVER_ERROR_MSG,
             message: err
         });
     }

@@ -12,15 +12,15 @@ export async function createIngredient(request: Request,
 
     try {
         // use the defined schema to validate the payload
-        const { error, value } = schema.validate(request.body);
+        const { error } = schema.validate(request.body);
         if (error) {
             response.status(400).json({
                 error: error.details[0].message
             });
+            return;
         }
         
-        const dbResponse : Status<StatusType, number | undefined> = 
-                                    await IngredientModel.create(request.body.desc);
+        const dbResponse = await IngredientModel.create(request.body.desc);
         console.log(dbResponse);
         switch (dbResponse.status) {
             case StatusType.Success:

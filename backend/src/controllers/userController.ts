@@ -2,9 +2,15 @@ import { Request, Response } from "express";
 import joi from "joi";
 
 import UserModel, { User } from "../models/userModel";
-import { Status, StatusType } from "../utils/statusTypes";
+import { StatusType } from "../utils/statusTypes";
 import SessionModel, { TOKEN_LENGTH } from "../models/sessionModel";
-import { todo } from "node:test";
+import { AUTH_TOKEN_MALFORMED_MSG, 
+        AUTH_TOKEN_MISSING_MSG, 
+        AUTH_UNAUTHORISED_MSG, 
+        INTERNAL_SERVER_ERROR_MSG, 
+        INVALID_PARAM_MSG, 
+        RECORD_CREATED_SUCCESSFULLY_MSG, 
+        UNKNOWN_ERROR_MSG } from "../utils/messages";
 
 export async function createUser(request: Request, 
                                  response: Response): Promise<void> {
@@ -17,7 +23,7 @@ export async function createUser(request: Request,
 
     try {
         // use the defined schema to validate the payload
-        const { error, value } = schema.validate(request.body);
+        const { error } = schema.validate(request.body);
         if (error) {
             response.status(400).json({
                 error: error.details[0].message
@@ -30,33 +36,34 @@ export async function createUser(request: Request,
             email: request.body.email
         } as User;
         
-        const dbResponse : Status<StatusType, number | undefined> = 
-                                await UserModel.create(newUser, 
-                                                       request.body.password);
+        const dbResponse = await UserModel.create(newUser, request.body.password);
         console.log(dbResponse);
         switch (dbResponse.status) {
             case StatusType.Success:
                 response.status(201).json({
-                    message: 'User created successfully', 
+                    message: RECORD_CREATED_SUCCESSFULLY_MSG('User'),
                     id: dbResponse.value 
                 });
-                break;
+                return;
             case StatusType.Failure:
                 response.status(500).json({
-                    error: 'Internal Server Error',
+                    error: INTERNAL_SERVER_ERROR_MSG,
                     message: dbResponse.message
                 });
-                break;
-            case StatusType.Empty:
-                response.status(404).json({
-                    message: 'No results'
+                return;
+            default:
+                response.status(500).json({
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: UNKNOWN_ERROR_MSG 
                 });
+                return;
         }
         
     } catch (err) {
         console.log(err);
         response.status(500).json({
-            error: 'Internal Server Error'
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
         });
     }
 }
@@ -68,36 +75,42 @@ export async function getUser(request: Request,
         const id = +request.params.userId;
         if (isNaN(id)) {
             response.status(400).json({
-                error: 'Invalid Id Format'
+                error: INVALID_PARAM_MSG('ID')
             });
-        } else {
-            // get object from db
-            const dbResponse : Status<StatusType, object | undefined>
-                = await UserModel.get(id);
+            return;
+        } 
+        // get object from db
+        const dbResponse = await UserModel.get(id);
 
-            switch (dbResponse.status) {
-                case StatusType.Success: 
-                    response.status(200).json({
+        switch (dbResponse.status) {
+            case StatusType.Success: 
+                response.status(200).json({
                     user: dbResponse.value
                 });
-                    break;
-                case StatusType.Failure:
-                    response.status(500).json({
-                        error: 'Internal Server Error',
-                        message: dbResponse.message
-                    });
-                    break;
-                case StatusType.Empty:
-                    response.status(404).json({
-                        message: `record ${id} not found`
-                    });
-                    break;
-            }
+                return;
+            case StatusType.Missing:
+                response.status(404).json({
+                    message: dbResponse.message
+                });
+                return;
+            case StatusType.Failure:
+                response.status(500).json({
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: dbResponse.message
+                });
+                return;
+            default:
+                response.status(500).json({
+                    error: INTERNAL_SERVER_ERROR_MSG, 
+                    message: UNKNOWN_ERROR_MSG
+                });
+                return;
         }
     } catch (err) {
         console.log(err);
         response.status(500).json({
-            error: 'Internal Server Error'
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
         });
     }
 }
@@ -114,20 +127,20 @@ export async function updateUser(request: Request,
         const providedAuth = request.header('Authorization');
         if (!providedAuth) {
             response.status(401).json({
-                message: 'Authentication not provided'
+                message: AUTH_TOKEN_MISSING_MSG
             });
             return;
         }
         if (providedAuth.split(' ').length < 2) {
             response.status(401).json({
-                message: 'Authentication malformed'
+                message: AUTH_TOKEN_MALFORMED_MSG
             });
             return;
         }
         const session = providedAuth.split(' ')[1];
         if (session.length != TOKEN_LENGTH) {
             response.status(401).json({
-                message: 'Authentication malformed'
+                message: AUTH_TOKEN_MALFORMED_MSG
             });
             return;
         }
@@ -136,7 +149,7 @@ export async function updateUser(request: Request,
         const id = +request.params.userId;
         if (isNaN(id)) {
             response.status(400).json({
-                error: 'Invalid ID Format'
+                error: INVALID_PARAM_MSG('Id')
             });
             return;
         } 
@@ -146,19 +159,19 @@ export async function updateUser(request: Request,
 
         if (sessionDbResponse.status != StatusType.Success) {
             response.status(401).json({
-                message: 'Unauthorized'
+                message: AUTH_UNAUTHORISED_MSG
             });
             return;
         }
 
         if (sessionDbResponse.value?.UserID != id) {
             response.status(401).json({
-                message: 'Unauthorized'
+                message: AUTH_UNAUTHORISED_MSG
             });
             return;
         }
 
-        const { error, value } = schema.validate(request.body);
+        const { error } = schema.validate(request.body);
         if (error) {
             response.status(400).json({
                 error: error.details[0].message
@@ -179,20 +192,20 @@ export async function updateUser(request: Request,
                 return;
             case StatusType.Failure:
                 response.status(500).json({
-                    error: 'Internal Server Error',
+                    error: INTERNAL_SERVER_ERROR_MSG,
                     message: dbResponse.message
                 });
                 return;
             case StatusType.Missing:
                 response.status(404).json({
-                    message: `record ${id} not found`
+                    message: dbResponse.message
                 });
                 return;
         }
     } catch (err) {
         console.log(err);
         response.status(500).json({
-            error: 'Internal Server Error'
+            error: INTERNAL_SERVER_ERROR_MSG
         });
     }
 }

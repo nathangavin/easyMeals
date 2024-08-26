@@ -1,7 +1,12 @@
 import { Request, Response } from "express";
 import joi from "joi";
 import RecipeModel from "../models/recipeModel";
-import { Status, StatusType } from "../utils/statusTypes";
+import { StatusType } from "../utils/statusTypes";
+import { INTERNAL_SERVER_ERROR_MSG, 
+        INVALID_PARAM_MSG, 
+        RECORD_CREATED_SUCCESSFULLY_MSG, 
+        RECORD_MISSING_MSG, 
+        UNREACHABLE_CODE_MSG } from "../utils/messages";
 
 export async function createRecipe(request: Request, 
                                  response: Response): Promise<void> {
@@ -11,7 +16,7 @@ export async function createRecipe(request: Request,
 
     try {
         // use the defined schema to validate the payload
-        const { error, value } = schema.validate(request.body);
+        const { error } = schema.validate(request.body);
         if (error) {
             response.status(400).json({
                 error: error.details[0].message
@@ -23,20 +28,20 @@ export async function createRecipe(request: Request,
         switch (dbResponse.status) {
             case StatusType.Success:
                 response.status(201).json({
-                    message: 'Recipe created successfully', 
+                    message: RECORD_CREATED_SUCCESSFULLY_MSG('Recipe'), 
                     id: dbResponse.value 
                 });
                 return;
             case StatusType.Failure:
                 response.status(500).json({
-                    error: 'Internal Server Error',
+                    error: INTERNAL_SERVER_ERROR_MSG,
                     message: dbResponse.message
                 });
                 return;
             default:
                 response.status(500).json({
-                    error: 'Internal Server Error',
-                    message: 'Unknown error' 
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: `${UNREACHABLE_CODE_MSG} - Recipe Create - Status: ${dbResponse.status}`
                 });
                 return;
         }
@@ -44,7 +49,7 @@ export async function createRecipe(request: Request,
     } catch (err) {
         console.log(err);
         response.status(500).json({
-            error: 'Internal Server Error'
+            error: INTERNAL_SERVER_ERROR_MSG
         });
     }
 }
@@ -55,35 +60,36 @@ export async function getRecipe(request: Request,
         const id = +request.params.recipeId;
         if (isNaN(id)) {
             response.status(400).json({
-                error: 'Invalid Id Format'
+                error: INVALID_PARAM_MSG('ID')
             });
-        } else {
-            // get object from db
-            const dbResponse = await RecipeModel.get(id);
+            return;
+        } 
+        // get object from db
+        const dbResponse = await RecipeModel.get(id);
 
-            switch (dbResponse.status) {
-                case StatusType.Success: 
-                    response.status(200).json({
-                        data: dbResponse.value
-                    });
-                    break;
-                case StatusType.Failure:
-                    response.status(500).json({
-                        error: 'Internal Server Error',
-                        message: dbResponse.message
-                    });
-                    break;
-                case StatusType.Empty:
-                    response.status(404).json({
-                        message: `record ${id} not found`
-                    });
-                    break;
-            }
+        switch (dbResponse.status) {
+            case StatusType.Success: 
+                response.status(200).json({
+                    data: dbResponse.value
+                });
+                return;
+            case StatusType.Failure:
+                response.status(500).json({
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: dbResponse.message
+                });
+                return;
+            case StatusType.Missing:
+                response.status(404).json({
+                    message: RECORD_MISSING_MSG('Recipe', id.toString()) 
+                });
+                return;
         }
     } catch (err) {
         console.log(err);
         response.status(500).json({
-            error: 'Internal Server Error'
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
         });
     }
 }
