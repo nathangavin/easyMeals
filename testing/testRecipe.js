@@ -1,4 +1,4 @@
-import { assertResponseStatus, getRequest, handleGet, LOCALHOST, postRequest } from "./utils.js";
+import { assertResponseStatus, getRequest, handleGet, LOCALHOST, postRequest, putRequest } from "./utils.js";
 
 const recipeRoute = LOCALHOST + "recipes/";
 
@@ -23,6 +23,9 @@ export async function testGetRecipe(id) {
 
 export async function testUpdateRecipe(id) {
     console.log('testing Update Recipe');
+    return await putRequest(recipeRoute + id, {
+        draftFlag: false
+    });
 }
 
 export async function testDeleteRecipe(id) {
@@ -50,17 +53,12 @@ function isRecipe(r) {
 }
 
 export function handleTestGetRecipe(res) {
-    /*
-    assertResponseStatus('Recipe', 'Get', 200, res.status);
-    console.assert(isRecipe(res.data.recipe),
-                    "Recipe Get: returned data is incorrect format %o",
-                    res.data.recipe);
-    */
     handleGet(res, 'recipe', isRecipe);
 }
 
 export function handleTestUpdateRecipe(res) {
     console.assert(false, "Recipe update: not finished");
+
 }
 
 export function handleTestDeleteRecipe(res) {

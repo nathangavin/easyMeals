@@ -94,3 +94,12 @@ export function handleGet(res, fieldname, isObjectFunction) {
                 fieldname, res.data[fieldname]);
 }
 
+export function handleUpdate(res, fieldname) {
+    assertResponseStatus(fieldname, 'UPDATE', 204, res.status);
+    console.assert(res.data == null, 
+                    "%s update: incorrect message: '%s'",
+                    fieldname,
+                    res.data?.message);
+}
+
+

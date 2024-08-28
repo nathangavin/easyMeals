@@ -1,4 +1,9 @@
-import { LOCALHOST, getRequest, handleCreate, handleGet, postRequest, putRequest } from './utils.js';
+import { LOCALHOST, 
+        getRequest, 
+        handleCreate, 
+        handleGet, 
+        postRequest, 
+        putRequest } from './utils.js';
 import { testCreateSession } from './testSession.js';
 
 const userRoute = LOCALHOST + "users/";
@@ -45,14 +50,6 @@ export async function setupTestUser() {
 }
 
 export function handleTestCreateUser(res) {
-    /*
-    console.assert(res.status == 201, 
-                    "User create: incorrect status: %s", 
-                    res.response.status);
-    console.assert(res.data.message == 'User created successfully',
-                    "User create: incorrect message: '%s'",
-                    res.data.message);
-    */
     handleCreate(res, 'user', 'User created successfully');
 }
 
@@ -75,10 +72,6 @@ export function handleTestGetUser(res) {
 }
 
 export function handleTestUpdateUser(res) {
-    console.assert(res.status == 204,
-                    "User update: incorrect status: %s", res.status);
-    console.assert(res.data == null, 
-                    "User update: incorrect message: '%s'",
-                    res.data?.message);
+    handleUpdate(res, 'recipe');
 }
 
