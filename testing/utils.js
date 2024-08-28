@@ -79,27 +79,34 @@ export function assertResponseStatus(tableName, responseType, desiredStatus, act
                 "%s %s: incorrect status: %s", tableName, responseType, actualStatus);
 }
 
-export function handleCreate(res, fieldname, expectedMessage) {
-    assertResponseStatus(fieldname, 'CREATE', 201, res.status);
+export function handleCreate(res, tablename, expectedMessage) {
+    assertResponseStatus(tablename, 'CREATE', 201, res.status);
     console.assert(res.data.message == expectedMessage,
                 "%s create: incorrect message: '%s'",
-                fieldname,
+                tablename,
                 res.data.message);
 }
 
-export function handleGet(res, fieldname, isObjectFunction) {
-    assertResponseStatus(fieldname, 'GET', 200, res.status);
-    console.assert(isObjectFunction(res.data[fieldname]), 
+export function handleGet(res, tablename, isObjectFunction) {
+    assertResponseStatus(tablename, 'GET', 200, res.status);
+    console.assert(isObjectFunction(res.data[tablename]), 
                 "%s Get: returned data is incorrect format %o",
-                fieldname, res.data[fieldname]);
+                tablename, res.data[tablename]);
 }
 
-export function handleUpdate(res, fieldname) {
-    assertResponseStatus(fieldname, 'UPDATE', 204, res.status);
+export function handleUpdate(res, tablename) {
+    assertResponseStatus(tablename, 'UPDATE', 204, res.status);
     console.assert(res.data == null, 
                     "%s update: incorrect message: '%s'",
-                    fieldname,
+                    tablename,
                     res.data?.message);
+}
+
+export function handleDelete(res, tablename) {
+    console.assert(res.status == 204, 
+                    "%s Delete: incorrect status %s", 
+                    tablename, 
+                    res.status);
 }
 
 

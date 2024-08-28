@@ -1,4 +1,4 @@
-import { LOCALHOST, deleteRequest, getRequest, handleCreate, handleGet, postRequest } from './utils.js';
+import { LOCALHOST, deleteRequest, getRequest, handleCreate, handleDelete, handleGet, postRequest } from './utils.js';
 
 const sessionRoute = LOCALHOST + "sessions/";
 
@@ -52,6 +52,6 @@ export function handleTestGetSession(res) {
 }
 
 export async function handleTestDeleteSession(res) {
-    console.assert(res.status == 204, "Session Delete: incorrect status %s", res.status);
+    handleDelete(res, 'Session');
 }
 

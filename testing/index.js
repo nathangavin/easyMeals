@@ -88,11 +88,11 @@ async function recipeCreateTest() {
     console.log("Starting Recipe Create Test");
     const resCreateRecipe = await testCreateRecipe();
     handleTestCreateRecipe(resCreateRecipe);
-    const resGetRecipe = await testGetRecipe(resCreateRecipe.id);
+    const resGetRecipe = await testGetRecipe(resCreateRecipe.data.id);
     handleTestGetRecipe(resGetRecipe);
-    const resUpdateRecipe = await testUpdateRecipe();
+    const resUpdateRecipe = await testUpdateRecipe(resCreateRecipe.data.id);
     handleTestUpdateRecipe(resUpdateRecipe);
-    const resDeleteRecipe = await testDeleteRecipe();
+    const resDeleteRecipe = await testDeleteRecipe(resCreateRecipe.data.id);
     handleTestDeleteRecipe(resDeleteRecipe);
     console.log("Ending Recipe Create Test");
 
