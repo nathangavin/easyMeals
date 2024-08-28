@@ -1,4 +1,4 @@
-import { LOCALHOST, deleteRequest, getRequest, postRequest } from './utils.js';
+import { LOCALHOST, deleteRequest, getRequest, handleGet, postRequest } from './utils.js';
 
 const sessionRoute = LOCALHOST + "sessions/";
 
@@ -27,11 +27,27 @@ export function handleTestCreateSession(res) {
                     "Session Create: session value is missing: %o", res.data.session);
 }
 
+function isSession(s) {
+    if (s &&
+        s.ID &&
+        s.createdTime &&
+        s.modifiedTime &&
+        s.token &&
+        s.expiryTime &&
+        s.UserID) {
+        return true;
+    }
+    return false;
+}
+
 export function handleTestGetSession(res) {
+    /*
     console.assert(res.status == 200,
                     "Session get: incorrect status %s", res.status);
     console.assert(res.data.session,
                     "Session get: session value is missing: %o", res.data.session);
+    */
+    handleGet(res, 'session', isSession);
 }
 
 export async function handleTestDeleteSession(res) {

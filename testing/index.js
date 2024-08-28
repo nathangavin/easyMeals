@@ -21,7 +21,8 @@ import {
     handleTestCreateUser,
     handleTestGetUser,
     handleTestUpdateUser,
-    setupTestUser} from './testUser.js';
+    setupTestUser,
+    generateTestUserDetails} from './testUser.js';
 import { 
     handleTestDeleteUserRecipe,
     handleTestGetUserRecipe, 
@@ -57,15 +58,16 @@ async function userLoginTest() {
     * session token is deleted from DB
     */
     console.log('Starting User Login Test');
-    const resCreateUser = await testCreateUser();
+    const userDetails = generateTestUserDetails();
+    const resCreateUser = await testCreateUser(userDetails);
     handleTestCreateUser(resCreateUser);
-    const resGetUser = await testGetUser(resCreateUser.id);
+    const resGetUser = await testGetUser(resCreateUser.data.id);
     handleTestGetUser(resGetUser);
-    const resCreateSession = await testCreateSession(resCreateUser.email, resCreateUser.password);
+    const resCreateSession = await testCreateSession(userDetails.email, userDetails.password);
     handleTestCreateSession(resCreateSession);
     const resGetSession = await testGetSession(resCreateSession.data.session);
     handleTestGetSession(resGetSession);
-    const resUpdateUser = await testUpdateUser(resCreateUser.id, resCreateSession.data.session);
+    const resUpdateUser = await testUpdateUser(resCreateUser.data.id, resCreateSession.data.session);
     handleTestUpdateUser(resUpdateUser);
     const resDeleteSession = await testDeleteSession(resCreateSession.data.session);
     handleTestDeleteSession(resDeleteSession);
@@ -86,7 +88,7 @@ async function recipeCreateTest() {
     console.log("Starting Recipe Create Test");
     const resCreateRecipe = await testCreateRecipe();
     handleTestCreateRecipe(resCreateRecipe);
-    const resGetRecipe = await testGetRecipe();
+    const resGetRecipe = await testGetRecipe(resCreateRecipe.id);
     handleTestGetRecipe(resGetRecipe);
     const resUpdateRecipe = await testUpdateRecipe();
     handleTestUpdateRecipe(resUpdateRecipe);
