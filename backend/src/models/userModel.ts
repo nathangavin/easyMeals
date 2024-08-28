@@ -1,16 +1,13 @@
-import { ResultSetHeader } from 'mysql2';
 import bcrypt from 'bcrypt';
 import { connectDatabase, 
-        generateColumnData, 
-        generateCreateSQLStatement, 
-        generateGetSQLStatement, 
-        generateUpdateSQLStatement } from '../utils/databaseConnection';
+        handleCreateRequest, 
+        handleGetRequest, 
+        handleUpdateRequest} from '../utils/databaseConnection';
 import { StatusType, Status } from '../utils/statusTypes';
 import SessionModel from './sessionModel';
 import { INTERNAL_SERVER_ERROR_MSG, 
         PASSWORD_INCORRECT_MSG, 
         RECORD_MISSING_MSG, 
-        RECORD_UPDATED_MSG,
         UNKNOWN_MODEL_ERROR_MSG } from '../utils/messages';
 
 export interface User {
@@ -25,44 +22,32 @@ export interface User {
 
 class UserModel {
     
-    private static genericErrorMessage = UNKNOWN_MODEL_ERROR_MSG('User');
+    static genericErrorMessage = UNKNOWN_MODEL_ERROR_MSG('User');
 
     static async create(newUser: User, password: string): 
                 Promise<Status<StatusType, number | undefined>> {
 
-        const connection = await connectDatabase();
         const createdTime = Date.now();
         const modifiedTime = createdTime;
         
         const salt = await bcrypt.genSalt(10);
-        const columnData = [
-            ['createdTime', createdTime],
-            ['modifiedTime', modifiedTime],
-            ['firstname', newUser.firstname],
-            ['lastname', newUser.lastname],
-            ['email', newUser.email],
-            ['passwordHash', await bcrypt.hash(password, salt)]
-        ];
-        try {
-            const query = generateCreateSQLStatement('Users', columnData);
-            const [result] = await connection.execute<ResultSetHeader>(query);
-            return {
-                status: StatusType.Success,
-                value: result.insertId
-            };
-        } catch (error) {
-            return {
-                status: StatusType.Failure,
-                message: this.errorMessage(error) 
-            };
-        } finally {
-            await connection.end();
-        }
+
+        newUser.createdTime = createdTime;
+        newUser.modifiedTime = modifiedTime;
+        newUser.passwordHash = await bcrypt.hash(password, salt);
+
+        return handleCreateRequest(newUser,
+                                  'Users',
+                                  'User');
     }
 
     static async get(id: number): 
             Promise<Status<StatusType, User | undefined>> {
 
+        return handleGetRequest<User>(id,
+                                     'Users',
+                                     'User');
+        /*
         const connection = await connectDatabase();
         try {
             const query = generateGetSQLStatement('Users', id);
@@ -89,6 +74,7 @@ class UserModel {
         } finally {
             await connection.end();
         }
+        */
     }
 
     static async getByEmail(email: string) : Promise<Status<StatusType, User | undefined>> {
@@ -183,60 +169,14 @@ class UserModel {
     }
 
     static async update(id: number, user: User) : Promise<Status<StatusType, string | undefined >> {
-        const connection = await connectDatabase();
-
-        try {
-            
-            // get user
-            const userStatus = await this.get(id);
-
-            if (userStatus.status != StatusType.Success) return userStatus;
-            if (!userStatus.value) {
-                // if status is Success but value is missing, then internal error
-                return {
-                    status: StatusType.Failure,
-                    message: `${INTERNAL_SERVER_ERROR_MSG} - ${RECORD_MISSING_MSG('User', id.toString())}`
-                };
-            }
-
-            /*
-            * do a diff between retrieved user and provided user
-            * user is provided user
-            * userStatus.value is retrieved user
-            * result should be retrieved user with values overridden by provided user
-            */
-            const copiedUser = Object.assign(userStatus.value, user, {
-                modifiedTime: Date.now()
-            });
-
-            /* 
-            * remove protected fields from provided user
-            * object.assign(a,b) result takes a and overrides values with b
-            * make update call to db
-            */
-            const keys : Array<keyof User> = 
-                Object.keys(copiedUser) as Array<keyof User>;
-            const columnData = generateColumnData(copiedUser, keys);
-
-
-            const query = generateUpdateSQLStatement('Users', id, columnData);
-            const [_result] = await connection.execute<ResultSetHeader>(query);
-            return {
-                status: StatusType.Success,
-                
-                value: RECORD_UPDATED_MSG('User', id.toString())
-            };
-        } catch (error) {
-            return {
-                status: StatusType.Failure,
-                message: this.errorMessage(error)
-            };
-        } finally {
-            await connection.end();
-        }
+        return handleUpdateRequest<User>(this.get,
+                                           'Users',
+                                           'User',
+                                           id,
+                                           user);
     }
 
-    private static errorMessage(error?: any): string {
+    public static errorMessage(error?: any): string {
         return error instanceof Error ? error.message : this.genericErrorMessage;
     }
 } 
