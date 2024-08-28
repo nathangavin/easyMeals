@@ -1,6 +1,10 @@
 import mysql, { Connection, ResultSetHeader } from 'mysql2/promise';
 import { Status, StatusType } from './statusTypes';
-import { INTERNAL_SERVER_ERROR_MSG, RECORD_MISSING_MSG, RECORD_UPDATED_MSG, UNKNOWN_MODEL_ERROR_MSG } from './messages';
+import { INTERNAL_SERVER_ERROR_MSG, 
+        RECORD_MISSING_MSG, 
+        RECORD_UPDATED_MSG, 
+        RECORD_DELETED_MSG,
+        UNKNOWN_MODEL_ERROR_MSG } from './messages';
 import { table } from 'console';
 
 export type getCallback<T> = (id: number) => Promise<Status<StatusType, T | undefined>>;
@@ -54,6 +58,8 @@ export function generateUpdateSQLStatement(
     for (let i = 0; i < columnNameValuePairs.length; i++) {
         if (typeof columnNameValuePairs[i][1] == 'number') {
             statement += `${columnNameValuePairs[i][0]} = ${columnNameValuePairs[i][1]}`;
+        } else if (typeof columnNameValuePairs[i][1] == 'boolean') {
+            statement += `${columnNameValuePairs[i][0]} = ${columnNameValuePairs[i][1]}`;
         } else {
             statement += `${columnNameValuePairs[i][0]} = '${columnNameValuePairs[i][1]}'`;
         }
@@ -82,6 +88,10 @@ export function generateColumnData<RecordType>(
             returnable.push([keyString, value]);
     }
     return returnable;
+}
+
+export function generateDeleteSQLStatement(tablename: string, id: number) {
+    return `DELETE FROM ${tablename} WHERE ID = ${id};`;
 }
 
 export async function handleCreateRequest<T extends object>(record: T,
@@ -184,6 +194,35 @@ export async function handleUpdateRequest<T>(getFunction: getCallback<T>,
     } finally {
         await connection.end();
     }
+}
+
+export async function handleDeleteRequest<T>(getFunction: getCallback<T>,
+                                            tableName: string,
+                                            tableMessageName: string,
+                                            id: number) : 
+                                                Promise<Status<StatusType, string | undefined>> {
+
+        const connection = await connectDatabase();
+        try {
+
+            const objectStatus = await getFunction(id);
+
+            if (objectStatus.status != StatusType.Success) return objectStatus;
+
+            const query = generateDeleteSQLStatement(tableName, id);
+            const [_result] = await connection.execute(query);
+            return {
+                status: StatusType.Success,
+                value: RECORD_DELETED_MSG(tableMessageName, id.toString())
+            }
+        } catch (error) {
+            return {
+                status: StatusType.Failure,
+                message: errorMessage(tableName, error)
+            };
+        } finally {
+            await connection.end();
+        }
 }
 
 export function errorMessage(tableName: string, error?: any): string {

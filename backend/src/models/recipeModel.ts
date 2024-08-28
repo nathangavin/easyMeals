@@ -1,4 +1,5 @@
 import { handleCreateRequest,
+        handleDeleteRequest,
         handleGetRequest,
         handleUpdateRequest} from '../utils/databaseConnection';
 import { StatusType, Status } from '../utils/statusTypes';
@@ -52,6 +53,15 @@ class RecipeModel {
          
     }
 
+    static async delete(id: number) : 
+            Promise<Status<StatusType, string | undefined>> {
+        
+        return handleDeleteRequest<Recipe>(this.get,
+                                            'Recipes',
+                                            'Recipe',
+                                            id);
+    }
+    
     private static errorMessage(error: any): string {
         return error instanceof Error ? error.message : RecipeModel.genericErrorMessage;
     }

@@ -1,11 +1,10 @@
 import { Request, Response } from "express";
 import joi from "joi";
-import RecipeModel from "../models/recipeModel";
+import RecipeModel, { Recipe } from "../models/recipeModel";
 import { StatusType } from "../utils/statusTypes";
 import { INTERNAL_SERVER_ERROR_MSG, 
         INVALID_PARAM_MSG, 
         RECORD_CREATED_SUCCESSFULLY_MSG, 
-        RECORD_MISSING_MSG, 
         UNREACHABLE_CODE_UNKNOWN_STATUS_MSG} from "../utils/messages";
 
 export async function createRecipe(request: Request, 
@@ -99,6 +98,10 @@ export async function getRecipe(request: Request,
 export async function updateRecipe(request: Request, 
                                     response: Response) : Promise<void> {
     
+    const schema = joi.object({
+        name: joi.string().alphanum().min(1).max(20),
+        draftFlag: joi.boolean()
+    });
     try {
         const id = +request.params.recipeId;
         if (isNaN(id)) {
@@ -107,7 +110,88 @@ export async function updateRecipe(request: Request,
             });
             return;
         } 
+
+        const { error } = schema.validate(request.body);
+        if (error) {
+            response.status(400).json({
+                message: error.details[0].message
+            });
+            return;
+        }
         
+        const updatedRecipe = {
+            name: request.body.name ?? null,
+            draftFlag: request.body.draftFlag ?? null
+        } as Recipe;
+        
+        const dbResponse = await RecipeModel.update(id, updatedRecipe);
+
+        switch (dbResponse.status) {
+            case StatusType.Success: 
+                response.status(204).json();
+                return;
+            case StatusType.Failure:
+                response.status(500).json({
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: dbResponse.message
+                });
+                return;
+            case StatusType.Missing:
+                response.status(404).json({
+                    message: dbResponse.message
+                });
+                return;
+            default:
+                response.status(500).json({
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('Recipe','Update')
+                });
+                return;
+        }
+    } catch (err) {
+        console.log(err);
+        response.status(500).json({
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
+        });
+    }
+}
+
+export async function deleteRecipe(request: Request,
+                                    response: Response) : Promise<void> {
+
+    try {
+        const id = +request.params.recipeId;
+        if (isNaN(id)) {
+            response.status(400).json({
+                error: INVALID_PARAM_MSG('ID')
+            });
+            return;
+        } 
+        const dbResponse = await RecipeModel.delete(id);
+        console.log(dbResponse);
+        switch (dbResponse.status) {
+            case StatusType.Success: 
+                response.status(204).json();
+                return;
+            case StatusType.Failure:
+                response.status(500).json({
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: dbResponse.message
+                });
+                return;
+            case StatusType.Missing:
+                response.status(404).json({
+                    message: dbResponse.message
+                });
+                return;
+            default:
+                response.status(500).json({
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('Recipe', 'Delete')
+                });
+                return;
+        }
     } catch (err) {
         console.log(err);
         response.status(500).json({

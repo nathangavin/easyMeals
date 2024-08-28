@@ -178,6 +178,7 @@ export async function updateUser(request: Request,
             response.status(400).json({
                 message: error.details[0].message
             });
+            return;
         }
         
         const updatedUser = {
@@ -205,9 +206,10 @@ export async function updateUser(request: Request,
                 return;
             default:
                 response.status(500).json({
-                error: INTERNAL_SERVER_ERROR_MSG,
-                message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('User','Update')
-            })
+                    error: INTERNAL_SERVER_ERROR_MSG,
+                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('User','Update')
+                });
+                return;
         }
     } catch (err) {
         console.log(err);
