@@ -72,7 +72,7 @@ export async function getRecipe(request: Request,
         switch (dbResponse.status) {
             case StatusType.Success: 
                 response.status(200).json({
-                    data: dbResponse.value
+                    recipe: dbResponse.value
                 });
                 return;
             case StatusType.Failure:
@@ -87,6 +87,27 @@ export async function getRecipe(request: Request,
                 });
                 return;
         }
+    } catch (err) {
+        console.log(err);
+        response.status(500).json({
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
+        });
+    }
+}
+
+export async function updateRecipe(request: Request, 
+                                    response: Response) : Promise<void> {
+    
+    try {
+        const id = +request.params.recipeId;
+        if (isNaN(id)) {
+            response.status(400).json({
+                error: INVALID_PARAM_MSG('ID')
+            });
+            return;
+        } 
+        
     } catch (err) {
         console.log(err);
         response.status(500).json({
