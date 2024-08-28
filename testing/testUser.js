@@ -2,6 +2,7 @@ import { LOCALHOST,
         getRequest, 
         handleCreate, 
         handleGet, 
+        handleUpdate,
         postRequest, 
         putRequest } from './utils.js';
 import { testCreateSession } from './testSession.js';

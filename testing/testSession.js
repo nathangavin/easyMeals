@@ -21,6 +21,7 @@ export async function testDeleteSession(session) {
 }
 
 export function handleTestCreateSession(res) {
+    // needs unique logic because create session returns token rather than id
     console.assert(res.status == 200,
                     "Session Create: incorrect status: %s", res.status);
     console.assert(res.data.session,
