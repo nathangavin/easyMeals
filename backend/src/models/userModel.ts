@@ -43,38 +43,9 @@ class UserModel {
 
     static async get(id: number): 
             Promise<Status<StatusType, User | undefined>> {
-
         return handleGetRequest<User>(id,
                                      'Users',
                                      'User');
-        /*
-        const connection = await connectDatabase();
-        try {
-            const query = generateGetSQLStatement('Users', id);
-            const [result] = await connection.execute(query);
-            if (result instanceof Array) {
-                return result.length > 0 ? {
-                        status: StatusType.Success,
-                        value: result[0] as User
-                    } : {
-                        status: StatusType.Missing,
-                        message: RECORD_MISSING_MSG('User', id.toString())
-                    };
-            } else {
-                return {
-                    status: StatusType.Missing,
-                    message: RECORD_MISSING_MSG('User', id.toString())
-                };
-            }
-        } catch (error) {
-            return {
-                status: StatusType.Failure,
-                message: this.errorMessage(error)
-            }
-        } finally {
-            await connection.end();
-        }
-        */
     }
 
     static async getByEmail(email: string) : Promise<Status<StatusType, User | undefined>> {
