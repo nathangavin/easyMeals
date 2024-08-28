@@ -5,7 +5,6 @@ import { INTERNAL_SERVER_ERROR_MSG,
         RECORD_UPDATED_MSG, 
         RECORD_DELETED_MSG,
         UNKNOWN_MODEL_ERROR_MSG } from './messages';
-import { table } from 'console';
 
 export type getCallback<T> = (id: number) => Promise<Status<StatusType, T | undefined>>;
 export type createCallback = () => Promise<Status<StatusType, number | undefined>>;
