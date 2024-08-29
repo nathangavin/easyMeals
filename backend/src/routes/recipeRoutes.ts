@@ -9,7 +9,7 @@ const recipeRoutes = Router();
 
 recipeRoutes.post('/', createRecipe);
 recipeRoutes.get('/:recipeId', getRecipe);
-recipeRoutes.put('/:recipeId', updateRecipe);
+recipeRoutes.patch('/:recipeId', updateRecipe);
 recipeRoutes.delete('/:recipeId', deleteRecipe);
 
 export default recipeRoutes;

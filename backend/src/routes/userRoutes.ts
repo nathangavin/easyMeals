@@ -8,6 +8,6 @@ const userRoutes = Router();
 
 userRoutes.post('/', createUser);
 userRoutes.get('/:userId', getUser);
-userRoutes.put('/:userId', updateUser);
+userRoutes.patch('/:userId', updateUser);
 
 export default userRoutes;
