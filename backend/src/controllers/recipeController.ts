@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import joi from "joi";
 import RecipeModel, { Recipe } from "../models/recipeModel";
-import { StatusType } from "../utils/statusTypes";
 import { INTERNAL_SERVER_ERROR_MSG, 
-        INVALID_PARAM_MSG, 
-        RECORD_CREATED_SUCCESSFULLY_MSG, 
-        UNREACHABLE_CODE_UNKNOWN_STATUS_MSG} from "../utils/messages";
+        INVALID_PARAM_MSG } from "../utils/messages";
+import { handleCreateResponse, 
+        handleGetResponse, 
+        handleUpdateDeleteResponse } from "../utils/controllerUtils";
 
 export async function createRecipe(request: Request, 
                                  response: Response): Promise<void> {
@@ -23,30 +23,11 @@ export async function createRecipe(request: Request,
         }
         
         const dbResponse = await RecipeModel.create(request.body.name);
-        console.log(dbResponse);
-        switch (dbResponse.status) {
-            case StatusType.Success:
-                response.status(201).json({
-                    message: RECORD_CREATED_SUCCESSFULLY_MSG('Recipe'), 
-                    id: dbResponse.value 
-                });
-                return;
-            case StatusType.Failure:
-                response.status(500).json({
-                    error: INTERNAL_SERVER_ERROR_MSG,
-                    message: dbResponse.message
-                });
-                return;
-            default:
-                response.status(500).json({
-                    error: INTERNAL_SERVER_ERROR_MSG,
-                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('Recipe', 
-                                                                 'Create', 
-                                                                 dbResponse.status)
-                });
-                return;
-        }
-        
+        const processedResponse = handleCreateResponse(dbResponse, 'Recipe');
+        response.status(processedResponse.status)
+                .json(processedResponse.json);
+        return;
+
     } catch (err) {
         console.log(err);
         response.status(500).json({
@@ -68,24 +49,12 @@ export async function getRecipe(request: Request,
         // get object from db
         const dbResponse = await RecipeModel.get(id);
 
-        switch (dbResponse.status) {
-            case StatusType.Success: 
-                response.status(200).json({
-                    recipe: dbResponse.value
-                });
-                return;
-            case StatusType.Failure:
-                response.status(500).json({
-                    error: INTERNAL_SERVER_ERROR_MSG,
-                    message: dbResponse.message
-                });
-                return;
-            case StatusType.Missing:
-                response.status(404).json({
-                    message: dbResponse.message
-                });
-                return;
-        }
+        const processedResponse = handleGetResponse(dbResponse, 'recipe', 'Recipe');
+
+        response.status(processedResponse.status)
+                .json(processedResponse.json);
+        return;
+
     } catch (err) {
         console.log(err);
         response.status(500).json({
@@ -125,29 +94,13 @@ export async function updateRecipe(request: Request,
         } as Recipe;
         
         const dbResponse = await RecipeModel.update(id, updatedRecipe);
-
-        switch (dbResponse.status) {
-            case StatusType.Success: 
-                response.status(204).json();
-                return;
-            case StatusType.Failure:
-                response.status(500).json({
-                    error: INTERNAL_SERVER_ERROR_MSG,
-                    message: dbResponse.message
-                });
-                return;
-            case StatusType.Missing:
-                response.status(404).json({
-                    message: dbResponse.message
-                });
-                return;
-            default:
-                response.status(500).json({
-                    error: INTERNAL_SERVER_ERROR_MSG,
-                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('Recipe','Update')
-                });
-                return;
-        }
+        
+        const processedResponse = handleUpdateDeleteResponse(dbResponse, 
+                                                             'Update',
+                                                             'Recipe');
+        response.status(processedResponse.status)
+                    .json(processedResponse.json);
+        return;
     } catch (err) {
         console.log(err);
         response.status(500).json({
@@ -169,29 +122,13 @@ export async function deleteRecipe(request: Request,
             return;
         } 
         const dbResponse = await RecipeModel.delete(id);
-        console.log(dbResponse);
-        switch (dbResponse.status) {
-            case StatusType.Success: 
-                response.status(204).json();
-                return;
-            case StatusType.Failure:
-                response.status(500).json({
-                    error: INTERNAL_SERVER_ERROR_MSG,
-                    message: dbResponse.message
-                });
-                return;
-            case StatusType.Missing:
-                response.status(404).json({
-                    message: dbResponse.message
-                });
-                return;
-            default:
-                response.status(500).json({
-                    error: INTERNAL_SERVER_ERROR_MSG,
-                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('Recipe', 'Delete')
-                });
-                return;
-        }
+        const processedResponse = handleUpdateDeleteResponse(dbResponse,
+                                                            'Delete',
+                                                            'Recipe');
+
+        response.status(processedResponse.status)
+                    .json(processedResponse.json);
+        return;
     } catch (err) {
         console.log(err);
         response.status(500).json({

@@ -9,6 +9,7 @@ import { INTERNAL_SERVER_ERROR_MSG,
         RECORD_CREATED_SUCCESSFULLY_MSG, 
         RECORD_MISSING_MSG, 
         UNREACHABLE_CODE_UNKNOWN_STATUS_MSG} from "../utils/messages";
+import { handleCreateResponse } from "../utils/controllerUtils";
 
 export async function createUserRecipe(request: Request, 
                                  response: Response): Promise<void> {
@@ -64,29 +65,11 @@ export async function createUserRecipe(request: Request,
         const dbResponse = await UserRecipeModel.create(request.body.userID, 
                                                         request.body.recipeID,
                                                         request.body.rating);
-        console.log(dbResponse);
-        switch (dbResponse.status) {
-            case StatusType.Success:
-                response.status(201).json({
-                    message: RECORD_CREATED_SUCCESSFULLY_MSG('UserRecipe'), 
-                    id: dbResponse.value 
-                });
-                return;
-            case StatusType.Failure:
-                response.status(500).json({
-                    error: INTERNAL_SERVER_ERROR_MSG,
-                    message: dbResponse.message
-                });
-                return;
-            default:
-                response.status(500).json({
-                    error: INTERNAL_SERVER_ERROR_MSG,
-                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('UserRecipe', 
-                                                                 'Create', 
-                                                                 dbResponse.status)
-                });
-                return;
-        }
+        const processedResponse = handleCreateResponse(dbResponse, 'UserRecipe');
+
+        response.status(processedResponse.status)
+                .json(processedResponse.json);
+        return;
         
     } catch (err) {
         console.log(err);

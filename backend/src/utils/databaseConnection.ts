@@ -6,9 +6,13 @@ import { INTERNAL_SERVER_ERROR_MSG,
         RECORD_DELETED_MSG,
         UNKNOWN_MODEL_ERROR_MSG } from './messages';
 
-export type getCallback<T> = (id: number) => Promise<Status<StatusType, T | undefined>>;
-export type createCallback = () => Promise<Status<StatusType, number | undefined>>;
-export type updateDeleteCallback = (id: number) => Promise<Status<StatusType, string | undefined>>;
+export type getReturn<T> = Status<StatusType, T | undefined>;
+export type createReturn = Status<StatusType, number | undefined>;
+export type updateDeleteReturn = Status<StatusType, string | undefined>;
+
+export type getCallback<T> = (id: number) => Promise<getReturn<T>>;
+export type createCallback = () => Promise<createReturn>; 
+export type updateDeleteCallback = (id: number) => Promise<updateDeleteReturn>;
 
 export async function connectDatabase(): Promise<Connection> {
     return await mysql.createConnection({
