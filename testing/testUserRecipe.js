@@ -1,4 +1,4 @@
-import { LOCALHOST, postRequest } from "./utils.js";
+import { LOCALHOST } from "./utils.js";
 
 const userRecipeRoute = LOCALHOST + "userrecipes/";
 

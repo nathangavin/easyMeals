@@ -1,4 +1,9 @@
-import { LOCALHOST, deleteRequest, getRequest, handleCreate, handleDelete, handleGet, postRequest } from './utils.js';
+import { LOCALHOST, 
+    deleteRequest, 
+    getRequest, 
+    handleDelete, 
+    handleGet, 
+    postRequest } from './utils.js';
 
 const sessionRoute = LOCALHOST + "sessions/";
 

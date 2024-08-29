@@ -1,4 +1,14 @@
-import { assertResponseStatus, deleteRequest, getRequest, handleCreate, handleDelete, handleGet, handleUpdate, LOCALHOST, postRequest, putRequest } from "./utils.js";
+import { 
+    assertResponseStatus, 
+    deleteRequest, 
+    getRequest, 
+    handleCreate, 
+    handleDelete, 
+    handleGet, 
+    handleUpdate, 
+    LOCALHOST, 
+    patchRequest, 
+    postRequest } from "./utils.js";
 
 const recipeRoute = LOCALHOST + "recipes/";
 
@@ -18,7 +28,7 @@ export async function testGetRecipe(id) {
 
 export async function testUpdateRecipe(id) {
     console.log('testing Update Recipe');
-    return await putRequest(recipeRoute + id, {
+    return await patchRequest(recipeRoute + id, {
         draftFlag: false
     });
 }

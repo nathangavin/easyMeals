@@ -4,7 +4,7 @@ import { LOCALHOST,
         handleGet, 
         handleUpdate,
         postRequest, 
-        putRequest } from './utils.js';
+        patchRequest } from './utils.js';
 import { testCreateSession } from './testSession.js';
 
 const userRoute = LOCALHOST + "users/";
@@ -31,7 +31,7 @@ export async function testGetUser(id) {
 
 export async function testUpdateUser(id, sessionToken) {
     console.log("testing Update User");
-    return await putRequest(userRoute + id, {
+    return await patchRequest(userRoute + id, {
         firstname: 'testnamechanged'
     }, sessionToken);
 

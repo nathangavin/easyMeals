@@ -27,7 +27,7 @@ export async function postRequest(url, body, token) {
     };
 }
 
-export async function putRequest(url, body, token) {
+export async function patchRequest(url, body, token) {
     let headers = {
         "Content-type": "application/json",
         "Accept": "application/json"
@@ -36,7 +36,7 @@ export async function putRequest(url, body, token) {
         headers['Authorization'] = `Bearer ${token}`;
     }
     const rawResponse = await fetch(url, {
-        method: 'PUT',
+        method: 'PATCH',
         body: JSON.stringify(body),
         headers: headers
     });
