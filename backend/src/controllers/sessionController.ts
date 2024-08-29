@@ -152,7 +152,12 @@ export async function getSession(request: Request,
     }
 }
 
-export async function logout(request: Request,
+export async function updateSession(request: Request, 
+                                    response: Response) : Promise<void> {
+    response.status(405).json();
+}
+
+export async function deleteSession(request: Request,
                             response: Response): Promise<void> {
     try {
         if (request.params.sessionToken.length != TOKEN_LENGTH) {
