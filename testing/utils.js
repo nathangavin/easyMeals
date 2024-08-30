@@ -64,9 +64,16 @@ export async function getRequest(url) {
     };
 }
 
-export async function deleteRequest(url) {
+export async function deleteRequest(url, token) {
+    let headers = {};
+    if (token) {
+        headers = {
+            'Authorization': `Bearer ${token}`
+        }
+    }
     const rawResponse = await fetch(url, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: headers
     });
 
     return {
@@ -84,7 +91,7 @@ export function handleCreate(res, tablename, expectedMessage) {
     console.assert(res.data.message == expectedMessage,
                 "%s create: incorrect message: '%s'",
                 tablename,
-                res.data.message);
+                res.data.message ?? res.data.error);
 }
 
 export function handleGet(res, tablename, isObjectFunction) {

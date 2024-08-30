@@ -39,13 +39,14 @@ export async function testUpdateUser(id, sessionToken) {
 
 export async function setupTestUser() {
     console.log("setting up test User");
-    const resUser = await testCreateUser();
-    const resSession = await testCreateSession(resUser.email, resUser.password);
+    const userDetails = generateTestUserDetails();
+    const resUser = await testCreateUser(userDetails);
+    const resSession = await testCreateSession(userDetails.email, userDetails.password);
 
     return {
-        id: resUser.id,
-        email: resUser.email,
-        password: resUser.password,
+        id: resUser.data.id,
+        email: userDetails.email,
+        password: userDetails.password,
         session: resSession.data.session
     }
 }

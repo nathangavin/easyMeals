@@ -26,9 +26,11 @@ import {
 import { 
     handleTestDeleteUserRecipe,
     handleTestGetUserRecipe, 
+    handleTestUpdateUserRecipe,
     handleTestCreateUserRecipe,
     testDeleteUserRecipe, 
     testGetUserRecipe,
+    testUpdateUserRecipe,
     testCreateUserRecipe } from './testUserRecipe.js';
 
 main()
@@ -105,14 +107,21 @@ async function userRecipeCreateTest() {
     * user creates userRecipe.
     * userRecipe is linked to user and recipe.
     */
-        
     console.log("Starting UserRecipe Create Test");
     const resSetupUser = await setupTestUser();
-    const resCreateUserRecipe = await testCreateUserRecipe();
+    const resCreateRecipe = await testCreateRecipe();
+    const resCreateUserRecipe = await testCreateUserRecipe(resSetupUser.id, 
+                                                    resCreateRecipe.data.id);
     handleTestCreateUserRecipe(resCreateUserRecipe);
-    const resGetUserRecipe = await testGetUserRecipe();
+    const resGetUserRecipe = await testGetUserRecipe(resCreateUserRecipe.data.id);
     handleTestGetUserRecipe(resGetUserRecipe);
-    const resDeleteUserRecipe = await testDeleteUserRecipe();
+    const resUpdateUserRecipe = await testUpdateUserRecipe(
+                                                resCreateUserRecipe.data.id, 
+                                                resSetupUser.session);
+    handleTestUpdateUserRecipe(resUpdateUserRecipe);
+    const resDeleteUserRecipe = await testDeleteUserRecipe(
+                                                resCreateUserRecipe.data.id, 
+                                                resSetupUser.session);
     handleTestDeleteUserRecipe(resDeleteUserRecipe);
     console.log("Ending UserRecipe Create Test");
 }

@@ -1,27 +1,67 @@
-import { LOCALHOST } from "./utils.js";
+import { getRequest, 
+        postRequest, 
+        patchRequest, 
+        deleteRequest, 
+        LOCALHOST, 
+        handleCreate,
+        handleGet,
+        handleUpdate,
+        handleDelete} from "./utils.js";
 
 const userRecipeRoute = LOCALHOST + "userrecipes/";
 
-export async function testCreateUserRecipe(userId, recipeId) {
+export async function testCreateUserRecipe(userID, recipeID) {
     console.log('testing Create UserRecipe');
+    const rating = Math.ceil(Math.random() * 10);
+    return await postRequest(userRecipeRoute, {
+        userID,
+        recipeID,
+        rating
+    });
 }
 
 export async function testGetUserRecipe(id) {
     console.log('testing Get UserRecipe');
+    return await getRequest(userRecipeRoute + id);
 }
 
-export async function testDeleteUserRecipe(id) {
+export async function testUpdateUserRecipe(id, session) {
+    console.log('testing Update UserRecipe');
+    return await patchRequest(userRecipeRoute + id, {
+        rating: 5
+    }, session);
+}
+
+export async function testDeleteUserRecipe(id, session) {
     console.log('testing Delete UserRecipe');
+    return await deleteRequest(userRecipeRoute + id, session);
 }
 
 export function handleTestCreateUserRecipe(res) {
-    console.assert(false, "UserRecipe create: not finished");
+    handleCreate(res, 'userRecipe', "UserRecipe created successfully");
+}
+
+function isUserRecipe(u) {
+    if (u &&
+        u.ID &&
+        u.createdTime &&
+        u.modifiedTime &&
+        u.userID &&
+        u.recipeID &&
+        u.rating) {
+        return true;
+    }
+    return false;
 }
 
 export function handleTestGetUserRecipe(res) {
-    console.assert(false, "UserRecipe get: not finished");
+    handleGet(res, 'userRecipe', isUserRecipe);
+}
+
+export function handleTestUpdateUserRecipe(res) {
+    handleUpdate(res, 'userRecipe');
 }
 
 export function handleTestDeleteUserRecipe(res) {
-    console.assert(false, "UserRecipe delete: not finished");
+    handleDelete(res, 'userRecipe');
 }
