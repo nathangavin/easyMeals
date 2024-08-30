@@ -7,6 +7,7 @@ import { INTERNAL_SERVER_ERROR_MSG,
     RECORD_CREATED_SUCCESSFULLY_MSG, 
     RECORD_MISSING_MSG, 
     UNREACHABLE_CODE_UNKNOWN_STATUS_MSG } from "../utils/messages";
+import { handleCreateResponse, handleGetResponse } from "../utils/controllerUtils";
 
 export async function createUnit(request: Request, 
                                  response: Response): Promise<void> {
@@ -24,28 +25,11 @@ export async function createUnit(request: Request,
         }
         
         const dbResponse = await UnitModel.create(request.body.desc);
-        console.log(dbResponse);
-        switch (dbResponse.status) {
-            case StatusType.Success:
-                response.status(201).json({
-                    message: RECORD_CREATED_SUCCESSFULLY_MSG('Unit'), 
-                    id: dbResponse.value 
-                });
-                break;
-            case StatusType.Failure:
-                response.status(500).json({
-                    error: INTERNAL_SERVER_ERROR_MSG,
-                    message: dbResponse.message
-                });
-                break;
-            default:
-                response.status(500).json({
-                    error: INTERNAL_SERVER_ERROR_MSG,
-                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('Unit', 'Create', dbResponse.status)
-                });
-                return;
-        }
-        
+        const processedResponse = handleCreateResponse(dbResponse,
+                                                      'Unit');
+        response.status(processedResponse.status)
+                .json(processedResponse.json);
+        return;
     } catch (err) {
         console.log(err);
         response.status(500).json({
@@ -67,31 +51,12 @@ export async function getUnit(request: Request,
         } 
         // get object from db
         const dbResponse = await UnitModel.get(id);
-
-        switch (dbResponse.status) {
-            case StatusType.Success: 
-                response.status(200).json({
-                    data: dbResponse.value
-                });
-                return;
-            case StatusType.Failure:
-                response.status(500).json({
-                    error: INTERNAL_SERVER_ERROR_MSG,
-                    message: dbResponse.message
-                });
-                return;
-            case StatusType.Missing:
-                response.status(404).json({
-                    message: RECORD_MISSING_MSG('Unit', id.toString())
-                });
-                return;
-            default:
-                response.status(500).json({
-                    error: INTERNAL_SERVER_ERROR_MSG,
-                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('Unit', 'Get')
-                });
-                return;
-        }
+        const processedResponse = handleGetResponse(dbResponse,
+                                                   'unit',
+                                                   'Unit');
+        response.status(processedResponse.status)
+                .json(processedResponse.json);
+        return;
     } catch (err) {
         console.log(err);
         response.status(500).json({

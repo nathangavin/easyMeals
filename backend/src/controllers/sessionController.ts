@@ -8,6 +8,7 @@ import { INTERNAL_SERVER_ERROR_MSG,
         INVALID_PARAM_MSG, 
         UNREACHABLE_CODE_MSG, 
         UNREACHABLE_CODE_UNKNOWN_STATUS_MSG} from "../utils/messages";
+import { handleGetResponse, handleUpdateDeleteResponse } from "../utils/controllerUtils";
 
 export async function createSession(request: Request,
                            response: Response): Promise<void> {
@@ -118,31 +119,13 @@ export async function getSession(request: Request,
             } 
             dbResponse = await SessionModel.get(id);
         }
-        console.log(dbResponse);
-        switch (dbResponse.status) {
-            case StatusType.Success: 
-                response.status(200).json({
-                    session: dbResponse.value
-                });
-                return;
-            case StatusType.Failure:
-                response.status(500).json({
-                    error: INTERNAL_SERVER_ERROR_MSG,
-                    message: dbResponse.message
-                });
-                return;
-            case StatusType.Missing:
-                response.status(404).json({
-                    message: dbResponse.message
-                });
-                return;
-            default:
-                response.status(500).json({
-                    error: INTERNAL_SERVER_ERROR_MSG,
-                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('Session', 'Get')
-                });
-                return;
-        }
+
+        const processedResponse = handleGetResponse(dbResponse, 
+                                                    'session', 
+                                                    'Session');
+        response.status(processedResponse.status)
+                .json(processedResponse.json);
+        return;
     } catch (err) {
         console.log(err);
         response.status(500).json({
@@ -168,29 +151,12 @@ export async function deleteSession(request: Request,
         } 
         const session = request.params.sessionToken;
         const dbResponse = await SessionModel.delete(session);
-        console.log(dbResponse);
-        switch (dbResponse.status) {
-            case StatusType.Success: 
-                response.status(204).json();
-                return;
-            case StatusType.Failure:
-                response.status(500).json({
-                    error: INTERNAL_SERVER_ERROR_MSG,
-                    message: dbResponse.message
-                });
-                return;
-            case StatusType.Missing:
-                response.status(404).json({
-                    message: dbResponse.message
-                });
-                return;
-            default:
-                response.status(500).json({
-                    error: INTERNAL_SERVER_ERROR_MSG,
-                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('Session', 'Logout')
-                });
-                return;
-        }
+        const processedResponse = handleUpdateDeleteResponse(dbResponse,
+                                                            'DELETE',
+                                                            'Session');
+        response.status(processedResponse.status)
+                .json(processedResponse.json);
+        return;
     } catch (err) {
         console.log(err);
         response.status(500).json({

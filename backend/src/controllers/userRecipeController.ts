@@ -1,15 +1,14 @@
 import { Request, Response } from "express";
 import joi from "joi";
 import { StatusType } from "../utils/statusTypes";
-import UserRecipeModel from "../models/userRecipeModel";
+import UserRecipeModel, { UserRecipe } from "../models/userRecipeModel";
 import UserModel from "../models/userModel";
 import RecipeModel from "../models/recipeModel";
 import { INTERNAL_SERVER_ERROR_MSG, 
         INVALID_PARAM_MSG, 
-        RECORD_CREATED_SUCCESSFULLY_MSG, 
         RECORD_MISSING_MSG, 
         UNREACHABLE_CODE_UNKNOWN_STATUS_MSG} from "../utils/messages";
-import { handleCreateResponse } from "../utils/controllerUtils";
+import { handleAuthorization, handleCreateResponse, handleGetResponse, handleUpdateDeleteResponse } from "../utils/controllerUtils";
 
 export async function createUserRecipe(request: Request, 
                                  response: Response): Promise<void> {
@@ -91,33 +90,126 @@ export async function getUserRecipe(request: Request,
             });
             return;
         } 
+        
         // get object from db
         const dbResponse = await UserRecipeModel.get(id);
+        const processedResponse = handleGetResponse(dbResponse,
+                                                   'userRecipe',
+                                                   'UserRecipe');
+        response.status(processedResponse.status)
+                .json(processedResponse.json);
+        return;
+    } catch (err) {
+        response.status(500).json({
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
+        });
+    }
+}
 
-        switch (dbResponse.status) {
-            case StatusType.Success: 
-                response.status(200).json({
-                    user: dbResponse.value
-                });
-                return;
-            case StatusType.Failure:
-                response.status(500).json({
-                    error: INTERNAL_SERVER_ERROR_MSG,
-                    message: dbResponse.message
-                });
-                return;
-            case StatusType.Missing:
-                response.status(404).json({
-                    message: RECORD_MISSING_MSG('UserRecipe', id.toString())
-                });
-                return;
-            default: 
-                response.status(500).json({
-                    error: INTERNAL_SERVER_ERROR_MSG,
-                    message: UNREACHABLE_CODE_UNKNOWN_STATUS_MSG('UserRecipe', 'Get')
-                });
-                return;
+export async function updateUserRecipe(request: Request,
+                                      response: Response) : Promise<void> {
+    const schema = joi.object({
+        rating: joi.number().integer().greater(0).less(11),
+    });
+    try {
+        const id = +request.params.userRecipeId;
+        if (isNaN(id)) {
+            response.status(500).json({
+                message: INVALID_PARAM_MSG('ID')
+            });
+            return;
         }
+
+        const { error } = schema.validate(request.body);
+        if (error) {
+            response.status(400).json({
+                error: error.details[0].message
+            });
+            return;
+        }
+
+        // retreive userid from userRecipe to determine authorisation
+        const getDbResponse = await UserRecipeModel.get(id);
+        if (getDbResponse.status != StatusType.Success ||
+                !getDbResponse.value) {
+            const processedResponse = handleGetResponse(getDbResponse, 
+                                                        'userRecipe',
+                                                        'UserRecipe');
+            response.status(processedResponse.status)
+                    .json(processedResponse.json);
+            return;
+        }
+        
+        const userId = getDbResponse.value.userID;
+
+        const providedAuth = request.header('Authorization');
+        const authResponse = await handleAuthorization(userId, providedAuth);
+
+        if (!authResponse.authorized) {
+            response.status(authResponse.response.status)
+                    .json(authResponse.response.json);
+            return;
+        }
+
+        const dbResponse = await UserRecipeModel.update(id, request.body.rating);
+
+        const processedResponse = handleUpdateDeleteResponse(dbResponse, 
+                                                            'UPDATE', 
+                                                            'UserRecipe')
+        response.status(processedResponse.status)
+                .json(processedResponse.json);
+        return;
+    } catch (err) {
+        response.status(500).json({
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
+        });
+    }
+}
+
+export async function deleteUserRecipe(request: Request,
+                                      response: Response) : Promise<void> {
+
+    try {
+        const id = +request.params.userRecipeId;
+        if (isNaN(id)) {
+            response.status(500).json({
+                message: INVALID_PARAM_MSG('ID')
+            });
+            return;
+        }
+
+        // retreive userid from userRecipe to determine authorisation
+        const getDbResponse = await UserRecipeModel.get(id);
+        if (getDbResponse.status != StatusType.Success ||
+                !getDbResponse.value) {
+            const processedResponse = handleGetResponse(getDbResponse, 
+                                                        'userRecipe',
+                                                        'UserRecipe');
+            response.status(processedResponse.status)
+                    .json(processedResponse.json);
+            return;
+        }
+        
+        const userId = getDbResponse.value.userID;
+
+        const providedAuth = request.header('Authorization');
+        const authResponse = await handleAuthorization(userId, providedAuth);
+
+        if (!authResponse.authorized) {
+            response.status(authResponse.response.status)
+                    .json(authResponse.response.json);
+            return;
+        }
+        
+        const dbResponse = await UserRecipeModel.delete(id);
+        const processedResponse = handleUpdateDeleteResponse(dbResponse,
+                                                            'DELETE',
+                                                            'UserRecipe');
+        response.status(processedResponse.status)
+                .json(processedResponse.json);
+        return;
     } catch (err) {
         response.status(500).json({
             error: INTERNAL_SERVER_ERROR_MSG,
