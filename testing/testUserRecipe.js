@@ -7,6 +7,8 @@ import { getRequest,
         handleGet,
         handleUpdate,
         handleDelete} from "./utils.js";
+import { setupTestUser } from "./testUser.js";
+import { testCreateRecipe } from "./testRecipe.js";
 
 const userRecipeRoute = LOCALHOST + "userrecipes/";
 
@@ -64,4 +66,30 @@ export function handleTestUpdateUserRecipe(res) {
 
 export function handleTestDeleteUserRecipe(res) {
     handleDelete(res, 'userRecipe');
+}
+
+export async function userRecipeCreateTest() {
+    /*
+    * ==================
+    * person logs in.
+    * user creates userRecipe.
+    * userRecipe is linked to user and recipe.
+    */
+    console.log("Starting UserRecipe Create Test");
+    const resSetupUser = await setupTestUser();
+    const resCreateRecipe = await testCreateRecipe();
+    const resCreateUserRecipe = await testCreateUserRecipe(resSetupUser.id, 
+                                                    resCreateRecipe.data.id);
+    handleTestCreateUserRecipe(resCreateUserRecipe);
+    const resGetUserRecipe = await testGetUserRecipe(resCreateUserRecipe.data.id);
+    handleTestGetUserRecipe(resGetUserRecipe);
+    const resUpdateUserRecipe = await testUpdateUserRecipe(
+                                                resCreateUserRecipe.data.id, 
+                                                resSetupUser.session);
+    handleTestUpdateUserRecipe(resUpdateUserRecipe);
+    const resDeleteUserRecipe = await testDeleteUserRecipe(
+                                                resCreateUserRecipe.data.id, 
+                                                resSetupUser.session);
+    handleTestDeleteUserRecipe(resDeleteUserRecipe);
+    console.log("Ending UserRecipe Create Test");
 }

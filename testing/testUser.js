@@ -5,7 +5,12 @@ import { LOCALHOST,
         handleUpdate,
         postRequest, 
         patchRequest } from './utils.js';
-import { testCreateSession } from './testSession.js';
+import { handleTestCreateSession, 
+    testCreateSession,
+    handleTestGetSession,
+    handleTestDeleteSession,
+    testGetSession,
+    testDeleteSession } from './testSession.js';
 
 const userRoute = LOCALHOST + "users/";
 
@@ -77,3 +82,33 @@ export function handleTestUpdateUser(res) {
     handleUpdate(res, 'recipe');
 }
 
+export async function userLoginTest() {
+    /*
+    * =======================
+    * person creates new account
+    * User is created in DB
+    * person is forced to login
+    * login session token is created in DB and linked to User
+    * session token is returned and stored in cookie
+    * person edits User
+    * user update request is authenticated against session
+    * person logs out
+    * log out request is authenticated
+    * session token is deleted from DB
+    */
+    console.log('Starting User Login Test');
+    const userDetails = generateTestUserDetails();
+    const resCreateUser = await testCreateUser(userDetails);
+    handleTestCreateUser(resCreateUser);
+    const resGetUser = await testGetUser(resCreateUser.data.id);
+    handleTestGetUser(resGetUser);
+    const resCreateSession = await testCreateSession(userDetails.email, userDetails.password);
+    handleTestCreateSession(resCreateSession);
+    const resGetSession = await testGetSession(resCreateSession.data.session);
+    handleTestGetSession(resGetSession);
+    const resUpdateUser = await testUpdateUser(resCreateUser.data.id, resCreateSession.data.session);
+    handleTestUpdateUser(resUpdateUser);
+    const resDeleteSession = await testDeleteSession(resCreateSession.data.session);
+    handleTestDeleteSession(resDeleteSession);
+    console.log('Ending User Login Test');
+}

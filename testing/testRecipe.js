@@ -65,3 +65,27 @@ export function handleTestUpdateRecipe(res) {
 export function handleTestDeleteRecipe(res) {
     handleDelete(res, 'Recipe');
 }
+
+export async function recipeCreateTest() {
+    /*
+    *=======================
+    * person logs in
+    * session token is created in DB, linked to User
+    * session token is returned and stored in cookie
+    * person creates new recipe
+    * Recipe is created in DB, draft flag set to true
+    * User is linked to new Recipe
+    */
+
+    console.log("Starting Recipe Create Test");
+    const resCreateRecipe = await testCreateRecipe();
+    handleTestCreateRecipe(resCreateRecipe);
+    const resGetRecipe = await testGetRecipe(resCreateRecipe.data.id);
+    handleTestGetRecipe(resGetRecipe);
+    const resUpdateRecipe = await testUpdateRecipe(resCreateRecipe.data.id);
+    handleTestUpdateRecipe(resUpdateRecipe);
+    const resDeleteRecipe = await testDeleteRecipe(resCreateRecipe.data.id);
+    handleTestDeleteRecipe(resDeleteRecipe);
+    console.log("Ending Recipe Create Test");
+
+}
