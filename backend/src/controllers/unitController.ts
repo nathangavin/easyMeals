@@ -1,13 +1,9 @@
 import { Request, Response } from "express";
 import joi from "joi";
-import UnitModel from "../models/unitModel";
-import { StatusType } from "../utils/statusTypes";
+import UnitModel, { Unit } from "../models/unitModel";
 import { INTERNAL_SERVER_ERROR_MSG, 
-    INVALID_PARAM_MSG, 
-    RECORD_CREATED_SUCCESSFULLY_MSG, 
-    RECORD_MISSING_MSG, 
-    UNREACHABLE_CODE_UNKNOWN_STATUS_MSG } from "../utils/messages";
-import { handleCreateResponse, handleGetResponse } from "../utils/controllerUtils";
+    INVALID_PARAM_MSG } from "../utils/messages";
+import { handleCreateResponse, handleGetResponse, handleUpdateDeleteResponse } from "../utils/controllerUtils";
 
 export async function createUnit(request: Request, 
                                  response: Response): Promise<void> {
@@ -54,6 +50,75 @@ export async function getUnit(request: Request,
         const processedResponse = handleGetResponse(dbResponse,
                                                    'unit',
                                                    'Unit');
+        response.status(processedResponse.status)
+                .json(processedResponse.json);
+        return;
+    } catch (err) {
+        console.log(err);
+        response.status(500).json({
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
+        });
+    }
+}
+
+export async function updateUnit(request: Request,
+                                    response: Response) : Promise<void> {
+    const schema = joi.object({
+        desc: joi.string().alphanum().min(1).max(20)
+    });
+    try {
+        const id = +request.params.unitId;
+        if (isNaN(id)) {
+            response.status(400).json({
+                error: INVALID_PARAM_MSG('ID')
+            });
+            return;
+        }
+
+        const { error } = schema.validate(request.body);
+        if (error) { 
+            response.status(400).json({
+                message: error.details[0].message
+            });
+            return;
+        }
+
+        const updatedUnit = {
+            description: request.body.desc
+        } as Unit;
+
+        const dbResponse = await UnitModel.update(id, updatedUnit);
+        const processedResponse = handleUpdateDeleteResponse(dbResponse,
+                                                            'Update',
+                                                            'Unit');
+        response.status(processedResponse.status)
+                .json(processedResponse.json);
+        return;
+
+    } catch (err) {
+        console.log(err);
+        response.status(500).json({
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
+        });
+    }
+}
+
+export async function deleteUnit(request: Request,
+                                    response: Response) : Promise<void> {
+    try {
+        const id = +request.params.unitId;
+        if (isNaN(id)) {
+            response.status(400).json({
+                error: INVALID_PARAM_MSG('ID')
+            });
+            return;
+        }
+        const dbResponse = await UnitModel.delete(id);
+        const processedResponse = handleUpdateDeleteResponse(dbResponse,
+                                                            'Delete',
+                                                            'Unit');
         response.status(processedResponse.status)
                 .json(processedResponse.json);
         return;

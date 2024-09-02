@@ -1,10 +1,9 @@
-import { ResultSetHeader } from 'mysql2';
-import { connectDatabase, 
-        generateCreateSQLStatement, 
-        generateGetSQLStatement } from '../utils/databaseConnection';
+import { handleCreateRequest, 
+        handleDeleteRequest, 
+        handleGetRequest,
+        handleUpdateRequest} from '../utils/databaseConnection';
 import { StatusType, Status } from '../utils/statusTypes';
-import { RECORD_MISSING_MSG, 
-        UNKNOWN_MODEL_ERROR_MSG } from '../utils/messages';
+import { UNKNOWN_MODEL_ERROR_MSG } from '../utils/messages';
 
 export interface Unit {
     ID: number,
@@ -20,60 +19,38 @@ class UnitModel {
     static async create(description: string): 
                 Promise<Status<StatusType, number | undefined>> {
 
-        const connection = await connectDatabase();
         const createdTime = Date.now();
         const modifiedTime = createdTime;
-        const columnData = [
-            ['createdTime', createdTime],
-            ['modifiedTime', modifiedTime],
-            ['description', description]
-        ];
-        try {
-            const query = generateCreateSQLStatement('Units', columnData);
-            const [result] = await connection.execute<ResultSetHeader>(query);
-            return {
-                status: StatusType.Success,
-                value: result.insertId
-            };
-        } catch (error) {
-            return {
-                status: StatusType.Failure,
-                message: UnitModel.errorMessage(error) 
-            };
-        } finally {
-            await connection.end();
-        }
+        const userRecipe = {
+            description,
+            createdTime,
+            modifiedTime
+        } as Unit;
+
+        return handleCreateRequest<Unit>(userRecipe, 'Units', 'Unit');
     }
 
     static async get(id: number): 
             Promise<Status<StatusType, Unit | undefined>> {
 
-        const connection = await connectDatabase();
-        try {
-            const query = generateGetSQLStatement('Units', id);
-            const [result] = await connection.execute(query);
-            if (result instanceof Array) {
-                return result.length > 0 ? {
-                        status: StatusType.Success,
-                        value: result[0] as Unit
-                    } : {
-                        status: StatusType.Missing,
-                        message: RECORD_MISSING_MSG('Unit', id.toString())
-                    };
-            } else {
-                return {
-                    status: StatusType.Missing,
-                    message: RECORD_MISSING_MSG('Unit', id.toString())
-                };
-            }
-        } catch (error) {
-            return {
-                status: StatusType.Failure,
-                message: UnitModel.errorMessage(error)
-            }
-        } finally {
-            await connection.end();
-        }
+        return handleGetRequest<Unit>(id, 'Units', 'Unit');
+    }
+
+    static async update(id: number, unit: Unit) :
+            Promise<Status<StatusType, string | undefined>> {
+        return handleUpdateRequest<Unit>(this.get,
+                                        'Units',
+                                        'Unit',
+                                        id,
+                                        unit);
+    }
+
+    static async delete(id: number) :
+            Promise<Status<StatusType, string | undefined>> {
+        return handleDeleteRequest<Unit>(this.get,
+                                        'Units',
+                                        'Unit',
+                                        id);
     }
 
     private static errorMessage(error: any): string {
