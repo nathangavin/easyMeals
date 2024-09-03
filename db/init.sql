@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS Sessions (
     CONSTRAINT session_user
     FOREIGN KEY(UserID)
     REFERENCES Users(ID)
+    ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Recipes (
@@ -132,9 +133,11 @@ CREATE TABLE IF NOT EXISTS UserRecipes (
 
     CONSTRAINT ur_user
     FOREIGN KEY(userID)
-    REFERENCES Users(ID),
+    REFERENCES Users(ID)
+    ON DELETE CASCADE,
 
     CONSTRAINT u_recipe
     FOREIGN KEY(recipeID)
     REFERENCES Recipes(ID)
+    ON DELETE CASCADE
 );
