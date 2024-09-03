@@ -35,6 +35,11 @@ class UnitModel {
 
         return handleGetRequest<Unit>(id, 'Units', 'Unit');
     }
+        
+    static async exists(id: number) : Promise<boolean> {
+        const unitResult = await this.get(id);
+        return (unitResult.status == StatusType.Success);
+    }
 
     static async update(id: number, unit: Unit) :
             Promise<Status<StatusType, string | undefined>> {

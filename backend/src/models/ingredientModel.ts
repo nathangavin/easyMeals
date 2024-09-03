@@ -1,8 +1,12 @@
-import { ResultSetHeader } from 'mysql2';
-import { connectDatabase, generateCreateSQLStatement, generateGetSQLStatement } from '../utils/databaseConnection';
-import { StatusType, Status } from '../utils/statusTypes';
+import { createReturn, 
+        getReturn, 
+        handleCreateRequest, 
+        handleGetRequest, 
+        handleUpdateRequest, 
+        handleDeleteRequest,
+        updateDeleteReturn } from '../utils/databaseConnection';
 import UnitModel from './unitModel';
-import { RECORD_MISSING_MSG, UNKNOWN_MODEL_ERROR_MSG } from '../utils/messages';
+import { UNKNOWN_MODEL_ERROR_MSG } from '../utils/messages';
 
 export interface Ingredient {
     ID: number,
@@ -16,64 +20,35 @@ class IngredientModel {
     
     private static genericErrorMessage = UNKNOWN_MODEL_ERROR_MSG('Ingredient');
 
-    static async create(name: string, unitID: number): 
-                Promise<Status<StatusType, number | undefined>> {
-        
-        const connection = await connectDatabase();
+    static async create(name: string, unitID: number): Promise<createReturn> {
         const createdTime = Date.now();
         const modifiedTime = createdTime;
-        const columnData = [
-            ['createdTime', createdTime],
-            ['modifiedTime', modifiedTime],
-            ['name', name],
-            ['unitID', unitID]
-        ];
-        try {
-            const query = generateCreateSQLStatement('Ingredients', columnData);
-            const [result] = await connection.execute<ResultSetHeader>(query);
-            return {
-                status: StatusType.Success,
-                value: result.insertId
-            };
-        } catch (error) {
-            return {
-                status: StatusType.Failure,
-                message: IngredientModel.errorMessage(error) 
-            };
-        } finally {
-            await connection.end();
-        }
+        const ingredient = {
+            createdTime,
+            modifiedTime,
+            name,
+            unitID
+        } as Ingredient;
+        return handleCreateRequest<Ingredient>(ingredient, 'Ingredients', 'Ingredient');
     }
 
-    static async get(id: number): 
-            Promise<Status<StatusType, Ingredient | undefined>> {
+    static async get(id: number): Promise<getReturn<Ingredient>> {
+        return handleGetRequest<Ingredient>(id, 'Ingredients', 'Ingredient');
+    }
 
-        const connection = await connectDatabase();
-        try {
-            const query = generateGetSQLStatement('Ingredients', id);
-            const [result] = await connection.execute(query);
-            if (result instanceof Array) {
-                return result.length > 0 ? {
-                        status: StatusType.Success,
-                        value: result[0] as Ingredient
-                    } : {
-                        status: StatusType.Missing,
-                        message: RECORD_MISSING_MSG('Ingredient', id.toString())
-                    };
-            } else {
-                return {
-                    status: StatusType.Missing,
-                    message: RECORD_MISSING_MSG('Ingredient', id.toString())
-                };
-            }
-        } catch (error) {
-            return {
-                status: StatusType.Failure,
-                message: IngredientModel.errorMessage(error)
-            }
-        } finally {
-            await connection.end();
-        }
+    static async update(id: number, ingredient: Ingredient) : Promise<updateDeleteReturn> {
+        return handleUpdateRequest<Ingredient>(this.get,
+                                               'Ingredients',
+                                               'Ingredient',
+                                               id,
+                                               ingredient);
+    }
+
+    static async delete(id: number) : Promise<updateDeleteReturn> {
+        return handleDeleteRequest(this.get,
+                                    'Ingredients',
+                                    'Ingredient',
+                                    id);
     }
 
     private static errorMessage(error: any): string {
@@ -81,6 +56,6 @@ class IngredientModel {
     }
 } 
 
-export default UnitModel; 
+export default IngredientModel; 
 
 
