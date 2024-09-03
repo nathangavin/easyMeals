@@ -9,6 +9,7 @@ import sessionRoutes from './routes/sessionRoutes';
 import recipeRoutes from './routes/recipeRoutes';
 import userRecipeRoutes from './routes/userRecipeRoutes';
 import ingredientRoutes from './routes/ingredientRoutes';
+import instructionRoutes from './routes/instructionRoutes';
 
 console.log(process.argv[2] == "--test");
 
@@ -26,6 +27,7 @@ app.use('/api/sessions', sessionRoutes);
 app.use('/api/recipes', recipeRoutes);
 app.use('/api/userrecipes', userRecipeRoutes);
 app.use('/api/ingredients', ingredientRoutes);
+app.use('/api/instructions', instructionRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
