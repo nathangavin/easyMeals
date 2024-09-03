@@ -3,6 +3,7 @@ import { userLoginTest } from './testUser.js';
 import { userRecipeCreateTest } from './testUserRecipe.js';
 import { unitCreateTest } from './testUnit.js';
 import { pantryCreateTest } from './testPantry.js';
+import { ingredientCreateTest } from './testIngredient.js';
 
 main()
 
@@ -17,6 +18,8 @@ async function main() {
     await unitCreateTest();
     printBreaker();
     await pantryCreateTest();
+    printBreaker();
+    await ingredientCreateTest();
     printBreaker();
 }
 
