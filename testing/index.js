@@ -4,6 +4,7 @@ import { userRecipeCreateTest } from './testUserRecipe.js';
 import { unitCreateTest } from './testUnit.js';
 import { pantryCreateTest } from './testPantry.js';
 import { ingredientCreateTest } from './testIngredient.js';
+import { instructionCreateTest } from './testInstruction.js';
 
 main()
 
@@ -20,6 +21,8 @@ async function main() {
     await pantryCreateTest();
     printBreaker();
     await ingredientCreateTest();
+    printBreaker();
+    await instructionCreateTest();
     printBreaker();
 }
 
