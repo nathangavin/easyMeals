@@ -7,6 +7,7 @@ import { createReturn,
         updateDeleteReturn } from '../utils/databaseConnection';
 import UnitModel from './unitModel';
 import { UNKNOWN_MODEL_ERROR_MSG } from '../utils/messages';
+import { StatusType } from '../utils/statusTypes';
 
 export interface Ingredient {
     ID: number,
@@ -34,6 +35,11 @@ class IngredientModel {
 
     static async get(id: number): Promise<getReturn<Ingredient>> {
         return handleGetRequest<Ingredient>(id, 'Ingredients', 'Ingredient');
+    }
+
+    static async exists(id: number) : Promise<boolean> {
+        const result = await this.get(id);
+        return (result.status == StatusType.Success);
     }
 
     static async update(id: number, ingredient: Ingredient) : Promise<updateDeleteReturn> {
