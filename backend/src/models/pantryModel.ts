@@ -33,6 +33,11 @@ class PantryModel {
         return handleGetRequest<Pantry>(id, 'Pantries', 'Pantry');
     }
 
+    static async exists(id: number) : Promise<boolean> {
+        const result = await this.get(id);
+        return (result.status == StatusType.Success);
+    }
+
     static async update(id: number, pantry: Pantry) : 
             Promise<updateDeleteReturn> {
         return handleUpdateRequest<Pantry>(this.get,

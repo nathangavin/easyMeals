@@ -1,14 +1,8 @@
-import { ResultSetHeader } from 'mysql2';
-import { connectDatabase, 
-        generateCreateSQLStatement, 
-        generateGetSQLStatement, 
-        handleCreateRequest,
+import { handleCreateRequest,
         handleDeleteRequest,
         handleGetRequest,
         handleUpdateRequest} from '../utils/databaseConnection';
 import { StatusType, Status } from '../utils/statusTypes';
-import { RECORD_MISSING_MSG, 
-        UNKNOWN_MODEL_ERROR_MSG } from '../utils/messages';
 
 export interface UserRecipe {
     ID: number,

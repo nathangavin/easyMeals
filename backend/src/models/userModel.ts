@@ -77,6 +77,11 @@ class UserModel {
         }
     }
 
+    static async exists(id: number) : Promise<boolean> {
+        const result = await this.get(id);
+        return (result.status == StatusType.Success);
+    }
+
     static async existsByEmail(email: string) : Promise<boolean> {
         const userResult = await this.getByEmail(email);
         return (userResult.status == StatusType.Success);
