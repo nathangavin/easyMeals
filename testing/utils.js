@@ -109,6 +109,10 @@ export function handleUpdate(res, tablename) {
                     res.data?.message);
 }
 
+export function handleUpdate405(res, tablename) {
+    assertResponseStatus(tablename, "UPDATE", 405, res.status);
+}
+
 export function handleDelete(res, tablename) {
     console.assert(res.status == 204, 
                     "%s Delete: incorrect status %s", 

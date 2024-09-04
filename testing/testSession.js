@@ -3,6 +3,8 @@ import { LOCALHOST,
     getRequest, 
     handleDelete, 
     handleGet, 
+    handleUpdate405, 
+    patchRequest, 
     postRequest } from './utils.js';
 
 const sessionRoute = LOCALHOST + "sessions/";
@@ -18,6 +20,10 @@ export async function testCreateSession(email, password) {
 export async function testGetSession(id) {
     console.log('testing Get Session');
     return await getRequest(sessionRoute + id);
+}
+
+export async function testUpdateSession(session) {
+    return await patchRequest(sessionRoute + session);
 }
 
 export async function testDeleteSession(session) {
@@ -47,13 +53,11 @@ function isSession(s) {
 }
 
 export function handleTestGetSession(res) {
-    /*
-    console.assert(res.status == 200,
-                    "Session get: incorrect status %s", res.status);
-    console.assert(res.data.session,
-                    "Session get: session value is missing: %o", res.data.session);
-    */
     handleGet(res, 'session', isSession);
+}
+
+export function handleTestUpdateSession(res) {
+    handleUpdate405(res, 'Session');
 }
 
 export async function handleTestDeleteSession(res) {
