@@ -81,6 +81,9 @@ CREATE TABLE IF NOT EXISTS Instructions (
 );
 
 CREATE TABLE IF NOT EXISTS InstructionIngredientQuantities (
+    ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    createdTime BIGINT NOT NULL,
+    modifiedTime BIGINT NOT NULL,
     quantityID INT NOT NULL,
     instructionID INT NOT NULL,
 
