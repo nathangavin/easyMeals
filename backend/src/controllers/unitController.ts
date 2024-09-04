@@ -16,7 +16,7 @@ export async function createUnit(request: Request,
         const { error } = schema.validate(request.body);
         if (error) {
             response.status(400).json({
-                error: error.details[0].message
+                message: error.details[0].message
             });
         }
         
@@ -41,7 +41,7 @@ export async function getUnit(request: Request,
         const id = +request.params.unitId;
         if (isNaN(id)) {
             response.status(400).json({
-                error: INVALID_PARAM_MSG('ID')
+                message: INVALID_PARAM_MSG('ID')
             });
             return;
         } 
@@ -71,7 +71,7 @@ export async function updateUnit(request: Request,
         const id = +request.params.unitId;
         if (isNaN(id)) {
             response.status(400).json({
-                error: INVALID_PARAM_MSG('ID')
+                message: INVALID_PARAM_MSG('ID')
             });
             return;
         }
@@ -111,7 +111,7 @@ export async function deleteUnit(request: Request,
         const id = +request.params.unitId;
         if (isNaN(id)) {
             response.status(400).json({
-                error: INVALID_PARAM_MSG('ID')
+                message: INVALID_PARAM_MSG('ID')
             });
             return;
         }

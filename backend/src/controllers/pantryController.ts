@@ -18,7 +18,7 @@ export async function createPantry(request: Request,
         const { error } = schema.validate(request.body);
         if (error) {
             response.status(400).json({
-                error: error.details[0].message
+                message: error.details[0].message
             });
             return;
         }
@@ -43,7 +43,7 @@ export async function getPantry(request: Request,
         const id = +request.params.pantryId;
         if (isNaN(id)) {
             response.status(400).json({
-                error: INVALID_PARAM_MSG('ID')
+                message: INVALID_PARAM_MSG('ID')
             });
             return;
         } 
@@ -70,7 +70,7 @@ export async function updatePantry(request: Request,
         const id = +request.params.pantryId;
         if (isNaN(id)) {
             response.status(400).json({
-                error: INVALID_PARAM_MSG('ID')
+                message: INVALID_PARAM_MSG('ID')
             });
             return;
         } 
@@ -78,7 +78,7 @@ export async function updatePantry(request: Request,
         const { error } = schema.validate(request.body);
         if (error) {
             response.status(400).json({
-                error: error.details[0].message
+                message: error.details[0].message
             });
             return;
         }
@@ -110,7 +110,7 @@ export async function deletePantry(request: Request,
         const id = +request.params.pantryId;
         if (isNaN(id)) {
             response.status(400).json({
-                error: INVALID_PARAM_MSG('ID')
+                message: INVALID_PARAM_MSG('ID')
             });
             return;
         } 

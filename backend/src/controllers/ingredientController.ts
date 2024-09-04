@@ -21,7 +21,7 @@ export async function createIngredient(request: Request,
         const { error } = schema.validate(request.body);
         if (error) {
             response.status(400).json({
-                error: error.details[0].message
+                message: error.details[0].message
             });
             return;
         }
@@ -30,7 +30,7 @@ export async function createIngredient(request: Request,
         const unitExists = await UnitModel.exists(request.body.unitID);
         if (!unitExists) {
             response.status(400).json({
-                error: RECORD_MISSING_MSG('Unit', request.body.unitID)
+                message: RECORD_MISSING_MSG('Unit', request.body.unitID)
             });
             return;
         }
@@ -91,7 +91,7 @@ export async function updateIngredient(request: Request,
         const { error } = schema.validate(request.body);
         if (error) {
             response.status(400).json({
-                error: error.details[0].message
+                message: error.details[0].message
             });
             return;
         }
@@ -141,4 +141,4 @@ export async function deleteIngredient(request: Request,
             message: err
         });
     }
-                                        }
+}

@@ -18,7 +18,7 @@ export async function createInstruction(request: Request,
         const { error } = schema.validate(request.body);
         if (error) {
             response.status(400).json({
-                error: error.details[0].message
+                message: error.details[0].message
             });
             return;
         }
@@ -78,7 +78,7 @@ export async function updateInstruction(request: Request,
         const { error } = schema.validate(request.body);
         if (error) {
             response.status(400).json({
-                error: error.details[0].message
+                message: error.details[0].message
             });
             return;
         }

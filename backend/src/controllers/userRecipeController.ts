@@ -24,7 +24,7 @@ export async function createUserRecipe(request: Request,
         const { error } = schema.validate(request.body);
         if (error) {
             response.status(400).json({
-                error: error.details[0].message
+                message: error.details[0].message
             });
             return;
         }
@@ -124,7 +124,7 @@ export async function updateUserRecipe(request: Request,
         const { error } = schema.validate(request.body);
         if (error) {
             response.status(400).json({
-                error: error.details[0].message
+                message: error.details[0].message
             });
             return;
         }

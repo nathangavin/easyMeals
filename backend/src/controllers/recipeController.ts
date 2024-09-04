@@ -18,7 +18,7 @@ export async function createRecipe(request: Request,
         const { error } = schema.validate(request.body);
         if (error) {
             response.status(400).json({
-                error: error.details[0].message
+                message: error.details[0].message
             });
         }
         
@@ -42,7 +42,7 @@ export async function getRecipe(request: Request,
         const id = +request.params.recipeId;
         if (isNaN(id)) {
             response.status(400).json({
-                error: INVALID_PARAM_MSG('ID')
+                message: INVALID_PARAM_MSG('ID')
             });
             return;
         } 
@@ -75,7 +75,7 @@ export async function updateRecipe(request: Request,
         const id = +request.params.recipeId;
         if (isNaN(id)) {
             response.status(400).json({
-                error: INVALID_PARAM_MSG('ID')
+                message: INVALID_PARAM_MSG('ID')
             });
             return;
         } 
@@ -117,7 +117,7 @@ export async function deleteRecipe(request: Request,
         const id = +request.params.recipeId;
         if (isNaN(id)) {
             response.status(400).json({
-                error: INVALID_PARAM_MSG('ID')
+                message: INVALID_PARAM_MSG('ID')
             });
             return;
         } 

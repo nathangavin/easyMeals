@@ -22,7 +22,7 @@ export async function createSession(request: Request,
         const { error } = schema.validate(request.body);
         if (error) {
             response.status(400).json({
-                error: error.details[0].message
+                message: error.details[0].message
             });
         }
 
@@ -103,7 +103,7 @@ export async function getSession(request: Request,
             const session = request.params.sessionID;
             if (session.length != 100) {
                 response.status(400).json({
-                    error: INVALID_PARAM_MSG('Token')
+                    message: INVALID_PARAM_MSG('Token')
                 });
                 return;
             } 
@@ -113,7 +113,7 @@ export async function getSession(request: Request,
             const id = +request.params.sessionID;
             if (isNaN(id)) {
                 response.status(400).json({
-                    error: INVALID_PARAM_MSG('ID')
+                    message: INVALID_PARAM_MSG('ID')
                 });
                 return;
             } 
@@ -145,7 +145,7 @@ export async function deleteSession(request: Request,
     try {
         if (request.params.sessionToken.length != TOKEN_LENGTH) {
             response.status(400).json({
-                error: INVALID_PARAM_MSG('Token') 
+                message: INVALID_PARAM_MSG('Token') 
             });
             return;
         } 
