@@ -23,14 +23,14 @@ class InstructionIngredientQuantityModel {
     static async create(quantityID: number, instructionID: number): Promise<createReturn> {
         const createdTime = Date.now();
         const modifiedTime = createdTime;
-        const ingredientQuantity = {
+        const instructionIngredientQuantity = {
             createdTime,
             modifiedTime,
             quantityID,
             instructionID
         } as InstructionIngredientQuantity;
 
-        return handleCreateRequest<InstructionIngredientQuantity>(ingredientQuantity, 
+        return handleCreateRequest<InstructionIngredientQuantity>(instructionIngredientQuantity, 
                                                        'InstructionIngredientQuantities', 
                                                        'InstructionIngredientQuantity');
     }
@@ -46,12 +46,12 @@ class InstructionIngredientQuantityModel {
         return (result.status == StatusType.Success);
     }
 
-    static async update(id: number, ingredientQuantity: InstructionIngredientQuantity) : Promise<updateDeleteReturn> {
+    static async update(id: number, instructionIngredientQuantity: InstructionIngredientQuantity) : Promise<updateDeleteReturn> {
         return handleUpdateRequest<InstructionIngredientQuantity>(this.get,
                                                'InstructionIngredientQuantities',
                                                'InstructionIngredientQuantity',
                                                id,
-                                               ingredientQuantity);
+                                               instructionIngredientQuantity);
     }
 
     static async delete(id: number) : Promise<updateDeleteReturn> {
