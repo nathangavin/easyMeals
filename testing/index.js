@@ -8,6 +8,7 @@ import { instructionCreateTest } from './testInstruction.js';
 import { ingredientQuantityCreateTest } from './testIngredientQuantity.js';
 import { instructionIngredientQuantityCreateTest } from './testInstructionIngredientQuantity.js';
 import { userPantryCreateTest } from './testUserPantry.js';
+import { pantryIngredientQuantityCreateTest } from './testPantryIngredientQuantity.js';
 
 main()
 
@@ -32,6 +33,8 @@ async function main() {
     await instructionIngredientQuantityCreateTest();
     printBreaker();
     await userPantryCreateTest();
+    printBreaker();
+    await pantryIngredientQuantityCreateTest();
     printBreaker();
 }
 
