@@ -7,7 +7,8 @@ import {
     handleDelete,
     LOCALHOST, 
     patchRequest, 
-    postRequest } from "./utils.js";
+    postRequest, 
+    handleGetAll} from "./utils.js";
 
 const unitRoute = LOCALHOST + "units/";
 
@@ -21,6 +22,11 @@ export async function testCreateUnit(description) {
 export async function testGetUnit(id) {
     console.log("testing Get Unit");
     return await getRequest(unitRoute + id);
+}
+
+export async function testGetAllUnits() {
+    console.log("testing Get All Units");
+    return await getRequest(unitRoute);
 }
 
 export async function testUpdateUnit(id) {
@@ -54,6 +60,10 @@ export function handleTestGetUnit(res) {
     handleGet(res, 'unit', isUnit);
 }
 
+export function handleTestGetAllUnits(res) {
+    handleGetAll(res, 'units', isUnit);
+}
+
 export function handleTestUpdateUnit(res) {
     handleUpdate(res, 'Unit');
 }
@@ -72,5 +82,7 @@ export async function unitCreateTest() {
     handleTestUpdateUnit(resUpdateUnit);
     const resDeleteUnit = await testDeleteUnit(resCreateUnit.data.id);
     handleTestDeleteUnit(resDeleteUnit);
+    const resGetAllUnits = await testGetAllUnits();
+    handleTestGetAllUnits(resGetAllUnits);
     console.log("Ending Unit Create Test");
 }
