@@ -1,8 +1,9 @@
-import { handleCreateRequest, 
+import { createReturn, getAllReturn, getReturn, handleCreateRequest, 
         handleDeleteRequest, 
         handleGetAllRequest, 
         handleGetRequest,
-        handleUpdateRequest} from '../utils/databaseConnection';
+        handleUpdateRequest,
+        updateDeleteReturn} from '../utils/databaseConnection';
 import { StatusType, Status } from '../utils/statusTypes';
 import { UNKNOWN_MODEL_ERROR_MSG } from '../utils/messages';
 
@@ -18,7 +19,7 @@ class UnitModel {
     private static genericErrorMessage = UNKNOWN_MODEL_ERROR_MSG('Unit');
 
     static async create(description: string): 
-                Promise<Status<StatusType, number | undefined>> {
+                Promise<createReturn> {
 
         const createdTime = Date.now();
         const modifiedTime = createdTime;
@@ -32,12 +33,12 @@ class UnitModel {
     }
 
     static async get(id: number): 
-            Promise<Status<StatusType, Unit | undefined>> {
+            Promise<getReturn<Unit>> {
 
         return handleGetRequest<Unit>(id, 'Units', 'Unit');
     }
 
-    static async getAll() : Promise<Status<StatusType, Unit[] | undefined>> {
+    static async getAll() : Promise<getAllReturn<Unit>> {
         return handleGetAllRequest<Unit>('Units', 'Unit');
     }
         
@@ -47,7 +48,7 @@ class UnitModel {
     }
 
     static async update(id: number, unit: Unit) :
-            Promise<Status<StatusType, string | undefined>> {
+            Promise<updateDeleteReturn> {
         return handleUpdateRequest<Unit>(this.get,
                                         'Units',
                                         'Unit',
@@ -56,7 +57,7 @@ class UnitModel {
     }
 
     static async delete(id: number) :
-            Promise<Status<StatusType, string | undefined>> {
+            Promise<updateDeleteReturn> {
         return handleDeleteRequest<Unit>(this.get,
                                         'Units',
                                         'Unit',
