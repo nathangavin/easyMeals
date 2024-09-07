@@ -3,7 +3,7 @@ import joi from "joi";
 import UnitModel, { Unit } from "../models/unitModel";
 import { INTERNAL_SERVER_ERROR_MSG, 
     INVALID_PARAM_MSG } from "../utils/messages";
-import { handleCreateResponse, handleGetResponse, handleUpdateDeleteResponse } from "../utils/controllerUtils";
+import { handleCreateResponse, handleGetAllResponse, handleGetResponse, handleUpdateDeleteResponse } from "../utils/controllerUtils";
 
 export async function createUnit(request: Request, 
                                  response: Response): Promise<void> {
@@ -49,6 +49,28 @@ export async function getUnit(request: Request,
         const dbResponse = await UnitModel.get(id);
         const processedResponse = handleGetResponse(dbResponse,
                                                    'unit',
+                                                   'Unit');
+        response.status(processedResponse.status)
+                .json(processedResponse.json);
+        return;
+    } catch (err) {
+        console.log(err);
+        response.status(500).json({
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
+        });
+    }
+}
+
+export async function getAllUnits(request: Request,
+                                    response: Response) : Promise<void> {
+    
+    try {
+        // get objects from db
+        const dbResponse = await UnitModel.getAll();
+        console.log(dbResponse);
+        const processedResponse = handleGetAllResponse(dbResponse,
+                                                   'units',
                                                    'Unit');
         response.status(processedResponse.status)
                 .json(processedResponse.json);

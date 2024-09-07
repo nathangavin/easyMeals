@@ -1,5 +1,6 @@
 import { handleCreateRequest, 
         handleDeleteRequest, 
+        handleGetAllRequest, 
         handleGetRequest,
         handleUpdateRequest} from '../utils/databaseConnection';
 import { StatusType, Status } from '../utils/statusTypes';
@@ -34,6 +35,10 @@ class UnitModel {
             Promise<Status<StatusType, Unit | undefined>> {
 
         return handleGetRequest<Unit>(id, 'Units', 'Unit');
+    }
+
+    static async getAll() : Promise<Status<StatusType, Unit[] | undefined>> {
+        return handleGetAllRequest<Unit>('Units', 'Unit');
     }
         
     static async exists(id: number) : Promise<boolean> {

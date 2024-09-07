@@ -7,6 +7,7 @@ import { INTERNAL_SERVER_ERROR_MSG,
         UNKNOWN_MODEL_ERROR_MSG } from './messages';
 
 export type getReturn<T> = Status<StatusType, T | undefined>;
+export type getMultipleReturn<T> = Status<StatusType, T[] | undefined>;
 export type createReturn = Status<StatusType, number | undefined>;
 export type updateDeleteReturn = Status<StatusType, string | undefined>;
 
@@ -77,8 +78,12 @@ export function generateUpdateSQLStatement(
     return statement;
 }
 
-export function generateGetSQLStatement(tablename: string, id: number) {
+export function generateGetSQLStatement(tablename: string, id: number) : string {
     return `SELECT * FROM ${tablename} WHERE ID = ${id};`;
+}
+
+export function generateGetAllSQLStatement(tablename: string) : string {
+    return `SELECT * FROM ${tablename};`;
 }
 
 export function generateColumnData<RecordType>(
@@ -143,6 +148,41 @@ export async function handleGetRequest<T>(id: number,
             return {
                 status: StatusType.Missing,
                 message: RECORD_MISSING_MSG(tableMessageName, id.toString())
+            };
+        }
+    } catch (err) {
+        return {
+            status: StatusType.Failure,
+            message: errorMessage(tableMessageName, err)
+        };
+    } finally {
+        await connection.end();
+    }
+}
+
+export async function handleGetAllRequest<T>(tableName: string,
+                                         tableMessageName: string) : Promise<getMultipleReturn<T>> {
+    const connection = await connectDatabase();
+    try {
+        const query = generateGetAllSQLStatement(tableName);
+        const [result] = await connection.execute(query);
+        if (result instanceof Array) {
+            if (result.length > 0) {
+                console.log(result);
+                return {
+                    status: StatusType.Success,
+                    value: result.map(r => r as T)
+                }; 
+            } else {
+                return {
+                    status: StatusType.Missing,
+                    message: RECORD_MISSING_MSG(tableMessageName, 'Users')
+                };
+            }
+        } else {
+            return {
+                status: StatusType.Missing,
+                message: RECORD_MISSING_MSG(tableMessageName, 'Users')
             };
         }
     } catch (err) {
