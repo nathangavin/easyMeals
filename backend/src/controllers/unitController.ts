@@ -64,7 +64,6 @@ export async function getUnit(request: Request,
 
 export async function getAllUnits(request: Request,
                                     response: Response) : Promise<void> {
-    
     try {
         // get objects from db
         const dbResponse = await UnitModel.getAll();
