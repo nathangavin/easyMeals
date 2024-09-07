@@ -7,6 +7,7 @@ import { INTERNAL_SERVER_ERROR_MSG,
         UNKNOWN_MODEL_ERROR_MSG } from './messages';
 
 export type getReturn<T> = Status<StatusType, T | undefined>;
+export type getAllReturn<T> = Status<StatusType, T[] | undefined>;
 export type getMultipleReturn<T> = Status<StatusType, T[] | undefined>;
 export type createReturn = Status<StatusType, number | undefined>;
 export type updateDeleteReturn = Status<StatusType, string | undefined>;
