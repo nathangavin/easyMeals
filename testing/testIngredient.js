@@ -7,7 +7,8 @@ import {
     handleDelete,
     LOCALHOST, 
     patchRequest, 
-    postRequest } from "./utils.js";
+    postRequest, 
+    handleGetAll} from "./utils.js";
 import { testCreateUnit } from "./testUnit.js";
 
 const ingredientRoute = LOCALHOST + "ingredients/";
@@ -23,6 +24,11 @@ export async function testCreateIngredient(name, unitID) {
 export async function testGetIngredient(id) {
     console.log("testing Get Ingredient");
     return await getRequest(ingredientRoute + id);
+}
+
+export async function testGetAllIngredients() {
+    console.log("testing Get All Ingredients");
+    return await getRequest(ingredientRoute);
 }
 
 export async function testUpdateIngredient(id) {
@@ -57,6 +63,10 @@ export function handleTestGetIngredient(res) {
     handleGet(res, 'ingredient', isIngredient);
 }
 
+export function handleTestGetAllIngredients(res) {
+    handleGetAll(res, 'ingredients', isIngredient);
+}
+
 export function handleTestUpdateIngredient(res) {
     handleUpdate(res, 'Ingredient');
 }
@@ -76,5 +86,7 @@ export async function ingredientCreateTest() {
     handleTestUpdateIngredient(resUpdateIngredient);
     const resDeleteIngredient = await testDeleteIngredient(resCreateIngredient.data.id);
     handleTestDeleteIngredient(resDeleteIngredient);
+    const resGetAllIngredients = await testGetAllIngredients();
+    handleTestGetAllIngredients(resGetAllIngredients);
     console.log("Ending Ingredient Create Test");
 }
