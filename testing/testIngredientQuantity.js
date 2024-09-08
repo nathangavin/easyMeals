@@ -12,41 +12,9 @@ import {
 import { testCreateUnit } from "./testUnit.js";
 import { testCreateIngredient } from "./testIngredient.js";
 
+// ============== Utils ======================
+
 const ingredientQuantityRoute = LOCALHOST + "ingredientQuantities/";
-
-export async function testCreateIngredientQuantity(quantity, ingredientID) {
-    console.log("testing Create IngredientQuantity");
-    return await postRequest(ingredientQuantityRoute, {
-        quantity,
-        ingredientID
-    });
-}
-
-export async function testGetIngredientQuantity(id) {
-    console.log("testing Get IngredientQuantity");
-    return await getRequest(ingredientQuantityRoute + id);
-}
-
-export async function testGetAllIngredientQuantity() {
-    console.log("testing Get All IngredientQuantity");
-    return await getRequest(ingredientQuantityRoute);
-}
-
-export async function testUpdateIngredientQuantity(id) {
-    console.log("testing Update IngredientQuantity");
-    return await patchRequest(ingredientQuantityRoute + id, {
-        quantity: 11
-    });
-}
-
-export async function testDeleteIngredientQuantity(id) {
-    console.log("testing Delete IngredientQuantity");
-    return await deleteRequest(ingredientQuantityRoute + id);
-}
-
-export function handleTestCreateIngredientQuantity(res) {
-    handleCreate(res, 'IngredientQuantity', 'IngredientQuantity created successfully');
-}
 
 function isIngredientQuantity(p) {
     if (p &&
@@ -60,21 +28,61 @@ function isIngredientQuantity(p) {
     return false;
 }
 
+// ============== test functions ==================
+
+export async function testCreateIngredientQuantity(quantity, ingredientID) {
+    return await postRequest(ingredientQuantityRoute, {
+        quantity,
+        ingredientID
+    });
+}
+
+export async function testGetIngredientQuantity(id) {
+    return await getRequest(ingredientQuantityRoute + id);
+}
+
+export async function testGetAllIngredientQuantity() {
+    return await getRequest(ingredientQuantityRoute);
+}
+
+export async function testUpdateIngredientQuantity(id) {
+    return await patchRequest(ingredientQuantityRoute + id, {
+        quantity: 11
+    });
+}
+
+export async function testDeleteIngredientQuantity(id) {
+    return await deleteRequest(ingredientQuantityRoute + id);
+}
+
+// ============== handle functions ==================
+
+export function handleTestCreateIngredientQuantity(res) {
+    console.log("testing Create IngredientQuantity");
+    handleCreate(res, 'IngredientQuantity', 'IngredientQuantity created successfully');
+}
+
 export function handleTestGetIngredientQuantity(res) {
+    console.log("testing Get IngredientQuantity");
     handleGet(res, 'ingredientQuantity', isIngredientQuantity);
 }
 
 export function handleTestGetAllIngredientQuantity(res) {
+    console.log("testing Get All IngredientQuantity");
     handleGetAll(res, 'ingredientQuantities', isIngredientQuantity);
 }
 
 export function handleTestUpdateIngredientQuantity(res) {
+    console.log("testing Update IngredientQuantity");
     handleUpdate(res, 'IngredientQuantity');
 }
 
 export function handleTestDeleteIngredientQuantity(res) {
+    console.log("testing Delete IngredientQuantity");
     handleDelete(res, 'IngredientQuantity');
 }
+
+// =============== summary function ==================
 
 export async function ingredientQuantityCreateTest() {
     console.log("Starting IngredientQuantity Create Test");

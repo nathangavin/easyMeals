@@ -15,41 +15,9 @@ import { testCreateIngredient } from "./testIngredient.js";
 import { testCreateInstruction } from "./testInstruction.js";
 import { testCreateIngredientQuantity } from "./testIngredientQuantity.js";
 
+// =============== Utils =========================
+
 const instructionIngredientQuantityRoute = LOCALHOST + "instructionIngredientQuantities/";
-
-export async function testCreateInstructionIngredientQuantity(quantityID, instructionID) {
-    console.log("testing Create InstructionIngredientQuantity");
-    return await postRequest(instructionIngredientQuantityRoute, {
-        quantityID,
-        instructionID
-    });
-}
-
-export async function testGetInstructionIngredientQuantity(id) {
-    console.log("testing Get InstructionIngredientQuantity");
-    return await getRequest(instructionIngredientQuantityRoute + id);
-}
-
-export async function testGetAllInstructionIngredientQuantity() {
-    console.log("testing Get All InstructionIngredientQuantity");
-    return await getRequest(instructionIngredientQuantityRoute);
-}
-
-export async function testUpdateInstructionIngredientQuantity(id) {
-    console.log("testing Update InstructionIngredientQuantity");
-    return await patchRequest(instructionIngredientQuantityRoute + id, {
-        quantityID: 11
-    });
-}
-
-export async function testDeleteInstructionIngredientQuantity(id) {
-    console.log("testing Delete InstructionIngredientQuantity");
-    return await deleteRequest(instructionIngredientQuantityRoute + id);
-}
-
-export function handleTestCreateInstructionIngredientQuantity(res) {
-    handleCreate(res, 'InstructionIngredientQuantity', 'InstructionIngredientQuantity created successfully');
-}
 
 function isInstructionIngredientQuantity(p) {
     if (p &&
@@ -63,21 +31,83 @@ function isInstructionIngredientQuantity(p) {
     return false;
 }
 
+// =============== Test functions =======================
+
+export async function testCreateInstructionIngredientQuantity(quantityID, instructionID) {
+    return await postRequest(instructionIngredientQuantityRoute, {
+        quantityID,
+        instructionID
+    });
+}
+
+export async function testGetInstructionIngredientQuantity(id) {
+    return await getRequest(instructionIngredientQuantityRoute + id);
+}
+
+export async function testGetAllInstructionIngredientQuantity() {
+    return await getRequest(instructionIngredientQuantityRoute);
+}
+
+export async function testUpdateInstructionIngredientQuantity(id) {
+    return await patchRequest(instructionIngredientQuantityRoute + id, {
+        quantityID: 11
+    });
+}
+
+export async function testDeleteInstructionIngredientQuantity(id) {
+    return await deleteRequest(instructionIngredientQuantityRoute + id);
+}
+
+async function setupForGetAll(id1, id2) {
+    const res1 = await testCreateInstructionIngredientQuantity(id1, id2);
+    const res2 = await testCreateInstructionIngredientQuantity(id1, id2);
+    const res3 = await testCreateInstructionIngredientQuantity(id1, id2);
+    const res4 = await testCreateInstructionIngredientQuantity(id1, id2);
+    const res5 = await testCreateInstructionIngredientQuantity(id1, id2);
+    
+    return [
+        res1.data.id,
+        res2.data.id,
+        res3.data.id,
+        res4.data.id,
+        res5.data.id,
+    ];
+}
+
+async function deleteForGetAll(ids) {
+    for (const id of ids) {
+        await testDeleteInstructionIngredientQuantity(id);
+    }
+}
+
+// ============== Handle Functions ==========================
+
+export function handleTestCreateInstructionIngredientQuantity(res) {
+    console.log("testing Create InstructionIngredientQuantity");
+    handleCreate(res, 'InstructionIngredientQuantity', 'InstructionIngredientQuantity created successfully');
+}
+
 export function handleTestGetInstructionIngredientQuantity(res) {
+    console.log("testing Get InstructionIngredientQuantity");
     handleGet(res, 'instructionIngredientQuantity', isInstructionIngredientQuantity);
 }
 
 export function handleTestGetAllInstructionIngredientQuantity(res) {
+    console.log("testing Get All InstructionIngredientQuantity");
     handleGetAll(res, 'instructionIngredientQuantities', isInstructionIngredientQuantity);
 }
 
 export function handleTestUpdateInstructionIngredientQuantity(res) {
+    console.log("testing Update InstructionIngredientQuantity");
     handleUpdate405(res, 'InstructionIngredientQuantity');
 }
 
 export function handleTestDeleteInstructionIngredientQuantity(res) {
+    console.log("testing Delete InstructionIngredientQuantity");
     handleDelete(res, 'InstructionIngredientQuantity');
 }
+
+// ============ Summary Function ========================
 
 export async function instructionIngredientQuantityCreateTest() {
     console.log("Starting InstructionIngredientQuantity Create Test");
@@ -102,31 +132,12 @@ export async function instructionIngredientQuantityCreateTest() {
                                     resCreateInstructionIngredientQuantity.data.id);
     handleTestDeleteInstructionIngredientQuantity(resDeleteInstructionIngredientQuantity);
 
-    const resCreateInstructionIngredientQuantity1 = await testCreateInstructionIngredientQuantity(
-                                        resCreateIngredientQuantity.data.id, 
-                                        resCreateInstruction.data.id);
-    const resCreateInstructionIngredientQuantity2 = await testCreateInstructionIngredientQuantity(
-                                        resCreateIngredientQuantity.data.id, 
-                                        resCreateInstruction.data.id);
-    const resCreateInstructionIngredientQuantity3 = await testCreateInstructionIngredientQuantity(
-                                        resCreateIngredientQuantity.data.id, 
-                                        resCreateInstruction.data.id);
-    const resCreateInstructionIngredientQuantity4 = await testCreateInstructionIngredientQuantity(
-                                        resCreateIngredientQuantity.data.id, 
-                                        resCreateInstruction.data.id);
-    const resCreateInstructionIngredientQuantity5 = await testCreateInstructionIngredientQuantity(
-                                        resCreateIngredientQuantity.data.id, 
-                                        resCreateInstruction.data.id);
-
+    const getAllIds = await setupForGetAll(resCreateIngredientQuantity.data.id,
+                                    resCreateInstruction.data.id);
     const resGetAllInstructionIngredientQuantity = 
                         await testGetAllInstructionIngredientQuantity();
     handleTestGetAllInstructionIngredientQuantity(resGetAllInstructionIngredientQuantity);
-
-    await testDeleteInstructionIngredientQuantity(resCreateInstructionIngredientQuantity1.data.id);
-    await testDeleteInstructionIngredientQuantity(resCreateInstructionIngredientQuantity2.data.id);
-    await testDeleteInstructionIngredientQuantity(resCreateInstructionIngredientQuantity3.data.id);
-    await testDeleteInstructionIngredientQuantity(resCreateInstructionIngredientQuantity4.data.id);
-    await testDeleteInstructionIngredientQuantity(resCreateInstructionIngredientQuantity5.data.id);
+    await deleteForGetAll(getAllIds);
 
     console.log("Ending InstructionIngredientQuantity Create Test");
 }

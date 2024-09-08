@@ -10,40 +10,9 @@ import {
     postRequest, 
     handleGetAll} from "./utils.js";
 
+// ================ Utils ==================
+
 const instructionRoute = LOCALHOST + "instructions/";
-
-export async function testCreateInstruction(description) {
-    console.log("testing Create Instruction");
-    return await postRequest(instructionRoute, {
-        description
-    });
-}
-
-export async function testGetInstruction(id) {
-    console.log("testing Get Instruction");
-    return await getRequest(instructionRoute + id);
-}
-
-export async function testGetAllInstruction() {
-    console.log("testing Get All Instruction");
-    return await getRequest(instructionRoute);
-}
-
-export async function testUpdateInstruction(id) {
-    console.log("testing Update Instruction");
-    return await patchRequest(instructionRoute + id, {
-        description: 'updatedInstruction'
-    });
-}
-
-export async function testDeleteInstruction(id) {
-    console.log("testing Delete Instruction");
-    return await deleteRequest(instructionRoute + id);
-}
-
-export function handleTestCreateInstruction(res) {
-    handleCreate(res, 'Instruction', 'Instruction created successfully');
-}
 
 function isInstruction(p) {
     if (p &&
@@ -56,21 +25,60 @@ function isInstruction(p) {
     return false;
 }
 
+// =============== Test functions ==================
+
+export async function testCreateInstruction(description) {
+    return await postRequest(instructionRoute, {
+        description
+    });
+}
+
+export async function testGetInstruction(id) {
+    return await getRequest(instructionRoute + id);
+}
+
+export async function testGetAllInstruction() {
+    return await getRequest(instructionRoute);
+}
+
+export async function testUpdateInstruction(id) {
+    return await patchRequest(instructionRoute + id, {
+        description: 'updatedInstruction'
+    });
+}
+
+export async function testDeleteInstruction(id) {
+    return await deleteRequest(instructionRoute + id);
+}
+
+// ============ Handle Functions ==================
+
+export function handleTestCreateInstruction(res) {
+    console.log("testing Create Instruction");
+    handleCreate(res, 'Instruction', 'Instruction created successfully');
+}
+
 export function handleTestGetInstruction(res) {
+    console.log("testing Get Instruction");
     handleGet(res, 'instruction', isInstruction);
 }
 
 export function handleTestGetAllInstruction(res) {
+    console.log("testing Get All Instruction");
     handleGetAll(res, 'instructions', isInstruction);
 }
 
 export function handleTestUpdateInstruction(res) {
+    console.log("testing Update Instruction");
     handleUpdate(res, 'Instruction');
 }
 
 export function handleTestDeleteInstruction(res) {
+    console.log("testing Delete Instruction");
     handleDelete(res, 'Instruction');
 }
+
+// ============= Summary Function ==============
 
 export async function instructionCreateTest() {
     console.log("Starting Instruction Create Test");

@@ -14,7 +14,25 @@ import { handleTestCreateSession,
     testGetSession,
     testDeleteSession } from './testSession.js';
 
+// ============ Utils ===============
+
 const userRoute = LOCALHOST + "users/";
+
+function isUser(data) {
+    if (data &&
+        data.ID && 
+        data.createdTime &&
+        data.modifiedTime &&
+        data.firstname &&
+        data.lastname &&
+        data.email &&
+        data.passwordHash) {
+            return true;
+    }
+    return false;
+}
+
+// =========== Test functions ================
 
 export function generateTestUserDetails() {
     console.log("generating test user");
@@ -27,23 +45,19 @@ export function generateTestUserDetails() {
 }
 
 export async function testCreateUser(userDetails) {
-    console.log("testing Create User");
     return await postRequest(userRoute, userDetails);
 }
 
 export async function testGetUser(id) {
-    console.log("testing Get User");
     return await getRequest(userRoute + id);
 }
 
 export async function testGetAllUser() {
-    console.log('testing Get All User');
     return getRequest(userRoute);
 
 }
 
 export async function testUpdateUser(id, sessionToken) {
-    console.log("testing Update User");
     return await patchRequest(userRoute + id, {
         firstname: 'testnamechanged'
     }, sessionToken);
@@ -64,35 +78,29 @@ export async function setupTestUser() {
     }
 }
 
+// ============ Handle functions ==================
+
 export function handleTestCreateUser(res) {
+    console.log("testing Create User");
     handleCreate(res, 'user', 'User created successfully');
 }
 
-function isUser(data) {
-    if (data &&
-        data.ID && 
-        data.createdTime &&
-        data.modifiedTime &&
-        data.firstname &&
-        data.lastname &&
-        data.email &&
-        data.passwordHash) {
-            return true;
-    }
-    return false;
-}
-
 export function handleTestGetUser(res) {
+    console.log("testing Get User");
     handleGet(res, 'user', isUser);
 }
 
 export function handleTestGetAllUser(res) {
+    console.log('testing Get All User');
     handleGetAll(res, 'users', isUser);
 }
 
 export function handleTestUpdateUser(res) {
+    console.log("testing Update User");
     handleUpdate(res, 'recipe');
 }
+
+// ============= summary function =================
 
 export async function userLoginTest() {
     /*

@@ -10,42 +10,9 @@ import {
     patchRequest, 
     postRequest } from "./utils.js";
 
+// =============== Utils =================
+
 const recipeRoute = LOCALHOST + "recipes/";
-
-export async function testCreateRecipe() {
-    console.log('testing Create Recipe');
-    const testName = "recipe" + (Math.round(Math.random() * 10000));
-    return await postRequest(recipeRoute, {
-        name: testName 
-    });
-}
-
-export async function testGetRecipe(id) {
-    console.log('testing Get Recipe');
-    return getRequest(recipeRoute + id);
-
-}
-
-export async function testGetAllRecipe() {
-    console.log('testing Get All Recipe');
-    return getRequest(recipeRoute);
-}
-
-export async function testUpdateRecipe(id) {
-    console.log('testing Update Recipe');
-    return await patchRequest(recipeRoute + id, {
-        draftFlag: false
-    });
-}
-
-export async function testDeleteRecipe(id) {
-    console.log('testing Delete Recipe');
-    return await deleteRequest(recipeRoute + id);
-}
-
-export function handleTestCreateRecipe(res) {
-    handleCreate(res, 'Recipe', 'Recipe created successfully');
-}
 
 function isRecipe(r) {
     if (r &&
@@ -59,21 +26,63 @@ function isRecipe(r) {
     return false;
 }
 
+// ============== test functions =============
+
+export async function testCreateRecipe() {
+    const testName = "recipe" + (Math.round(Math.random() * 10000));
+    return await postRequest(recipeRoute, {
+        name: testName 
+    });
+}
+
+export async function testGetRecipe(id) {
+    return getRequest(recipeRoute + id);
+
+}
+
+export async function testGetAllRecipe() {
+    return getRequest(recipeRoute);
+}
+
+export async function testUpdateRecipe(id) {
+    return await patchRequest(recipeRoute + id, {
+        draftFlag: false
+    });
+}
+
+export async function testDeleteRecipe(id) {
+    return await deleteRequest(recipeRoute + id);
+}
+
+// =============== handle functions ===============
+
+export function handleTestCreateRecipe(res) {
+    console.log('testing Create Recipe');
+    handleCreate(res, 'Recipe', 'Recipe created successfully');
+}
+
+
 export function handleTestGetRecipe(res) {
+    console.log('testing Get Recipe');
     handleGet(res, 'recipe', isRecipe);
 } 
 
 export function handleTestGetAllRecipe(res) {
+    console.log('testing Get All Recipe');
     handleGetAll(res, 'recipes', isRecipe);
 }
 
 export function handleTestUpdateRecipe(res) {
+    console.log('testing Update Recipe');
     handleUpdate(res, 'recipe');
 }
 
 export function handleTestDeleteRecipe(res) {
+    console.log('testing Delete Recipe');
     handleDelete(res, 'Recipe');
 }
+
+// ============== Summary Function ==================
 
 export async function recipeCreateTest() {
     /*

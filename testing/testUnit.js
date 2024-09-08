@@ -10,40 +10,9 @@ import {
     postRequest, 
     handleGetAll} from "./utils.js";
 
+// ============ Utils =====================
+
 const unitRoute = LOCALHOST + "units/";
-
-export async function testCreateUnit(description) {
-    console.log("testing Create Unit");
-    return await postRequest(unitRoute, {
-        desc: description
-    });
-}
-
-export async function testGetUnit(id) {
-    console.log("testing Get Unit");
-    return await getRequest(unitRoute + id);
-}
-
-export async function testGetAllUnits() {
-    console.log("testing Get All Units");
-    return await getRequest(unitRoute);
-}
-
-export async function testUpdateUnit(id) {
-    console.log("testing Update Unit");
-    return await patchRequest(unitRoute + id, {
-        desc: 'updatedUnit'
-    });
-}
-
-export async function testDeleteUnit(id) {
-    console.log("testing Delete Unit");
-    return await deleteRequest(unitRoute + id);
-}
-
-export function handleTestCreateUnit(res) {
-    handleCreate(res, 'Unit', 'Unit created successfully');
-}
 
 function isUnit(u) {
     if (u &&
@@ -56,21 +25,60 @@ function isUnit(u) {
     return false;
 }
 
+// =============== Test functions =================
+
+export async function testCreateUnit(description) {
+    return await postRequest(unitRoute, {
+        desc: description
+    });
+}
+
+export async function testGetUnit(id) {
+    return await getRequest(unitRoute + id);
+}
+
+export async function testGetAllUnits() {
+    return await getRequest(unitRoute);
+}
+
+export async function testUpdateUnit(id) {
+    return await patchRequest(unitRoute + id, {
+        desc: 'updatedUnit'
+    });
+}
+
+export async function testDeleteUnit(id) {
+    return await deleteRequest(unitRoute + id);
+}
+
+// ========== Handle Functions ==============
+
+export function handleTestCreateUnit(res) {
+    console.log("testing Create Unit");
+    handleCreate(res, 'Unit', 'Unit created successfully');
+}
+
 export function handleTestGetUnit(res) {
+    console.log("testing Get Unit");
     handleGet(res, 'unit', isUnit);
 }
 
 export function handleTestGetAllUnits(res) {
+    console.log("testing Get All Units");
     handleGetAll(res, 'units', isUnit);
 }
 
 export function handleTestUpdateUnit(res) {
+    console.log("testing Update Unit");
     handleUpdate(res, 'Unit');
 }
 
 export function handleTestDeleteUnit(res) {
+    console.log("testing Delete Unit");
     handleDelete(res, 'Unit');
 }
+
+// =========== Summary function ================
 
 export async function unitCreateTest() {
     console.log("Starting Unit Create Test");

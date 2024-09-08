@@ -14,41 +14,9 @@ import { testCreateIngredient } from "./testIngredient.js";
 import { testCreatePantry } from "./testPantry.js";
 import { testCreateIngredientQuantity } from "./testIngredientQuantity.js";
 
+// =================== Utils ========================
+
 const pantryIngredientQuantityRoute = LOCALHOST + "pantryIngredientQuantities/";
-
-export async function testCreatePantryIngredientQuantity(quantityID, pantryID) {
-    console.log("testing Create PantryIngredientQuantity");
-    return await postRequest(pantryIngredientQuantityRoute, {
-        quantityID,
-        pantryID
-    });
-}
-
-export async function testGetPantryIngredientQuantity(id) {
-    console.log("testing Get PantryIngredientQuantity");
-    return await getRequest(pantryIngredientQuantityRoute + id);
-}
-
-export async function testGetAllPantryIngredientQuantity() {
-    console.log("testing Get All PantryIngredientQuantity");
-    return await getRequest(pantryIngredientQuantityRoute);
-}
-
-export async function testUpdatePantryIngredientQuantity(id) {
-    console.log("testing Update PantryIngredientQuantity");
-    return await patchRequest(pantryIngredientQuantityRoute + id, {
-        quantityID: 11
-    });
-}
-
-export async function testDeletePantryIngredientQuantity(id) {
-    console.log("testing Delete PantryIngredientQuantity");
-    return await deleteRequest(pantryIngredientQuantityRoute + id);
-}
-
-export function handleTestCreatePantryIngredientQuantity(res) {
-    handleCreate(res, 'PantryIngredientQuantity', 'PantryIngredientQuantity created successfully');
-}
 
 function isPantryIngredientQuantity(p) {
     if (p &&
@@ -62,21 +30,84 @@ function isPantryIngredientQuantity(p) {
     return false;
 }
 
+// ================= Test Functions ===================
+
+export async function testCreatePantryIngredientQuantity(quantityID, pantryID) {
+    return await postRequest(pantryIngredientQuantityRoute, {
+        quantityID,
+        pantryID
+    });
+}
+
+export async function testGetPantryIngredientQuantity(id) {
+    return await getRequest(pantryIngredientQuantityRoute + id);
+}
+
+export async function testGetAllPantryIngredientQuantity() {
+    return await getRequest(pantryIngredientQuantityRoute);
+}
+
+export async function testUpdatePantryIngredientQuantity(id) {
+    return await patchRequest(pantryIngredientQuantityRoute + id, {
+        quantityID: 11
+    });
+}
+
+export async function testDeletePantryIngredientQuantity(id) {
+    return await deleteRequest(pantryIngredientQuantityRoute + id);
+}
+
+async function setupForGetAll(id1, id2) {
+    const res1 = await testCreatePantryIngredientQuantity(id1, id2);
+    const res2 = await testCreatePantryIngredientQuantity(id1, id2);
+    const res3 = await testCreatePantryIngredientQuantity(id1, id2);
+    const res4 = await testCreatePantryIngredientQuantity(id1, id2);
+    const res5 = await testCreatePantryIngredientQuantity(id1, id2);
+    
+    return [
+        res1.data.id,
+        res2.data.id,
+        res3.data.id,
+        res4.data.id,
+        res5.data.id,
+    ];
+}
+
+async function deleteForGetAll(ids) {
+    for (const id of ids) {
+        await testDeletePantryIngredientQuantity(id);
+    }
+}
+ 
+// ============== handle functions ========================
+
+export function handleTestCreatePantryIngredientQuantity(res) {
+    console.log("testing Create PantryIngredientQuantity");
+    handleCreate(res, 'PantryIngredientQuantity', 'PantryIngredientQuantity created successfully');
+}
+
+
 export function handleTestGetPantryIngredientQuantity(res) {
+    console.log("testing Get PantryIngredientQuantity");
     handleGet(res, 'pantryIngredientQuantity', isPantryIngredientQuantity);
 }
 
 export function handleTestGetAllPantryIngredientQuantity(res) {
+    console.log("testing Get All PantryIngredientQuantity");
     handleGetAll(res, 'pantryIngredientQuantities', isPantryIngredientQuantity);
 }
 
 export function handleTestUpdatePantryIngredientQuantity(res) {
+    console.log("testing Update PantryIngredientQuantity");
     handleUpdate405(res, 'PantryIngredientQuantity');
 }
 
 export function handleTestDeletePantryIngredientQuantity(res) {
+    console.log("testing Delete PantryIngredientQuantity");
     handleDelete(res, 'PantryIngredientQuantity');
 }
+
+// ============== summary function =======================
 
 export async function pantryIngredientQuantityCreateTest() {
     console.log("Starting PantryIngredientQuantity Create Test");
@@ -101,31 +132,14 @@ export async function pantryIngredientQuantityCreateTest() {
                                     resCreatePantryIngredientQuantity.data.id);
     handleTestDeletePantryIngredientQuantity(resDeletePantryIngredientQuantity);
 
-    const resCreatePantryIngredientQuantity1 = await testCreatePantryIngredientQuantity(
-                                        resCreateIngredientQuantity.data.id, 
-                                        resCreatePantry.data.id);
-    const resCreatePantryIngredientQuantity2 = await testCreatePantryIngredientQuantity(
-                                        resCreateIngredientQuantity.data.id, 
-                                        resCreatePantry.data.id);
-    const resCreatePantryIngredientQuantity3 = await testCreatePantryIngredientQuantity(
-                                        resCreateIngredientQuantity.data.id, 
-                                        resCreatePantry.data.id);
-    const resCreatePantryIngredientQuantity4 = await testCreatePantryIngredientQuantity(
-                                        resCreateIngredientQuantity.data.id, 
-                                        resCreatePantry.data.id);
-    const resCreatePantryIngredientQuantity5 = await testCreatePantryIngredientQuantity(
-                                        resCreateIngredientQuantity.data.id, 
+    const getAllIds = await setupForGetAll(resCreateIngredientQuantity.data.id,
                                         resCreatePantry.data.id);
 
     const resGetAllPantryIngredientQuantity =
                         await testGetAllPantryIngredientQuantity();
     handleTestGetAllPantryIngredientQuantity(resGetAllPantryIngredientQuantity);
 
-    await testDeletePantryIngredientQuantity(resCreatePantryIngredientQuantity1.data.id);
-    await testDeletePantryIngredientQuantity(resCreatePantryIngredientQuantity2.data.id);
-    await testDeletePantryIngredientQuantity(resCreatePantryIngredientQuantity3.data.id);
-    await testDeletePantryIngredientQuantity(resCreatePantryIngredientQuantity4.data.id);
-    await testDeletePantryIngredientQuantity(resCreatePantryIngredientQuantity5.data.id);
+    await deleteForGetAll(getAllIds);
 
     console.log("Ending PantryIngredientQuantity Create Test");
 }

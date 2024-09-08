@@ -11,41 +11,9 @@ import {
     handleGetAll} from "./utils.js";
 import { testCreateUnit } from "./testUnit.js";
 
+// ========== Utils ============================
+
 const ingredientRoute = LOCALHOST + "ingredients/";
-
-export async function testCreateIngredient(name, unitID) {
-    console.log("testing Create Ingredient");
-    return await postRequest(ingredientRoute, {
-        name,
-        unitID
-    });
-}
-
-export async function testGetIngredient(id) {
-    console.log("testing Get Ingredient");
-    return await getRequest(ingredientRoute + id);
-}
-
-export async function testGetAllIngredients() {
-    console.log("testing Get All Ingredients");
-    return await getRequest(ingredientRoute);
-}
-
-export async function testUpdateIngredient(id) {
-    console.log("testing Update Ingredient");
-    return await patchRequest(ingredientRoute + id, {
-        name: 'updatedIngredient'
-    });
-}
-
-export async function testDeleteIngredient(id) {
-    console.log("testing Delete Ingredient");
-    return await deleteRequest(ingredientRoute + id);
-}
-
-export function handleTestCreateIngredient(res) {
-    handleCreate(res, 'Ingredient', 'Ingredient created successfully');
-}
 
 function isIngredient(p) {
     if (p &&
@@ -59,21 +27,62 @@ function isIngredient(p) {
     return false;
 }
 
+// ========== test functions ====================
+
+export async function testCreateIngredient(name, unitID) {
+    return await postRequest(ingredientRoute, {
+        name,
+        unitID
+    });
+}
+
+export async function testGetIngredient(id) {
+    return await getRequest(ingredientRoute + id);
+}
+
+export async function testGetAllIngredients() {
+    return await getRequest(ingredientRoute);
+}
+
+export async function testUpdateIngredient(id) {
+    return await patchRequest(ingredientRoute + id, {
+        name: 'updatedIngredient'
+    });
+}
+
+export async function testDeleteIngredient(id) {
+    return await deleteRequest(ingredientRoute + id);
+}
+
+// ========== handle functions ====================
+
+export function handleTestCreateIngredient(res) {
+    console.log("testing Create Ingredient");
+    handleCreate(res, 'Ingredient', 'Ingredient created successfully');
+}
+
+
 export function handleTestGetIngredient(res) {
+    console.log("testing Get Ingredient");
     handleGet(res, 'ingredient', isIngredient);
 }
 
 export function handleTestGetAllIngredients(res) {
+    console.log("testing Get All Ingredients");
     handleGetAll(res, 'ingredients', isIngredient);
 }
 
 export function handleTestUpdateIngredient(res) {
+    console.log("testing Update Ingredient");
     handleUpdate(res, 'Ingredient');
 }
 
 export function handleTestDeleteIngredient(res) {
+    console.log("testing Delete Ingredient");
     handleDelete(res, 'Ingredient');
 }
+
+// =============== Summary function =================
 
 export async function ingredientCreateTest() {
     console.log("Starting Ingredient Create Test");
