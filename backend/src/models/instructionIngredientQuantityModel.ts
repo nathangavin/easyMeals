@@ -1,10 +1,12 @@
 import { createReturn, 
         getReturn, 
+        getAllReturn,
         handleCreateRequest, 
         handleGetRequest, 
         handleUpdateRequest, 
         handleDeleteRequest,
-        updateDeleteReturn } from '../utils/databaseConnection';
+        updateDeleteReturn, 
+        handleGetAllRequest} from '../utils/databaseConnection';
 import { UNKNOWN_MODEL_ERROR_MSG } from '../utils/messages';
 import { StatusType } from '../utils/statusTypes';
 
@@ -39,6 +41,11 @@ class InstructionIngredientQuantityModel {
         return handleGetRequest<InstructionIngredientQuantity>(id, 
                                                     'InstructionIngredientQuantities', 
                                                     'InstructionIngredientQuantity');
+    }
+
+    static async getAll() : Promise<getAllReturn<InstructionIngredientQuantity>> {
+        return handleGetAllRequest<InstructionIngredientQuantity>('InstructionIngredientQuantities', 
+                                               'InstructionIngredientQuantity');
     }
 
     static async exists(id: number) : Promise<boolean> {

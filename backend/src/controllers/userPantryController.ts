@@ -9,6 +9,7 @@ import { INTERNAL_SERVER_ERROR_MSG,
 import { handleAuthorization, 
         handleCreateResponse, 
         handleGetResponse, 
+        handleGetAllResponse,
         handleUpdateDeleteResponse } from "../utils/controllerUtils";
 import PantryModel from "../models/pantryModel";
 
@@ -81,6 +82,24 @@ export async function getUserPantry(request: Request,
         const processedResponse = handleGetResponse(dbResponse,
                                                    'userPantry',
                                                    'UserPantry');
+        response.status(processedResponse.status)
+                .json(processedResponse.json);
+        return;
+    } catch (err) {
+        response.status(500).json({
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
+        });
+    }
+}
+
+export async function getAllUserPantries(request: Request, 
+                                 response: Response): Promise<void> {
+    try {
+        const dbResponse = await UserPantryModel.getAll();
+        const processedResponse = handleGetAllResponse(dbResponse,
+                                                   'userPantries',
+                                                   'UserPantries');
         response.status(processedResponse.status)
                 .json(processedResponse.json);
         return;

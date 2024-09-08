@@ -5,6 +5,7 @@ import { INTERNAL_SERVER_ERROR_MSG,
         INVALID_PARAM_MSG } from "../utils/messages";
 import { handleCreateResponse, 
         handleGetResponse, 
+        handleGetAllResponse,
         handleUpdateDeleteResponse } from "../utils/controllerUtils";
 
 export async function createInstruction(request: Request, 
@@ -62,6 +63,24 @@ export async function getInstruction(request: Request,
     }
 }
 
+export async function getAllInstructions(request: Request,
+                                response: Response): Promise<void> {
+    try {
+        const dbResponse = await InstructionModel.getAll();
+        const processedResponse = handleGetAllResponse(dbResponse, 
+                                                    'instructions', 
+        'Instructions');
+        response.status(processedResponse.status)
+                .json(processedResponse.json);
+        return;
+    } catch (err) {
+        console.log(err);
+        response.status(500).json({
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
+        });
+    }
+}
 export async function updateInstruction(request: Request,
                                             response: Response) : Promise<void> {
     const schema = joi.object({

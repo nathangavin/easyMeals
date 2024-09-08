@@ -1,14 +1,17 @@
 import { Request, Response } from "express";
 import joi from "joi";
 import { StatusType } from "../utils/statusTypes";
-import UserRecipeModel, { UserRecipe } from "../models/userRecipeModel";
+import UserRecipeModel from "../models/userRecipeModel";
 import UserModel from "../models/userModel";
 import RecipeModel from "../models/recipeModel";
 import { INTERNAL_SERVER_ERROR_MSG, 
         INVALID_PARAM_MSG, 
-        RECORD_MISSING_MSG, 
-        UNREACHABLE_CODE_UNKNOWN_STATUS_MSG} from "../utils/messages";
-import { handleAuthorization, handleCreateResponse, handleGetResponse, handleUpdateDeleteResponse } from "../utils/controllerUtils";
+        RECORD_MISSING_MSG } from "../utils/messages";
+import { handleAuthorization, 
+        handleCreateResponse, 
+        handleGetResponse, 
+        handleGetAllResponse,
+        handleUpdateDeleteResponse } from "../utils/controllerUtils";
 
 export async function createUserRecipe(request: Request, 
                                  response: Response): Promise<void> {
@@ -96,6 +99,25 @@ export async function getUserRecipe(request: Request,
         const processedResponse = handleGetResponse(dbResponse,
                                                    'userRecipe',
                                                    'UserRecipe');
+        response.status(processedResponse.status)
+                .json(processedResponse.json);
+        return;
+    } catch (err) {
+        response.status(500).json({
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
+        });
+    }
+}
+
+export async function getAllUserRecipes(request: Request, 
+                                 response: Response): Promise<void> {
+    try {
+        const dbResponse = await UserRecipeModel.getAll();
+        console.log(dbResponse);
+        const processedResponse = handleGetAllResponse(dbResponse,
+                                                   'userRecipes',
+                                                   'UserRecipes');
         response.status(processedResponse.status)
                 .json(processedResponse.json);
         return;

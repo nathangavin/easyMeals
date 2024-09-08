@@ -1,15 +1,13 @@
 import { Request, Response } from "express";
 import joi from "joi";
-
 import UserModel, { User } from "../models/userModel";
-import { StatusType } from "../utils/statusTypes";
-import SessionModel, { TOKEN_LENGTH } from "../models/sessionModel";
-import { AUTH_TOKEN_MALFORMED_MSG, 
-        AUTH_TOKEN_MISSING_MSG, 
-        AUTH_UNAUTHORISED_MSG, 
-        INTERNAL_SERVER_ERROR_MSG, 
+import { INTERNAL_SERVER_ERROR_MSG, 
         INVALID_PARAM_MSG} from "../utils/messages";
-import { handleAuthorization, handleCreateResponse, handleGetResponse, handleUpdateDeleteResponse } from "../utils/controllerUtils";
+import { handleAuthorization, 
+        handleCreateResponse, 
+        handleGetResponse, 
+        handleGetAllResponse,
+        handleUpdateDeleteResponse } from "../utils/controllerUtils";
 
 export async function createUser(request: Request, 
                                  response: Response): Promise<void> {
@@ -75,6 +73,26 @@ export async function getUser(request: Request,
     }
 }
 
+export async function getAllUsers(request: Request,
+                                response: Response): Promise<void> {
+    try {
+        const dbResponse = await UserModel.getAll();
+        const processedResponse = handleGetAllResponse(dbResponse, 
+                                                       'users', 
+                                                       'Users');
+        response.status(processedResponse.status)
+                .json(processedResponse.json);
+        return;
+    } catch (err) {
+        console.log(err);
+        response.status(500).json({
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
+        });
+    }
+}
+
+
 export async function updateUser(request: Request, 
                                  response: Response): Promise<void> {
 
@@ -130,5 +148,10 @@ export async function updateUser(request: Request,
             message: err
         });
     }
+}
+
+export async function deleteUser(request: Request, 
+                                    response: Response) : Promise<void> {
+    response.status(405).json();
 }
 

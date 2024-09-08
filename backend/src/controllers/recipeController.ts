@@ -5,6 +5,7 @@ import { INTERNAL_SERVER_ERROR_MSG,
         INVALID_PARAM_MSG } from "../utils/messages";
 import { handleCreateResponse, 
         handleGetResponse, 
+        handleGetAllResponse,
         handleUpdateDeleteResponse } from "../utils/controllerUtils";
 
 export async function createRecipe(request: Request, 
@@ -51,6 +52,28 @@ export async function getRecipe(request: Request,
 
         const processedResponse = handleGetResponse(dbResponse, 'recipe', 'Recipe');
 
+        response.status(processedResponse.status)
+                .json(processedResponse.json);
+        return;
+
+    } catch (err) {
+        console.log(err);
+        response.status(500).json({
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
+        });
+    }
+}
+
+export async function getAllRecipes(request: Request,
+                                response: Response): Promise<void> {
+    try {
+        // get object from db
+        const dbResponse = await RecipeModel.getAll();
+
+        const processedResponse = handleGetAllResponse(dbResponse, 
+                                                       'recipes', 
+                                                       'Recipes');
         response.status(processedResponse.status)
                 .json(processedResponse.json);
         return;

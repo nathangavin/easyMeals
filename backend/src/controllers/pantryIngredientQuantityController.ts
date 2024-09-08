@@ -6,6 +6,7 @@ import { INTERNAL_SERVER_ERROR_MSG,
         RECORD_MISSING_MSG } from "../utils/messages";
 import { handleCreateResponse,
         handleGetResponse, 
+        handleGetAllResponse,
         handleUpdateDeleteResponse } from "../utils/controllerUtils";
 import IngredientQuantityModel from "../models/ingredientQuantityModel";
 import PantryModel from "../models/pantryModel";
@@ -74,6 +75,25 @@ export async function getPantryIngredientQuantity(request: Request,
         const processedResponse = handleGetResponse(dbResponse, 
                                                     'pantryIngredientQuantity', 
                                                     'PantryIngredientQuantity');
+        response.status(processedResponse.status)
+                .json(processedResponse.json);
+        return;
+    } catch (err) {
+        console.log(err);
+        response.status(500).json({
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
+        });
+    }
+}
+
+export async function getAllPantryIngredientQuantities(request: Request,
+                                        response: Response): Promise<void> {
+    try {
+        const dbResponse = await PantryIngredientQuantityModel.getAll();
+        const processedResponse = handleGetResponse(dbResponse, 
+                                                    'pantryIngredientQuantities', 
+                                                    'PantryIngredientQuantities');
         response.status(processedResponse.status)
                 .json(processedResponse.json);
         return;

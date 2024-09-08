@@ -1,8 +1,13 @@
 import bcrypt from 'bcrypt';
 import { connectDatabase, 
+    createReturn, 
+    getAllReturn,
+        getReturn,
         handleCreateRequest, 
+        handleGetAllRequest, 
         handleGetRequest, 
-        handleUpdateRequest} from '../utils/databaseConnection';
+        handleUpdateRequest,
+        updateDeleteReturn} from '../utils/databaseConnection';
 import { StatusType, Status } from '../utils/statusTypes';
 import SessionModel from './sessionModel';
 import { INTERNAL_SERVER_ERROR_MSG, 
@@ -24,8 +29,7 @@ class UserModel {
     
     static genericErrorMessage = UNKNOWN_MODEL_ERROR_MSG('User');
 
-    static async create(newUser: User, password: string): 
-                Promise<Status<StatusType, number | undefined>> {
+    static async create(newUser: User, password: string): Promise<createReturn> {
 
         const createdTime = Date.now();
         const modifiedTime = createdTime;
@@ -41,14 +45,18 @@ class UserModel {
                                   'User');
     }
 
-    static async get(id: number): 
-            Promise<Status<StatusType, User | undefined>> {
+    static async get(id: number): Promise<getReturn<User>> {
         return handleGetRequest<User>(id,
                                      'Users',
                                      'User');
     }
 
-    static async getByEmail(email: string) : Promise<Status<StatusType, User | undefined>> {
+    static async getAll() : Promise<getAllReturn<User>> {
+        return handleGetAllRequest<User>('Users', 
+                                               'User');
+    }
+
+    static async getByEmail(email: string) : Promise<getReturn<User>> {
         const connection = await connectDatabase();
         try {
             const query = `SELECT * FROM Users WHERE email = '${email}';`;
@@ -87,7 +95,7 @@ class UserModel {
         return (userResult.status == StatusType.Success);
     }
     
-    static async login(email: string, password: string) : Promise<Status<StatusType, number | undefined>> {
+    static async login(email: string, password: string) : Promise<createReturn> {
         const connection = await connectDatabase();
         try {
             
@@ -144,7 +152,7 @@ class UserModel {
         }
     }
 
-    static async update(id: number, user: User) : Promise<Status<StatusType, string | undefined >> {
+    static async update(id: number, user: User) : Promise<updateDeleteReturn> {
         return handleUpdateRequest<User>(this.get,
                                            'Users',
                                            'User',

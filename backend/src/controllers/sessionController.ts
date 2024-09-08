@@ -135,6 +135,11 @@ export async function getSession(request: Request,
     }
 }
 
+export async function getAllSessions(request: Request,
+                                    response: Response) : Promise<void> {
+    response.status(405).json();
+}
+
 export async function updateSession(request: Request, 
                                     response: Response) : Promise<void> {
     response.status(405).json();

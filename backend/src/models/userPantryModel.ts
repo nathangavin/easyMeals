@@ -1,7 +1,11 @@
-import { handleCreateRequest,
+import { createReturn, 
+        getReturn, 
+        getAllReturn,
+        handleCreateRequest,
         handleDeleteRequest,
+        handleGetAllRequest,
         handleGetRequest,
-        handleUpdateRequest} from '../utils/databaseConnection';
+        updateDeleteReturn} from '../utils/databaseConnection';
 import { INTERNAL_SERVER_ERROR_MSG } from '../utils/messages';
 import { StatusType, Status } from '../utils/statusTypes';
 
@@ -17,7 +21,7 @@ class UserPantryModel {
     
     static async create(userID: number, 
                         pantryID: number): 
-                Promise<Status<StatusType, number | undefined>> {
+                Promise<createReturn> {
 
         const createdTime = Date.now();
         const modifiedTime = createdTime;
@@ -33,21 +37,23 @@ class UserPantryModel {
     }
 
     static async get(id: number): 
-                Promise<Status<StatusType, UserPantry | undefined>> {
+                Promise<getReturn<UserPantry>> {
         return handleGetRequest<UserPantry>(id, 'UserPantries', 'UserPantry');
     }
 
-    static async update(id: number) :
-                Promise<Status<StatusType, string | undefined>> {
-        
+    static async getAll() : Promise<getAllReturn<UserPantry>> {
+        return handleGetAllRequest<UserPantry>('UserPantries', 
+                                               'UserPantry');
+    }
+
+    static async update(id: number) : Promise<updateDeleteReturn> {
         return {
             status: StatusType.Failure,
             message: INTERNAL_SERVER_ERROR_MSG
         };
     }
 
-    static async delete(id: number) : 
-                Promise<Status<StatusType, string | undefined>> {
+    static async delete(id: number) : Promise<updateDeleteReturn> {
         return handleDeleteRequest<UserPantry>(this.get, 'UserPantries', 'UserPantry', id);
     }
 

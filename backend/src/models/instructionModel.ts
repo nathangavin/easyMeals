@@ -1,7 +1,9 @@
 import { createReturn, 
         getReturn, 
+        getAllReturn,
         handleCreateRequest,
         handleDeleteRequest,
+        handleGetAllRequest,
         handleGetRequest,
         handleUpdateRequest,
         updateDeleteReturn} from '../utils/databaseConnection';
@@ -35,6 +37,11 @@ class InstructionModel {
     static async get(id: number): 
             Promise<getReturn<Instruction>> {
         return handleGetRequest(id, 'Instructions', 'Instruction');
+    }
+
+    static async getAll() : Promise<getAllReturn<Instruction>> {
+        return handleGetAllRequest<Instruction>('Instructions', 
+                                               'Instruction');
     }
     
     static async exists(id: number) : Promise<boolean> {

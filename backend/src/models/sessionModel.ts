@@ -1,7 +1,15 @@
 import { ResultSetHeader } from 'mysql2';
 import { connectDatabase, 
+        createReturn, 
         generateCreateSQLStatement, 
-        generateGetSQLStatement } from '../utils/databaseConnection';
+        generateGetSQLStatement, 
+        getAllReturn, 
+        getReturn, 
+        handleCreateRequest,
+        handleDeleteRequest,
+        handleGetAllRequest,
+        handleGetRequest,
+        updateDeleteReturn} from '../utils/databaseConnection';
 import { StatusType, Status } from '../utils/statusTypes';
 import { RECORD_DELETED_MSG, 
         RECORD_MISSING_MSG,
@@ -22,69 +30,30 @@ class SessionModel {
     
     private static genericErrorMessage = UNKNOWN_MODEL_ERROR_MSG('Session');
 
-    static async create(userID: number, expiryTime: number): 
-                Promise<Status<StatusType, number | undefined>> {
+    static async create(UserID: number, expiryTime: number): Promise<createReturn> {
         
-        const connection = await connectDatabase();
         const createdTime = Date.now();
         const modifiedTime = createdTime;
-        const columnData = [
-            ['createdTime', createdTime],
-            ['modifiedTime', modifiedTime],
-            ['token', SessionModel.generateSessionToken()],
-            ['expiryTime', expiryTime],
-            ['UserID', userID]
-        ];
-        try {
-            const query = generateCreateSQLStatement('Sessions', columnData);
-            const [result] = await connection.execute<ResultSetHeader>(query);
-            return {
-                status: StatusType.Success,
-                value: result.insertId
-            };
-        } catch (error) {
-            return {
-                status: StatusType.Failure,
-                message: SessionModel.errorMessage(error) 
-            };
-        } finally {
-            await connection.end();
-        }
+        const session = {
+            createdTime,
+            modifiedTime,
+            expiryTime,
+            UserID,
+            token: this.generateSessionToken()
+        } as Session;
+
+        return handleCreateRequest(session, 'Sessions', 'Session');
     }
 
-    static async get(id: number): 
-            Promise<Status<StatusType, Session | undefined>> {
-
-        const connection = await connectDatabase();
-        try {
-            const query = generateGetSQLStatement('Sessions', id);
-            const [result] = await connection.execute(query);
-            if (result instanceof Array) {
-                return result.length > 0 ? {
-                        status: StatusType.Success,
-                        value: result[0] as Session 
-                    } : {
-                        status: StatusType.Missing,
-                        message: RECORD_MISSING_MSG('Session', id.toString())
-                    };
-            } else {
-                return {
-                    status: StatusType.Missing,
-                    message: RECORD_MISSING_MSG('Session', id.toString())
-                };
-            }
-        } catch (error) {
-            return {
-                status: StatusType.Failure,
-                message: SessionModel.errorMessage(error)
-            }
-        } finally {
-            await connection.end();
-        }
+    static async get(id: number): Promise<getReturn<Session>> {
+        return handleGetRequest(id, 'Sessions', 'Session');
     }
 
-    static async getByToken(sessionToken: string): 
-        Promise<Status<StatusType, Session | undefined>> {
+    static async getAll() : Promise<getAllReturn<Session>> {
+        return handleGetAllRequest('Sessions', 'Session');
+    }
+
+    static async getByToken(sessionToken: string): Promise<getReturn<Session>> {
             
         const connection = await connectDatabase();
         try {
@@ -115,7 +84,7 @@ class SessionModel {
     }
 
     static async delete(sessionToken: string):
-            Promise<Status<StatusType, string | undefined>> {
+            Promise<updateDeleteReturn> {
     
         const connection = await connectDatabase();
         try {

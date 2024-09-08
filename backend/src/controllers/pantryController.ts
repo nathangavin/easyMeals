@@ -2,10 +2,11 @@ import { Request, Response } from "express";
 import joi from "joi";
 import PantryModel, {Pantry } from "../models/pantryModel";
 import { INTERNAL_SERVER_ERROR_MSG, 
-        INVALID_PARAM_MSG, 
-        RECORD_CREATED_SUCCESSFULLY_MSG, 
-        UNREACHABLE_CODE_UNKNOWN_STATUS_MSG } from "../utils/messages";
-import { handleCreateResponse, handleGetResponse, handleUpdateDeleteResponse } from "../utils/controllerUtils";
+        INVALID_PARAM_MSG } from "../utils/messages";
+import { handleCreateResponse, 
+        handleGetResponse, 
+        handleGetAllResponse,
+        handleUpdateDeleteResponse } from "../utils/controllerUtils";
 
 export async function createPantry(request: Request, 
                                  response: Response): Promise<void> {
@@ -49,6 +50,25 @@ export async function getPantry(request: Request,
         } 
         const dbResponse = await PantryModel.get(id);
         const processedResponse = handleGetResponse(dbResponse,'pantry', 'Pantry');
+        response.status(processedResponse.status)
+                .json(processedResponse.json);
+        return;
+    } catch (err) {
+        console.log(err);
+        response.status(500).json({
+            error: INTERNAL_SERVER_ERROR_MSG,
+            message: err
+        });
+    }
+}
+
+export async function getAllPantries(request: Request,
+                                response: Response): Promise<void> {
+    try {
+        const dbResponse = await PantryModel.getAll();
+        const processedResponse = handleGetAllResponse(dbResponse,
+                                                       'pantries', 
+                                                       'Pantries');
         response.status(processedResponse.status)
                 .json(processedResponse.json);
         return;

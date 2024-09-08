@@ -177,13 +177,13 @@ export async function handleGetAllRequest<T>(tableName: string,
             } else {
                 return {
                     status: StatusType.Missing,
-                    message: RECORD_MISSING_MSG(tableMessageName, 'Users')
+                    message: RECORD_MISSING_MSG(tableMessageName, tableName)
                 };
             }
         } else {
             return {
                 status: StatusType.Missing,
-                message: RECORD_MISSING_MSG(tableMessageName, 'Users')
+                message: RECORD_MISSING_MSG(tableMessageName, tableName)
             };
         }
     } catch (err) {

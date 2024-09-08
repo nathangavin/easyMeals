@@ -1,7 +1,14 @@
-import { ResultSetHeader } from 'mysql2';
-import { connectDatabase, createReturn, generateCreateSQLStatement, generateGetSQLStatement, getReturn, handleCreateRequest, handleDeleteRequest, handleGetRequest, handleUpdateRequest, updateDeleteReturn } from '../utils/databaseConnection';
-import { StatusType, Status } from '../utils/statusTypes';
-import { RECORD_MISSING_MSG, UNKNOWN_MODEL_ERROR_MSG } from '../utils/messages';
+import { createReturn, 
+    getReturn, 
+    getAllReturn,
+    handleCreateRequest, 
+    handleDeleteRequest, 
+    handleGetAllRequest, 
+    handleGetRequest, 
+    handleUpdateRequest, 
+    updateDeleteReturn } from '../utils/databaseConnection';
+import { StatusType } from '../utils/statusTypes';
+import { UNKNOWN_MODEL_ERROR_MSG } from '../utils/messages';
 
 export interface Pantry {
     ID: number,
@@ -31,6 +38,11 @@ class PantryModel {
             Promise<getReturn<Pantry>> {
 
         return handleGetRequest<Pantry>(id, 'Pantries', 'Pantry');
+    }
+    
+    static async getAll() : Promise<getAllReturn<Pantry>> {
+        return handleGetAllRequest<Pantry>('Pantries', 
+                                               'Pantry');
     }
 
     static async exists(id: number) : Promise<boolean> {

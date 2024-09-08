@@ -1,8 +1,12 @@
-import { handleCreateRequest,
+import { createReturn, 
+        getReturn,
+        getAllReturn,
+        handleCreateRequest,
         handleDeleteRequest,
+        handleGetAllRequest,
         handleGetRequest,
-        handleUpdateRequest} from '../utils/databaseConnection';
-import { StatusType, Status } from '../utils/statusTypes';
+        handleUpdateRequest,
+        updateDeleteReturn} from '../utils/databaseConnection';
 
 export interface UserRecipe {
     ID: number,
@@ -17,8 +21,7 @@ class UserRecipeModel {
     
     static async create(userID: number, 
                         recipeID: number, 
-                        rating: number): 
-                Promise<Status<StatusType, number | undefined>> {
+                        rating: number): Promise<createReturn> {
 
         const createdTime = Date.now();
         const modifiedTime = createdTime;
@@ -35,22 +38,32 @@ class UserRecipeModel {
     }
 
     static async get(id: number): 
-                Promise<Status<StatusType, UserRecipe | undefined>> {
+                Promise<getReturn<UserRecipe>> {
         return handleGetRequest<UserRecipe>(id, 'UserRecipes', 'UserRecipe');
     }
 
-    static async update(id: number, rating: number) :
-                Promise<Status<StatusType, string | undefined>> {
+    static async getAll() : Promise<getAllReturn<UserRecipe>> {
+        return handleGetAllRequest<UserRecipe>('UserRecipes', 
+                                               'UserRecipe');
+    }
+
+    static async update(id: number, rating: number): Promise<updateDeleteReturn> {
         
         const newUserRecipe = {
             rating
         } as UserRecipe;
-        return handleUpdateRequest<UserRecipe>(this.get, 'UserRecipes', 'UserRecipe', id, newUserRecipe);
+        return handleUpdateRequest<UserRecipe>(this.get, 
+                                               'UserRecipes', 
+                                               'UserRecipe', 
+                                               id, 
+                                               newUserRecipe);
     }
 
-    static async delete(id: number) : 
-                Promise<Status<StatusType, string | undefined>> {
-        return handleDeleteRequest<UserRecipe>(this.get, 'UserRecipes', 'UserRecipe', id);
+    static async delete(id: number) : Promise<updateDeleteReturn> {
+        return handleDeleteRequest<UserRecipe>(this.get, 
+                                               'UserRecipes', 
+                                               'UserRecipe', 
+                                               id);
     }
 
 }
