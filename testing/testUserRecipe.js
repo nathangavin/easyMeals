@@ -6,7 +6,8 @@ import { getRequest,
         handleCreate,
         handleGet,
         handleUpdate,
-        handleDelete} from "./utils.js";
+        handleDelete,
+        handleGetAll} from "./utils.js";
 import { setupTestUser } from "./testUser.js";
 import { testCreateRecipe } from "./testRecipe.js";
 
@@ -25,6 +26,11 @@ export async function testCreateUserRecipe(userID, recipeID) {
 export async function testGetUserRecipe(id) {
     console.log('testing Get UserRecipe');
     return await getRequest(userRecipeRoute + id);
+}
+
+export async function testGetAllUserRecipe() {
+    console.log('testing Get All UserRecipe');
+    return getRequest(userRecipeRoute);
 }
 
 export async function testUpdateUserRecipe(id, session) {
@@ -60,6 +66,10 @@ export function handleTestGetUserRecipe(res) {
     handleGet(res, 'userRecipe', isUserRecipe);
 }
 
+export function handleTestGetAllUserRecipe(res) {
+    handleGetAll(res, 'userRecipes', isUserRecipe);
+}
+
 export function handleTestUpdateUserRecipe(res) {
     handleUpdate(res, 'userRecipe');
 }
@@ -91,5 +101,32 @@ export async function userRecipeCreateTest() {
                                                 resCreateUserRecipe.data.id, 
                                                 resSetupUser.session);
     handleTestDeleteUserRecipe(resDeleteUserRecipe);
+    const resCreateUserRecipe1 = await testCreateUserRecipe(resSetupUser.id, 
+                                                    resCreateRecipe.data.id);
+    const resCreateUserRecipe2 = await testCreateUserRecipe(resSetupUser.id, 
+                                                    resCreateRecipe.data.id);
+    const resCreateUserRecipe3 = await testCreateUserRecipe(resSetupUser.id, 
+                                                    resCreateRecipe.data.id);
+    const resCreateUserRecipe4 = await testCreateUserRecipe(resSetupUser.id, 
+                                                    resCreateRecipe.data.id);
+    const resCreateUserRecipe5 = await testCreateUserRecipe(resSetupUser.id, 
+                                                    resCreateRecipe.data.id);
+    const resGetAllUserRecipe = await testGetAllUserRecipe();
+    handleTestGetAllUserRecipe(resGetAllUserRecipe);
+    const resUpdateUserRecipe1 = await testUpdateUserRecipe(
+                                                resCreateUserRecipe1.data.id, 
+                                                resSetupUser.session);
+    const resUpdateUserRecipe2 = await testUpdateUserRecipe(
+                                                resCreateUserRecipe2.data.id, 
+                                                resSetupUser.session);
+    const resUpdateUserRecipe3 = await testUpdateUserRecipe(
+                                                resCreateUserRecipe3.data.id, 
+                                                resSetupUser.session);
+    const resUpdateUserRecipe4 = await testUpdateUserRecipe(
+                                                resCreateUserRecipe4.data.id, 
+                                                resSetupUser.session);
+    const resUpdateUserRecipe5 = await testUpdateUserRecipe(
+                                                resCreateUserRecipe5.data.id, 
+                                                resSetupUser.session);
     console.log("Ending UserRecipe Create Test");
 }

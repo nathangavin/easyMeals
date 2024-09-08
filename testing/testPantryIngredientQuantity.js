@@ -7,7 +7,8 @@ import {
     LOCALHOST, 
     patchRequest, 
     postRequest, 
-    handleUpdate405} from "./utils.js";
+    handleUpdate405,
+    handleGetAll} from "./utils.js";
 import { testCreateUnit } from "./testUnit.js";
 import { testCreateIngredient } from "./testIngredient.js";
 import { testCreatePantry } from "./testPantry.js";
@@ -26,6 +27,11 @@ export async function testCreatePantryIngredientQuantity(quantityID, pantryID) {
 export async function testGetPantryIngredientQuantity(id) {
     console.log("testing Get PantryIngredientQuantity");
     return await getRequest(pantryIngredientQuantityRoute + id);
+}
+
+export async function testGetAllPantryIngredientQuantity() {
+    console.log("testing Get All PantryIngredientQuantity");
+    return await getRequest(pantryIngredientQuantityRoute);
 }
 
 export async function testUpdatePantryIngredientQuantity(id) {
@@ -60,6 +66,10 @@ export function handleTestGetPantryIngredientQuantity(res) {
     handleGet(res, 'pantryIngredientQuantity', isPantryIngredientQuantity);
 }
 
+export function handleTestGetAllPantryIngredientQuantity(res) {
+    handleGetAll(res, 'pantryIngredientQuantities', isPantryIngredientQuantity);
+}
+
 export function handleTestUpdatePantryIngredientQuantity(res) {
     handleUpdate405(res, 'PantryIngredientQuantity');
 }
@@ -90,5 +100,32 @@ export async function pantryIngredientQuantityCreateTest() {
                         await testDeletePantryIngredientQuantity(
                                     resCreatePantryIngredientQuantity.data.id);
     handleTestDeletePantryIngredientQuantity(resDeletePantryIngredientQuantity);
+
+    const resCreatePantryIngredientQuantity1 = await testCreatePantryIngredientQuantity(
+                                        resCreateIngredientQuantity.data.id, 
+                                        resCreatePantry.data.id);
+    const resCreatePantryIngredientQuantity2 = await testCreatePantryIngredientQuantity(
+                                        resCreateIngredientQuantity.data.id, 
+                                        resCreatePantry.data.id);
+    const resCreatePantryIngredientQuantity3 = await testCreatePantryIngredientQuantity(
+                                        resCreateIngredientQuantity.data.id, 
+                                        resCreatePantry.data.id);
+    const resCreatePantryIngredientQuantity4 = await testCreatePantryIngredientQuantity(
+                                        resCreateIngredientQuantity.data.id, 
+                                        resCreatePantry.data.id);
+    const resCreatePantryIngredientQuantity5 = await testCreatePantryIngredientQuantity(
+                                        resCreateIngredientQuantity.data.id, 
+                                        resCreatePantry.data.id);
+
+    const resGetAllPantryIngredientQuantity =
+                        await testGetAllPantryIngredientQuantity();
+    handleTestGetAllPantryIngredientQuantity(resGetAllPantryIngredientQuantity);
+
+    await testDeletePantryIngredientQuantity(resCreatePantryIngredientQuantity1.data.id);
+    await testDeletePantryIngredientQuantity(resCreatePantryIngredientQuantity2.data.id);
+    await testDeletePantryIngredientQuantity(resCreatePantryIngredientQuantity3.data.id);
+    await testDeletePantryIngredientQuantity(resCreatePantryIngredientQuantity4.data.id);
+    await testDeletePantryIngredientQuantity(resCreatePantryIngredientQuantity5.data.id);
+
     console.log("Ending PantryIngredientQuantity Create Test");
 }

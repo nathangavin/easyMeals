@@ -4,7 +4,9 @@ import { LOCALHOST,
         handleGet, 
         handleUpdate,
         postRequest, 
-        patchRequest } from './utils.js';
+        patchRequest, 
+        handleGetAll405,
+        handleGetAll} from './utils.js';
 import { handleTestCreateSession, 
     testCreateSession,
     handleTestGetSession,
@@ -32,6 +34,12 @@ export async function testCreateUser(userDetails) {
 export async function testGetUser(id) {
     console.log("testing Get User");
     return await getRequest(userRoute + id);
+}
+
+export async function testGetAllUser() {
+    console.log('testing Get All User');
+    return getRequest(userRoute);
+
 }
 
 export async function testUpdateUser(id, sessionToken) {
@@ -78,6 +86,10 @@ export function handleTestGetUser(res) {
     handleGet(res, 'user', isUser);
 }
 
+export function handleTestGetAllUser(res) {
+    handleGetAll(res, 'users', isUser);
+}
+
 export function handleTestUpdateUser(res) {
     handleUpdate(res, 'recipe');
 }
@@ -110,5 +122,7 @@ export async function userLoginTest() {
     handleTestUpdateUser(resUpdateUser);
     const resDeleteSession = await testDeleteSession(resCreateSession.data.session);
     handleTestDeleteSession(resDeleteSession);
+    const resGetAllUser = await testGetAllUser();
+    handleTestGetAllUser(resGetAllUser);
     console.log('Ending User Login Test');
 }

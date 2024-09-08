@@ -8,7 +8,8 @@ import {
     LOCALHOST, 
     patchRequest, 
     postRequest, 
-    handleUpdate405} from "./utils.js";
+    handleUpdate405,
+    handleGetAll} from "./utils.js";
 import { testCreateUnit } from "./testUnit.js";
 import { testCreateIngredient } from "./testIngredient.js";
 import { testCreateInstruction } from "./testInstruction.js";
@@ -27,6 +28,11 @@ export async function testCreateInstructionIngredientQuantity(quantityID, instru
 export async function testGetInstructionIngredientQuantity(id) {
     console.log("testing Get InstructionIngredientQuantity");
     return await getRequest(instructionIngredientQuantityRoute + id);
+}
+
+export async function testGetAllInstructionIngredientQuantity() {
+    console.log("testing Get All InstructionIngredientQuantity");
+    return await getRequest(instructionIngredientQuantityRoute);
 }
 
 export async function testUpdateInstructionIngredientQuantity(id) {
@@ -61,6 +67,10 @@ export function handleTestGetInstructionIngredientQuantity(res) {
     handleGet(res, 'instructionIngredientQuantity', isInstructionIngredientQuantity);
 }
 
+export function handleTestGetAllInstructionIngredientQuantity(res) {
+    handleGetAll(res, 'instructionIngredientQuantities', isInstructionIngredientQuantity);
+}
+
 export function handleTestUpdateInstructionIngredientQuantity(res) {
     handleUpdate405(res, 'InstructionIngredientQuantity');
 }
@@ -91,5 +101,32 @@ export async function instructionIngredientQuantityCreateTest() {
                         await testDeleteInstructionIngredientQuantity(
                                     resCreateInstructionIngredientQuantity.data.id);
     handleTestDeleteInstructionIngredientQuantity(resDeleteInstructionIngredientQuantity);
+
+    const resCreateInstructionIngredientQuantity1 = await testCreateInstructionIngredientQuantity(
+                                        resCreateIngredientQuantity.data.id, 
+                                        resCreateInstruction.data.id);
+    const resCreateInstructionIngredientQuantity2 = await testCreateInstructionIngredientQuantity(
+                                        resCreateIngredientQuantity.data.id, 
+                                        resCreateInstruction.data.id);
+    const resCreateInstructionIngredientQuantity3 = await testCreateInstructionIngredientQuantity(
+                                        resCreateIngredientQuantity.data.id, 
+                                        resCreateInstruction.data.id);
+    const resCreateInstructionIngredientQuantity4 = await testCreateInstructionIngredientQuantity(
+                                        resCreateIngredientQuantity.data.id, 
+                                        resCreateInstruction.data.id);
+    const resCreateInstructionIngredientQuantity5 = await testCreateInstructionIngredientQuantity(
+                                        resCreateIngredientQuantity.data.id, 
+                                        resCreateInstruction.data.id);
+
+    const resGetAllInstructionIngredientQuantity = 
+                        await testGetAllInstructionIngredientQuantity();
+    handleTestGetAllInstructionIngredientQuantity(resGetAllInstructionIngredientQuantity);
+
+    await testDeleteInstructionIngredientQuantity(resCreateInstructionIngredientQuantity1.data.id);
+    await testDeleteInstructionIngredientQuantity(resCreateInstructionIngredientQuantity2.data.id);
+    await testDeleteInstructionIngredientQuantity(resCreateInstructionIngredientQuantity3.data.id);
+    await testDeleteInstructionIngredientQuantity(resCreateInstructionIngredientQuantity4.data.id);
+    await testDeleteInstructionIngredientQuantity(resCreateInstructionIngredientQuantity5.data.id);
+
     console.log("Ending InstructionIngredientQuantity Create Test");
 }

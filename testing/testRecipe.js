@@ -4,6 +4,7 @@ import {
     handleCreate, 
     handleDelete, 
     handleGet, 
+    handleGetAll, 
     handleUpdate, 
     LOCALHOST, 
     patchRequest, 
@@ -21,8 +22,13 @@ export async function testCreateRecipe() {
 
 export async function testGetRecipe(id) {
     console.log('testing Get Recipe');
-    return await getRequest(recipeRoute + id);
+    return getRequest(recipeRoute + id);
 
+}
+
+export async function testGetAllRecipe() {
+    console.log('testing Get All Recipe');
+    return getRequest(recipeRoute);
 }
 
 export async function testUpdateRecipe(id) {
@@ -55,6 +61,10 @@ function isRecipe(r) {
 
 export function handleTestGetRecipe(res) {
     handleGet(res, 'recipe', isRecipe);
+} 
+
+export function handleTestGetAllRecipe(res) {
+    handleGetAll(res, 'recipes', isRecipe);
 }
 
 export function handleTestUpdateRecipe(res) {
@@ -85,6 +95,8 @@ export async function recipeCreateTest() {
     handleTestUpdateRecipe(resUpdateRecipe);
     const resDeleteRecipe = await testDeleteRecipe(resCreateRecipe.data.id);
     handleTestDeleteRecipe(resDeleteRecipe);
+    const resGetAllRecipe = await testGetAllRecipe();
+    handleTestGetAllRecipe(resGetAllRecipe);
     console.log("Ending Recipe Create Test");
 
 }

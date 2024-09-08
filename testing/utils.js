@@ -103,11 +103,19 @@ export function handleGet(res, tablename, isObjectFunction) {
 
 export function handleGetAll(res, tablename, isObjectFunction) {
     assertResponseStatus(tablename, 'GET', 200, res.status);
-    for (const val of res.data[tablename]) {
-        console.assert(isObjectFunction(val),
-                "%s Get All: returned object is incorrect format %o",
-                tablename, val);
+    console.assert(res.data[tablename],
+                    "no results returned");
+    if (res.data[tablename]) {
+        for (const val of res.data[tablename]) {
+            console.assert(isObjectFunction(val),
+                    "%s Get All: returned object is incorrect format %o",
+                    tablename, val);
+        }
     }
+}
+
+export function handleGetAll405(res, tablename) {
+    assertResponseStatus(tablename, "GETALL", 405, res.status);
 }
 
 export function handleUpdate(res, tablename) {

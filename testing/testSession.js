@@ -3,6 +3,7 @@ import { LOCALHOST,
     getRequest, 
     handleDelete, 
     handleGet, 
+    handleGetAll405, 
     handleUpdate405, 
     patchRequest, 
     postRequest } from './utils.js';
@@ -20,6 +21,11 @@ export async function testCreateSession(email, password) {
 export async function testGetSession(id) {
     console.log('testing Get Session');
     return await getRequest(sessionRoute + id);
+}
+
+export async function testGetAllSession() {
+    console.log('testing Get All Session');
+    return getRequest(sessionRoute);
 }
 
 export async function testUpdateSession(session) {
@@ -54,6 +60,10 @@ function isSession(s) {
 
 export function handleTestGetSession(res) {
     handleGet(res, 'session', isSession);
+}
+
+export function handleTestGetAllSession(res) {
+    handleGetAll405(res, 'sessions');
 }
 
 export function handleTestUpdateSession(res) {
