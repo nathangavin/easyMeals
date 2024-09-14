@@ -1,7 +1,6 @@
-import express, { Router } from 'express';
+import express from 'express';
 import helmet from "helmet";
 import morgan from "morgan";
-import mysql, { Connection, ResultSetHeader } from 'mysql2/promise';
 
 import unitRoutes from './routes/unitRoutes';
 import pantryRoutes from './routes/pantryRoutes';
@@ -15,7 +14,7 @@ import ingredientQuantityRoutes from './routes/ingredientQuantityRoutes';
 import instructionIngredientQuantityRoutes from './routes/instructionIngredientQuantityRoutes';
 import userPantryRoutes from './routes/userPantryRoutes';
 import pantryIngredientQuantityRoutes from './routes/pantryIngredientQuantityRoutes';
-import { connectDatabase } from './utils/databaseConnection';
+import healthRoutes from './routes/healthRoutes';
 
 console.log(process.argv[2] == "--test");
 
@@ -38,6 +37,7 @@ app.use('/api/ingredientQuantities', ingredientQuantityRoutes);
 app.use('/api/instructionIngredientQuantities', instructionIngredientQuantityRoutes);
 app.use('/api/userpantries', userPantryRoutes);
 app.use('/api/pantryIngredientQuantities', pantryIngredientQuantityRoutes);
+app.use('/health', healthRoutes);
 
 const PORT = process.env.PORT ? 
                 parseInt(process.env.PORT) ?? 3000 
