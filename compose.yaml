@@ -29,7 +29,7 @@ services:
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_USER_PASSWORD}
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "--silent"]
+      test: ["CMD", "mysqladmin", "ping", "-u", "minimal_user", -pminimal_password]
       interval: 30s
       retries: 3
       start_period: 30s

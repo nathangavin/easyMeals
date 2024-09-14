@@ -1,3 +1,7 @@
+CREATE USER 'minimal_user'@'%' IDENTIFIED BY 'minimal_password';
+GRANT PROCESS ON *.* TO 'minimal_user'@'%'; 
+FLUSH PRIVILEGES;
+
 CREATE DATABASE IF NOT EXISTS easyMeals;
 USE easyMeals;
 

@@ -22,9 +22,15 @@ docker compose build
 # start network in detached mode
 docker compose up -d
 
-echo "Waiting for services to be healthy..."
-docker compose exec -T db sh -c "until mysqladmin ping -h localhost --slient; do sleep 1; done"
-docker compose exec -T backend sh -c "until curl -f http://localhost:3000/health; do sleep 1; done"
+docker container ls -a
+
+echo "Waiting for services to be healthy (replace with better check)..."
+#docker compose exec -T db sh -c "until mysqladmin ping -u admin -padmin; do sleep 1; done"
+#docker compose exec -T backend sh -c "until curl -f http://localhost:3000/health; do sleep 1; done"
+
+sleep 20
+
+docker container ls -a
 
 # run test suite
 cd ./testing 
