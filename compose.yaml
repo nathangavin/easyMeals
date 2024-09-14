@@ -1,0 +1,22 @@
+services:
+  backend:
+    build: ./backend
+    ports: 
+      - '3000:3000'
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_NAME=${MYSQL_DATABASE}
+      - DB_USER=${MYSQL_USER}
+      - DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    depends_on:
+      - db
+
+  db:
+    build: ./db
+    ports: 
+      - '3306:3306'
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+

@@ -2,11 +2,11 @@
 FROM mysql:latest
 
 # Set the root password for MySQL
-ENV MYSQL_ROOT_PASSWORD=root_password
+#ENV MYSQL_ROOT_PASSWORD=root_password
 
-ENV MYSQl_DATABASE=easyMeals
-ENV MYSQL_USER=admin
-ENV MYSQL_PASSWORD=admin
+#ENV MYSQl_DATABASE=easyMeals
+#ENV MYSQL_USER=admin
+#ENV MYSQL_PASSWORD=admin
 
 COPY init.sql /docker-entrypoint-initdb.d/
 
