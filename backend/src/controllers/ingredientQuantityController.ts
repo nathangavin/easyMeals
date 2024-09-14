@@ -82,7 +82,6 @@ export async function getAllIngredientQuantities(request: Request,
     try {
         // get objects from db
         const dbResponse = await IngredientQuantityModel.getAll();
-        console.log(dbResponse);
         const processedResponse = handleGetAllResponse(dbResponse,
                                                    'ingredientQuantities',
                                                    'IngredientQuantity');

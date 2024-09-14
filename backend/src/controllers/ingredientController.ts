@@ -80,7 +80,6 @@ export async function getAllIngredients(request: Request,
     try {
         // get objects from db
         const dbResponse = await IngredientModel.getAll();
-        console.log(dbResponse);
         const processedResponse = handleGetAllResponse(dbResponse,
                                                    'ingredients',
                                                    'Ingredient');

@@ -67,7 +67,6 @@ export async function getAllUnits(request: Request,
     try {
         // get objects from db
         const dbResponse = await UnitModel.getAll();
-        console.log(dbResponse);
         const processedResponse = handleGetAllResponse(dbResponse,
                                                    'units',
                                                    'Unit');

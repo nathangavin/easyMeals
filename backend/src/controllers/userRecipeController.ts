@@ -114,7 +114,6 @@ export async function getAllUserRecipes(request: Request,
                                  response: Response): Promise<void> {
     try {
         const dbResponse = await UserRecipeModel.getAll();
-        console.log(dbResponse);
         const processedResponse = handleGetAllResponse(dbResponse,
                                                    'userRecipes',
                                                    'UserRecipes');
