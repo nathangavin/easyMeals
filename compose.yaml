@@ -7,11 +7,18 @@ services:
       - DB_HOST=db
       - DB_PORT=3306
       - DB_NAME=${MYSQL_DATABASE}
-      - DB_USER=${MYSQL_USER}
+      - DB_USER=${MYSQL_ROOT_USER}
       - DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
     depends_on:
-      - db
-
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      retries: 3
+      start_period: 30s
+      timeout: 10s
+          
   db:
     build: ./db
     ports: 
@@ -19,4 +26,12 @@ services:
     environment:
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_USER_PASSWORD}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "--silent"]
+      interval: 30s
+      retries: 3
+      start_period: 30s
+      timeout: 10s
 
