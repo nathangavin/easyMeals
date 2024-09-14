@@ -1,6 +1,7 @@
-import express from 'express';
+import express, { Router } from 'express';
 import helmet from "helmet";
 import morgan from "morgan";
+import mysql, { Connection, ResultSetHeader } from 'mysql2/promise';
 
 import unitRoutes from './routes/unitRoutes';
 import pantryRoutes from './routes/pantryRoutes';
@@ -14,6 +15,7 @@ import ingredientQuantityRoutes from './routes/ingredientQuantityRoutes';
 import instructionIngredientQuantityRoutes from './routes/instructionIngredientQuantityRoutes';
 import userPantryRoutes from './routes/userPantryRoutes';
 import pantryIngredientQuantityRoutes from './routes/pantryIngredientQuantityRoutes';
+import { connectDatabase } from './utils/databaseConnection';
 
 console.log(process.argv[2] == "--test");
 
@@ -37,7 +39,14 @@ app.use('/api/instructionIngredientQuantities', instructionIngredientQuantityRou
 app.use('/api/userpantries', userPantryRoutes);
 app.use('/api/pantryIngredientQuantities', pantryIngredientQuantityRoutes);
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+const PORT = process.env.PORT ? 
+                parseInt(process.env.PORT) ?? 3000 
+                : 3000;
+app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+
+
+
+

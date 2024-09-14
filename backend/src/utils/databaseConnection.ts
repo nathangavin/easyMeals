@@ -16,13 +16,27 @@ export type getCallback<T> = (id: number) => Promise<getReturn<T>>;
 export type createCallback = () => Promise<createReturn>; 
 export type updateDeleteCallback = (id: number) => Promise<updateDeleteReturn>;
 
+interface mysqlCredentials {
+    host: string,
+    port: number,
+    database: string,
+    user: string,
+    password: string
+};
+
+function processEnvironmentVariables() : mysqlCredentials {
+    const port = process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306;
+    return {
+        host: process.env.DB_HOST || 'db',
+        port: port,
+        database: process.env.DB_NAME || 'easyMeals',
+        user: process.env.DB_USER || 'root',
+        password: process.env.DB_PASSWORD || 'root_password'
+    } as mysqlCredentials;
+}
+
 export async function connectDatabase(): Promise<Connection> {
-    return await mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        password: 'root_password',
-        database: 'easyMeals'
-    });
+    return await mysql.createConnection(processEnvironmentVariables());
 }
 
 export function generateCreateSQLStatement(tableName: string, columnNameValuePairs: (String | number | boolean)[][]): string {
@@ -169,7 +183,6 @@ export async function handleGetAllRequest<T>(tableName: string,
         const [result] = await connection.execute(query);
         if (result instanceof Array) {
             if (result.length > 0) {
-                console.log(result);
                 return {
                     status: StatusType.Success,
                     value: result.map(r => r as T)
