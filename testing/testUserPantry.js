@@ -9,7 +9,7 @@ import { getRequest,
         handleUpdate405,
         handleGetAll} from "./utils.js";
 import { setupTestUser } from "./testUser.js";
-import { testCreatePantry } from "./testPantry.js";
+import { testCreatePantry, testDeletePantry } from "./testPantry.js";
 
 // ============== Utils =================
 
@@ -103,6 +103,20 @@ export function handleTestDeleteUserPantry(res) {
 
 // ========== Summary function ==============
 
+async function setupTestConditions() {
+    const resSetupUser = await setupTestUser();
+    const resCreatePantry = await testCreatePantry('testPantry');
+    
+    return {
+        user: resSetupUser,
+        pantryID: resCreatePantry.data.id
+    };
+}
+
+async function cleanUpTestConditions(setup) {
+    await testDeletePantry(setup.pantryID);
+}
+
 export async function userPantryCreateTest() {
     /*
     * ==================
@@ -111,10 +125,9 @@ export async function userPantryCreateTest() {
     * userPantry is linked to user and recipe.
     */
     console.log("Starting UserPantry Create Test");
-    const resSetupUser = await setupTestUser();
-    const resCreatePantry = await testCreatePantry('testPantry');
-    const resCreateUserPantry = await testCreateUserPantry(resSetupUser.id, 
-                                                    resCreatePantry.data.id);
+    const setup = await setupTestConditions();
+    const resCreateUserPantry = await testCreateUserPantry(setup.user.id, 
+                                                        setup.pantryID);
     handleTestCreateUserPantry(resCreateUserPantry);
     const resGetUserPantry = await testGetUserPantry(resCreateUserPantry.data.id);
     handleTestGetUserPantry(resGetUserPantry);
@@ -123,15 +136,17 @@ export async function userPantryCreateTest() {
     handleTestUpdateUserPantry(resUpdateUserPantry);
     const resDeleteUserPantry = await testDeleteUserPantry(
                                                 resCreateUserPantry.data.id, 
-                                                resSetupUser.session);
+                                                setup.user.session);
     handleTestDeleteUserPantry(resDeleteUserPantry);
 
-    const getAllIds = await setupForGetAll(resSetupUser.id, resCreatePantry.data.id);
+    const getAllIds = await setupForGetAll(setup.user.id, setup.pantryID);
 
     const resGetAllUserPantry = await testGetAllUserPantry();
     handleTestGetAllUserPantry(resGetAllUserPantry);
     
     await deleteForGetAll(getAllIds);
+
+    await cleanUpTestConditions(setup);
 
     console.log("Ending UserPantry Create Test");
 }

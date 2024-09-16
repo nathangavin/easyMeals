@@ -9,10 +9,10 @@ import {
     postRequest, 
     handleUpdate405,
     handleGetAll} from "./utils.js";
-import { testCreateUnit } from "./testUnit.js";
-import { testCreateIngredient } from "./testIngredient.js";
-import { testCreatePantry } from "./testPantry.js";
-import { testCreateIngredientQuantity } from "./testIngredientQuantity.js";
+import { testCreateUnit, testDeleteUnit } from "./testUnit.js";
+import { testCreateIngredient, testDeleteIngredient } from "./testIngredient.js";
+import { testCreatePantry, testDeletePantry } from "./testPantry.js";
+import { testCreateIngredientQuantity, testDeleteIngredientQuantity } from "./testIngredientQuantity.js";
 
 // =================== Utils ========================
 
@@ -109,15 +109,33 @@ export function handleTestDeletePantryIngredientQuantity(res) {
 
 // ============== summary function =======================
 
-export async function pantryIngredientQuantityCreateTest() {
-    console.log("Starting PantryIngredientQuantity Create Test");
+async function setupTestConditions() {
     const resCreateUnit = await testCreateUnit('testUnit');
     const resCreateIngredient = await testCreateIngredient('testIngredient', resCreateUnit.data.id);
     const resCreatePantry = await testCreatePantry('testPantry');
     const resCreateIngredientQuantity = await testCreateIngredientQuantity(12, resCreateIngredient.data.id);
+    
+    return {
+        unitID: resCreateUnit.data.id,
+        ingredientID: resCreateIngredient.data.id,
+        pantryID: resCreatePantry.data.id,
+        ingredientQuantityID: resCreateIngredientQuantity.data.id
+    };
+}
+
+async function cleanUpTestConditions(setup) {
+    await testDeleteIngredientQuantity(setup.ingredientQuantityID);
+    await testDeletePantry(setup.pantryID);
+    await testDeleteIngredient(setup.ingredientID);
+    await testDeleteUnit(setup.unitID);
+}
+
+export async function pantryIngredientQuantityCreateTest() {
+    console.log("Starting PantryIngredientQuantity Create Test");
+    const setup = await setupTestConditions();
     const resCreatePantryIngredientQuantity = await testCreatePantryIngredientQuantity(
-                                        resCreateIngredientQuantity.data.id, 
-                                        resCreatePantry.data.id);
+                                        setup.ingredientQuantityID,
+                                        setup.pantryID);
     handleTestCreatePantryIngredientQuantity(resCreatePantryIngredientQuantity);
     const resGetPantryIngredientQuantity = 
                         await testGetPantryIngredientQuantity(
@@ -132,14 +150,15 @@ export async function pantryIngredientQuantityCreateTest() {
                                     resCreatePantryIngredientQuantity.data.id);
     handleTestDeletePantryIngredientQuantity(resDeletePantryIngredientQuantity);
 
-    const getAllIds = await setupForGetAll(resCreateIngredientQuantity.data.id,
-                                        resCreatePantry.data.id);
+    const getAllIds = await setupForGetAll(setup.ingredientQuantityID, setup.pantryID);
 
     const resGetAllPantryIngredientQuantity =
                         await testGetAllPantryIngredientQuantity();
     handleTestGetAllPantryIngredientQuantity(resGetAllPantryIngredientQuantity);
 
     await deleteForGetAll(getAllIds);
+    
+    await cleanUpTestConditions(setup);
 
     console.log("Ending PantryIngredientQuantity Create Test");
 }

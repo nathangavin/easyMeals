@@ -54,6 +54,28 @@ export async function testDeleteRecipe(id) {
     return await deleteRequest(recipeRoute + id);
 }
 
+async function setupForGetAll() {
+    const res1 = await testCreateRecipe();
+    const res2 = await testCreateRecipe();
+    const res3 = await testCreateRecipe();
+    const res4 = await testCreateRecipe();
+    const res5 = await testCreateRecipe();
+
+    return [
+        res1.data.id,
+        res2.data.id,
+        res3.data.id,
+        res4.data.id,
+        res5.data.id,
+    ];
+}
+
+async function deleteForGetAll(ids) {
+    for (const id of ids) {
+        await testDeleteRecipe(id);
+    }
+}
+
 // =============== handle functions ===============
 
 export function handleTestCreateRecipe(res) {
@@ -104,8 +126,11 @@ export async function recipeCreateTest() {
     handleTestUpdateRecipe(resUpdateRecipe);
     const resDeleteRecipe = await testDeleteRecipe(resCreateRecipe.data.id);
     handleTestDeleteRecipe(resDeleteRecipe);
+    
+    const getAllIds = await setupForGetAll();
     const resGetAllRecipe = await testGetAllRecipe();
     handleTestGetAllRecipe(resGetAllRecipe);
+    await deleteForGetAll(getAllIds);
     console.log("Ending Recipe Create Test");
 
 }

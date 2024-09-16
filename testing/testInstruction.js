@@ -51,6 +51,28 @@ export async function testDeleteInstruction(id) {
     return await deleteRequest(instructionRoute + id);
 }
 
+async function setupForGetAll() {
+    const res1 = await testCreateInstruction("testInstruction");
+    const res2 = await testCreateInstruction("testInstruction");
+    const res3 = await testCreateInstruction("testInstruction");
+    const res4 = await testCreateInstruction("testInstruction");
+    const res5 = await testCreateInstruction("testInstruction");
+
+    return [
+        res1.data.id,
+        res2.data.id,
+        res3.data.id,
+        res4.data.id,
+        res5.data.id,
+    ];
+}
+
+async function deleteForGetAll(ids) {
+    for (const id of ids) {
+        await testDeleteInstruction(id);
+    }
+}
+
 // ============ Handle Functions ==================
 
 export function handleTestCreateInstruction(res) {
@@ -90,7 +112,9 @@ export async function instructionCreateTest() {
     handleTestUpdateInstruction(resUpdateInstruction);
     const resDeleteInstruction = await testDeleteInstruction(resCreateInstruction.data.id);
     handleTestDeleteInstruction(resDeleteInstruction);
+    const getAllIds = await setupForGetAll();
     const resGetAllInstructions = await testGetAllInstruction();
     handleTestGetAllInstruction(resGetAllInstructions);
+    await deleteForGetAll(getAllIds);
     console.log("Ending Instruction Create Test");
 }

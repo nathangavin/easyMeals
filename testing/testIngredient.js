@@ -9,7 +9,7 @@ import {
     patchRequest, 
     postRequest, 
     handleGetAll} from "./utils.js";
-import { testCreateUnit } from "./testUnit.js";
+import { testCreateUnit, testDeleteUnit } from "./testUnit.js";
 
 // ========== Utils ============================
 
@@ -54,6 +54,28 @@ export async function testDeleteIngredient(id) {
     return await deleteRequest(ingredientRoute + id);
 }
 
+async function setupForGetAll(unitID) {
+    const res1 = await testCreateIngredient('testAllIngredient', unitID);
+    const res2 = await testCreateIngredient('testAllIngredient', unitID);
+    const res3 = await testCreateIngredient('testAllIngredient', unitID);
+    const res4 = await testCreateIngredient('testAllIngredient', unitID);
+    const res5 = await testCreateIngredient('testAllIngredient', unitID);
+
+    return [
+        res1.data.id,
+        res2.data.id,
+        res3.data.id,
+        res4.data.id,
+        res5.data.id,
+    ];
+}
+
+async function deleteForGetAll(ids) {
+    for (const id of ids) {
+        await testDeleteIngredient(id);
+    }
+}
+
 // ========== handle functions ====================
 
 export function handleTestCreateIngredient(res) {
@@ -84,10 +106,19 @@ export function handleTestDeleteIngredient(res) {
 
 // =============== Summary function =================
 
+async function setupTestConditions() {
+    const resCreateUnit = await testCreateUnit('testUnit');
+    return {unitId: resCreateUnit.data.id};
+}
+
+async function cleanUpTestConditions(setup) {
+    await testDeleteUnit(setup.unitId);
+}
+
 export async function ingredientCreateTest() {
     console.log("Starting Ingredient Create Test");
-    const resCreateUnit = await testCreateUnit('testUnit');
-    const resCreateIngredient = await testCreateIngredient("testIngredient", resCreateUnit.data.id);
+    const setup = await setupTestConditions();
+    const resCreateIngredient = await testCreateIngredient("testIngredient", setup.unitId);
     handleTestCreateIngredient(resCreateIngredient);
     const resGetIngredient = await testGetIngredient(resCreateIngredient.data.id);
     handleTestGetIngredient(resGetIngredient);
@@ -95,7 +126,10 @@ export async function ingredientCreateTest() {
     handleTestUpdateIngredient(resUpdateIngredient);
     const resDeleteIngredient = await testDeleteIngredient(resCreateIngredient.data.id);
     handleTestDeleteIngredient(resDeleteIngredient);
+    const getAllIds = await setupForGetAll(setup.unitId);
     const resGetAllIngredients = await testGetAllIngredients();
     handleTestGetAllIngredients(resGetAllIngredients);
+    await deleteForGetAll(getAllIds);
+    await cleanUpTestConditions(setup);
     console.log("Ending Ingredient Create Test");
 }

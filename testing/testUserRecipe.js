@@ -9,7 +9,7 @@ import { getRequest,
         handleDelete,
         handleGetAll} from "./utils.js";
 import { setupTestUser } from "./testUser.js";
-import { testCreateRecipe } from "./testRecipe.js";
+import { testCreateRecipe, testDeleteRecipe } from "./testRecipe.js";
 
 // =========== Utils ===================
 
@@ -108,6 +108,19 @@ export function handleTestDeleteUserRecipe(res) {
 
 // ============ Summary function ==============
 
+async function setupTestConditions() {
+    const resSetupUser = await setupTestUser();
+    const resCreateRecipe = await testCreateRecipe();
+    return {
+        user: resSetupUser,
+        recipeID: resCreateRecipe.data.id
+    };
+}
+
+async function cleanUpTestConditions(setup) {
+    await testDeleteRecipe(setup.recipeID);
+}
+
 export async function userRecipeCreateTest() {
     /*
     * ==================
@@ -116,25 +129,26 @@ export async function userRecipeCreateTest() {
     * userRecipe is linked to user and recipe.
     */
     console.log("Starting UserRecipe Create Test");
-    const resSetupUser = await setupTestUser();
-    const resCreateRecipe = await testCreateRecipe();
-    const resCreateUserRecipe = await testCreateUserRecipe(resSetupUser.id, 
-                                                    resCreateRecipe.data.id);
+    const setup = await setupTestConditions();
+    const resCreateUserRecipe = await testCreateUserRecipe(setup.user.id, 
+                                                    setup.recipeID);
     handleTestCreateUserRecipe(resCreateUserRecipe);
     const resGetUserRecipe = await testGetUserRecipe(resCreateUserRecipe.data.id);
     handleTestGetUserRecipe(resGetUserRecipe);
     const resUpdateUserRecipe = await testUpdateUserRecipe(
                                                 resCreateUserRecipe.data.id, 
-                                                resSetupUser.session);
+                                                setup.user.session);
     handleTestUpdateUserRecipe(resUpdateUserRecipe);
     const resDeleteUserRecipe = await testDeleteUserRecipe(
                                                 resCreateUserRecipe.data.id, 
-                                                resSetupUser.session);
+                                                setup.user.session);
     handleTestDeleteUserRecipe(resDeleteUserRecipe);
 
-    const getAllIds = await setupForGetAll(resSetupUser.id, resCreateRecipe.data.id);
+    const getAllIds = await setupForGetAll(setup.user.id, setup.recipeID);
     const resGetAllUserRecipe = await testGetAllUserRecipe();
     handleTestGetAllUserRecipe(resGetAllUserRecipe);
     await deleteForGetAll(getAllIds);
+
+    await cleanUpTestConditions(setup);
     console.log("Ending UserRecipe Create Test");
 }

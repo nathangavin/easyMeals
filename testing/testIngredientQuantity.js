@@ -9,8 +9,9 @@ import {
     patchRequest, 
     postRequest, 
     handleGetAll} from "./utils.js";
-import { testCreateUnit } from "./testUnit.js";
-import { testCreateIngredient } from "./testIngredient.js";
+import { testCreateUnit, testDeleteUnit } from "./testUnit.js";
+import { testCreateIngredient, testDeleteIngredient } from "./testIngredient.js";
+import { testDeleteUserRecipe } from "./testUserRecipe.js";
 
 // ============== Utils ======================
 
@@ -55,6 +56,28 @@ export async function testDeleteIngredientQuantity(id) {
     return await deleteRequest(ingredientQuantityRoute + id);
 }
 
+async function setupForGetAll(ingredientID) {
+    const res1 = await testCreateIngredientQuantity(12, ingredientID);
+    const res2 = await testCreateIngredientQuantity(12, ingredientID);
+    const res3 = await testCreateIngredientQuantity(12, ingredientID);
+    const res4 = await testCreateIngredientQuantity(12, ingredientID);
+    const res5 = await testCreateIngredientQuantity(12, ingredientID);
+
+    return [
+        res1.data.id,
+        res2.data.id,
+        res3.data.id,
+        res4.data.id,
+        res5.data.id,
+    ];
+}
+
+async function deleteForGetAll(ids) {
+    for (const id of ids) {
+        await testDeleteIngredientQuantity(id);
+    }
+}
+
 // ============== handle functions ==================
 
 export function handleTestCreateIngredientQuantity(res) {
@@ -84,11 +107,24 @@ export function handleTestDeleteIngredientQuantity(res) {
 
 // =============== summary function ==================
 
-export async function ingredientQuantityCreateTest() {
-    console.log("Starting IngredientQuantity Create Test");
+async function setupTestConditions() {
     const resCreateUnit = await testCreateUnit('testUnit');
     const resCreateIngredient = await testCreateIngredient('testIngredient', resCreateUnit.data.id);
-    const resCreateIngredientQuantity = await testCreateIngredientQuantity(12, resCreateIngredient.data.id);
+    return {
+        unitID: resCreateUnit.data.id,
+        ingredientID: resCreateIngredient.data.id
+    };
+}
+
+async function cleanUpTestConditions(setup) {
+    await testDeleteIngredient(setup.ingredientID);
+    await testDeleteUnit(setup.unitID);
+}
+
+export async function ingredientQuantityCreateTest() {
+    console.log("Starting IngredientQuantity Create Test");
+    const setup = await setupTestConditions();
+    const resCreateIngredientQuantity = await testCreateIngredientQuantity(12, setup.ingredientID);
     handleTestCreateIngredientQuantity(resCreateIngredientQuantity);
     const resGetIngredientQuantity = await testGetIngredientQuantity(resCreateIngredientQuantity.data.id);
     handleTestGetIngredientQuantity(resGetIngredientQuantity);
@@ -96,7 +132,10 @@ export async function ingredientQuantityCreateTest() {
     handleTestUpdateIngredientQuantity(resUpdateIngredientQuantity);
     const resDeleteIngredientQuantity = await testDeleteIngredientQuantity(resCreateIngredientQuantity.data.id);
     handleTestDeleteIngredientQuantity(resDeleteIngredientQuantity);
+    const getAllIds = await setupForGetAll(setup.ingredientID);
     const resGetAllIngredientQuantity = await testGetAllIngredientQuantity();
     handleTestGetAllIngredientQuantity(resGetAllIngredientQuantity);
+    await deleteForGetAll(getAllIds);
+    await cleanUpTestConditions(setup);
     console.log("Ending IngredientQuantity Create Test");
 }
