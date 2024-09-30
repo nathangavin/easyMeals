@@ -1,10 +1,13 @@
-import { createReturn, getAllReturn, getReturn, handleCreateRequest, 
+import { createReturn, 
+        getAllReturn, 
+        getReturn, 
+        handleCreateRequest, 
         handleDeleteRequest, 
         handleGetAllRequest, 
         handleGetRequest,
         handleUpdateRequest,
         updateDeleteReturn} from '../utils/databaseConnection';
-import { StatusType, Status } from '../utils/statusTypes';
+import { StatusType } from '../utils/statusTypes';
 import { UNKNOWN_MODEL_ERROR_MSG } from '../utils/messages';
 
 export interface Unit {
