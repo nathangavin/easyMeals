@@ -15,6 +15,7 @@ import instructionIngredientQuantityRoutes from './routes/instructionIngredientQ
 import userPantryRoutes from './routes/userPantryRoutes';
 import pantryIngredientQuantityRoutes from './routes/pantryIngredientQuantityRoutes';
 import healthRoutes from './routes/healthRoutes';
+import testRoutes from './routes/testRoute';
 
 console.log(process.argv[2] == "--test");
 
@@ -38,6 +39,7 @@ app.use('/api/instructionIngredientQuantities', instructionIngredientQuantityRou
 app.use('/api/userpantries', userPantryRoutes);
 app.use('/api/pantryIngredientQuantities', pantryIngredientQuantityRoutes);
 app.use('/health', healthRoutes);
+app.use('/api/tests', testRoutes);
 
 const PORT = process.env.PORT ? 
                 parseInt(process.env.PORT) ?? 3000 

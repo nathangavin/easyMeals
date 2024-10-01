@@ -5,7 +5,6 @@ import { createReturn, getAllReturn, getReturn, handleCreateRequest,
         handleUpdateRequest,
         updateDeleteReturn} from '../utils/databaseConnection';
 import { StatusType, Status } from '../utils/statusTypes';
-import { UNKNOWN_MODEL_ERROR_MSG } from '../utils/messages';
 import { CanCreate, 
     CanDelete, 
     CanGet,
