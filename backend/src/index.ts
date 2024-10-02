@@ -41,8 +41,8 @@ app.use('/api/pantryIngredientQuantities', pantryIngredientQuantityRoutes);
 app.use('/health', healthRoutes);
 app.use('/api/tests', testRoutes);
 
-const PORT = process.env.PORT ? 
-                parseInt(process.env.PORT) ?? 3000 
+const PORT = process.env.BACKEND_PORT ? 
+                parseInt(process.env.BACKEND_PORT) ?? 3000 
                 : 3000;
 app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server is running on port ${PORT}`);

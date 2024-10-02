@@ -2,18 +2,19 @@ services:
   backend:
     build: ./backend
     ports: 
-      - '3000:3000'
+      - '${BACKEND_PORT}:${BACKEND_PORT}'
     environment:
       - DB_HOST=db
-      - DB_PORT=3306
+      - DB_PORT=${MYSQL_INTERNAL_PORT}
       - DB_NAME=${MYSQL_DATABASE}
       - DB_USER=${MYSQL_ROOT_USER}
       - DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - BACKEND_PORT=${BACKEND_PORT}
     depends_on:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:${BACKEND_PORT}/health"]
       interval: 30s
       retries: 3
       start_period: 30s
@@ -22,8 +23,9 @@ services:
   db:
     build: ./db
     ports: 
-      - '3306:3306'
+      - '${MYSQL_EXTERNAL_PORT}:${MYSQL_INTERNAL_PORT}'
     environment:
+      - MYSQL_PORT=${MYSQL_INTERNAL_PORT}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_USER=${MYSQL_USER}
