@@ -1,4 +1,8 @@
-export const LOCALHOST = "http://localhost:3000/api/";
+import { config } from 'dotenv';
+config({ path: '../.env' });
+
+const PORT = process.env.BACKEND_PORT || 3000;
+export const LOCALHOST = `http://localhost:${PORT}/api/`;
 
 export async function postRequest(url, body, token) {
     let headers = {

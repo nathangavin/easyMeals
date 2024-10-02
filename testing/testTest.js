@@ -1,5 +1,4 @@
-import { postRequest, getRequest } from "./utils";
-import { getRequest } from "./utils";
+import { postRequest, getRequest, LOCALHOST } from "./utils.js";
 export async function testTest() {
     let res = await postRequest(LOCALHOST + 'tests/', {
         desc: "test"
