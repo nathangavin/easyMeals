@@ -5,13 +5,13 @@ import { DbCommon,
         DbCommonConstructor, 
         DbInterface, 
         DbNames, 
-        createDbCommonInstance } from "../models/common/tableInterface";
+        createDbCommonInstance } from "../../models/common/tableInterface";
 import { INTERNAL_SERVER_ERROR_MSG, 
-        INVALID_PARAM_MSG } from "../utils/messages";
+        INVALID_PARAM_MSG } from "../../utils/messages";
 import { handleCreateResponse, 
         handleGetAllResponse, 
         handleGetResponse, 
-        handleUpdateDeleteResponse } from "../utils/controllerUtils";
+        handleUpdateDeleteResponse } from "../../utils/controllerUtils";
 
 export class Controller<T extends DbCommon> {
     createSchema: Joi.ObjectSchema;
@@ -181,6 +181,4 @@ export class Controller<T extends DbCommon> {
             });
         }
     }
-
 }
-
